@@ -1,17 +1,19 @@
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { ThemeProvider } from 'styled-components';
+import Main from './pages/Main/Main';
 import GlobalStyle from './style/GlobalStyle';
 import theme from './style/theme';
 
 function App() {
 	return (
-		<>
+		<BrowserRouter>
 			<ThemeProvider theme={theme}>
 				<GlobalStyle />
-				<div className="App">
-					<div>hello my name is palwol 안녕하세요</div>
-				</div>
+				<Routes>
+					<Route path="/" element={<Main />}></Route>
+				</Routes>
 			</ThemeProvider>
-		</>
+		</BrowserRouter>
 	);
 }
 

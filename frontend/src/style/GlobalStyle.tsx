@@ -1,4 +1,4 @@
-import { createGlobalStyle, css, DefaultTheme } from 'styled-components';
+import { createGlobalStyle, css } from 'styled-components';
 
 const resetCss = css`
 	html,
@@ -143,7 +143,6 @@ const GlobalStyle = createGlobalStyle`
   #root {
     height: 100vh;
     font-family:'times-new-roman';
-    background-color: ${({ theme }: { theme: DefaultTheme }) => theme.COLOR.primary3};
   }
 
   button, input{    
