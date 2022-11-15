@@ -55,6 +55,6 @@ jobs:
             docker pull ${{ secrets.NCP_CONTAINER_REGISTRY }}/prv-frontend
             docker stop $(docker ps -a -q)
             docker rm $(docker ps -a -q)
-            docker run -d -p 3001:3001 ${{ secrets.NCP_CONTAINER_REGISTRY }}/prv-backend
-            docker run -d -p 80:80 ${{ secrets.NCP_CONTAINER_REGISTRY }}/prv-frontend
+            docker run -d -p 4000:4000 ${{ secrets.NCP_CONTAINER_REGISTRY }}/prv-backend
+            docker run -d -p 3000:80 ${{ secrets.NCP_CONTAINER_REGISTRY }}/prv-frontend
             docker image prune -f
