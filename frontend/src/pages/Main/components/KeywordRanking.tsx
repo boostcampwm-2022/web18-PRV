@@ -56,7 +56,7 @@ const KeywordRanking = () => {
               {rankingData.map((data, index) => (
                 <KeywordContainer key={`${index}${data.keyword}`}>
                   <span>{index + 1}</span>
-                  <span>{data.keyword}</span>
+                  <Keyword>{data.keyword}</Keyword>
                 </KeywordContainer>
               ))}
             </RankingKeywordContainer>
@@ -141,6 +141,17 @@ const RankingKeywordContainer = styled.ul`
 const KeywordContainer = styled.li`
   display: flex;
   gap: 15px;
+  cursor: pointer;
+  :hover {
+    span:last-of-type {
+      ${({ theme }) => theme.TYPO.body_h};
+      text-decoration: underline;
+    }
+  }
+`;
+
+const Keyword = styled.span`
+  ${({ theme }) => theme.TYPO.body1};
 `;
 
 const Dimmer = styled.div`
