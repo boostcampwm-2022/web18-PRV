@@ -115,6 +115,21 @@ const PrvSearch = () => {
     console.log('검색', keyword);
   };
 
+  // keyword 강조
+  const highlightKeyword = (text: string) => {
+    if (keyword !== '' && text.toLocaleLowerCase().includes(keyword.toLocaleLowerCase())) {
+      const parts = text.split(new RegExp(`(${keyword})`, 'gi'));
+      return (
+        <>
+          {parts.map((part, index) =>
+            part.toLowerCase() === keyword.toLowerCase() ? <Emphasize key={index}>{part}</Emphasize> : part,
+          )}
+        </>
+      );
+    }
+    return text;
+  };
+
   useEffect(() => {
     if (keyword.length < 2) return;
     fetch('mock/autoCompleted.json')
@@ -152,10 +167,10 @@ const PrvSearch = () => {
                       onMouseOver={() => setHoveredIndex(i)}
                       onMouseDown={() => handleAutoCompletedDown(i)}
                     >
-                      <Title>{data.title}</Title>
+                      <Title>{highlightKeyword(data.title)}</Title>
                       {data.author && (
                         <Author>
-                          author : {data.author.given} {data.author.family}
+                          author : {highlightKeyword(String(`${data.author.given} ${data.author.family}`))}
                         </Author>
                       )}
                     </AutoCompleted>
@@ -168,10 +183,10 @@ const PrvSearch = () => {
                       onMouseOver={() => setHoveredIndex(autoCompletedDatas.title.length + i)}
                       onMouseDown={() => handleAutoCompletedDown(autoCompletedDatas.title.length + i)}
                     >
-                      <Title>{data.title}</Title>
+                      <Title>{highlightKeyword(data.title)}</Title>
                       {data.author && (
                         <Author>
-                          author : {data.author.given} {data.author.family}
+                          author : {highlightKeyword(String(`${data.author.given} ${data.author.family}`))}
                         </Author>
                       )}
                     </AutoCompleted>
@@ -258,7 +273,7 @@ const SectionLabel = styled.h3`
 `;
 
 const Title = styled.div`
-  ${({ theme }) => theme.TYPO.body2}
+  ${({ theme }) => theme.TYPO.body1}
 `;
 
 const Author = styled.div`
@@ -308,6 +323,10 @@ const RecentKeyword = styled.li<{ hovered: boolean }>`
 const NoneRecentKeywords = styled.div`
   padding: 25px 0;
   text-align: center;
+`;
+
+const Emphasize = styled.span`
+  font-weight: 700;
 `;
 
 export default PrvSearch;
