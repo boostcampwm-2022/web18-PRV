@@ -1,18 +1,7 @@
 import { Module } from '@nestjs/common';
-import { PopularController } from './popular/popular.controller';
-import { PopularService } from './popular/popular.service';
-import { RedisModule } from '@liaoliaots/nestjs-redis';
+import { PopularModule } from './popular/popular.module';
 
 @Module({
-	imports: [
-		RedisModule.forRoot({
-			config: {
-				host: 'localhost',
-				port: 3003,
-			},
-		}),
-	],
-	controllers: [PopularController],
-	providers: [PopularService],
+	imports: [PopularModule],
 })
 export class AppModule {}

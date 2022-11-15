@@ -1,14 +1,15 @@
 import { Controller, Get, Param } from '@nestjs/common';
 import { PopularService } from './popular.service';
 
-@Controller('popular')
+@Controller()
 export class PopularController {
 	constructor(private readonly popularService: PopularService) {}
-	@Get()
+	@Get('/popular')
 	async getAll() {
 		return this.popularService.getAll();
 	}
-	@Get(':keyword')
+	// TODO: search 됐을 때, this.popularService.insertRedis(searchStr);
+	@Get('/popular:keyword')
 	async insertCache(@Param('keyword') searchStr: string) {
 		this.popularService.insertRedis(searchStr);
 	}

@@ -5,18 +5,17 @@ import Redis from 'ioredis';
 @Injectable()
 export class PopularService {
 	constructor(@InjectRedis() private readonly redis: Redis) {}
-	private populars: Popular[] = [];
 	async getAll() {
-		this.populars = [];
 		const topTen = await this.redis.zrevrangebyscore('Top10', '+inf', 1);
-		await Promise.all(
-			topTen.map(async (v) => {
-				const score = await this.redis.zscore('Top10', v);
-				const tmp: Popular = { keyword: v, count: Number(score) };
-				this.populars.push(tmp);
+		const scores = await Promise.all(
+			topTen.map((v) => {
+				return this.redis.zscore('Top10', v);
 			}),
 		);
-		return this.populars;
+		return scores.map((score, i) => {
+			const tmp: Popular = { keyword: topTen[i], count: Number(score) };
+			return tmp;
+		});
 	}
 	async insertRedis(data: string) {
 		const isRanking: string = await this.redis.zscore('Top10', data);
