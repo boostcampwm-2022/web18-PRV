@@ -15,9 +15,15 @@ type ColorName =
 	| 'black'
 	| 'error';
 
+type TypoName = 'H4' | 'subtitle' | 'body_h' | 'body1' | 'body2' | 'caption';
+
 export type ColorConfig = {
 	[key in ColorName]: string;
-}
+};
+
+export type TypoConfig = {
+	[key in TypoName]: string;
+};
 
 const COLOR: ColorConfig = {
 	primary1: '#DFA9A7',
@@ -35,8 +41,32 @@ const COLOR: ColorConfig = {
 	error: '#F45452',
 };
 
+const TYPO: TypoConfig = {
+	H4: `
+		font-weight: 400;
+		font-size: 36px;
+	`,
+	subtitle: `
+		font-weight: 400;
+		font-size: 16px;
+	`,
+	body_h: `
+		font-weight: 700;
+		font-size: 14px;`,
+	body1: `
+		font-weight: 400;
+		font-size: 14px;`,
+	body2: `
+		font-weight: 400;
+		font-size: 12px;`,
+	caption: `
+		font-weight: 400;
+		font-size: 10px;`,
+};
+
 const theme: DefaultTheme = {
 	COLOR,
+	TYPO,
 };
 
 export default theme;

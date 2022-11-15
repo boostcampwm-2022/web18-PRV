@@ -1,18 +1,19 @@
 import styled from 'styled-components';
+import DropdownIcon from '../../../icons/DropdownIcon';
 
-const Popular = () => {
+const TopSearched = () => {
 	return (
 		<PopularBar>
 			<span>인기 검색어</span>
-			<DivLine />
+			<DivideLine />
 			<PopularContent>
 				<PopularSlide>
 					<span>1</span>
 					<span>metaverse</span>
 				</PopularSlide>
-				<DropdownBtn type="button">
-					<img src="assets/dropdown-icon.svg" alt="dropdown button" />
-				</DropdownBtn>
+				<DropdownButton type="button">
+					<DropdownIcon />
+				</DropdownButton>
 			</PopularContent>
 		</PopularBar>
 	);
@@ -28,11 +29,10 @@ const PopularBar = styled.div`
 	padding: 5px 15px;
 	border: 1px solid ${({ theme }) => theme.COLOR.offWhite};
 	border-radius: 20px;
-	font-size: 14px;
-	font-weight: 600;
+	${({ theme }) => theme.TYPO.body_h}
 `;
 
-const DivLine = styled.hr`
+const DivideLine = styled.hr`
 	width: 1px;
 	height: 22px;
 	margin: 0 10px 0 38px;
@@ -52,14 +52,14 @@ const PopularSlide = styled.div`
 	align-items: center;
 	gap: 8px;
 
-	span:first-child {
-		font-weight: 600;
+	span:last-of-type {
+		${({ theme }) => theme.TYPO.body1}
 	}
 `;
 
-const DropdownBtn = styled.button`
+const DropdownButton = styled.button`
 	background-color: transparent;
 	cursor: pointer;
 `;
 
-export default Popular;
+export default TopSearched;

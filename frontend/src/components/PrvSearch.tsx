@@ -1,12 +1,13 @@
 import styled from 'styled-components';
+import MaginifyingGlassIcon from '../icons/MagnifyingGlassIcon';
 
-const Search = () => {
+const PrvSearch = () => {
 	return (
 		<SearchBar>
 			<SearchInput placeholder="저자, 제목, 키워드"></SearchInput>
-			<SearchBtn type="button">
-				<img src="assets/magnifying-glass.svg" alt="search button" />
-			</SearchBtn>
+			<SearchButton type="button">
+				<MaginifyingGlassIcon />
+			</SearchButton>
 		</SearchBar>
 	);
 };
@@ -32,12 +33,13 @@ const SearchInput = styled.input`
 	height: 100%;
 	background-color: transparent;
 	text-align: center;
+	${({ theme }) => theme.TYPO.body_h}
 	::placeholder {
 		color: ${({ theme }) => theme.COLOR.gray2};
 	}
 `;
 
-const SearchBtn = styled.button`
+const SearchButton = styled.button`
 	position: absolute;
 	right: 25px;
 	width: 25px;
@@ -46,4 +48,4 @@ const SearchBtn = styled.button`
 	cursor: pointer;
 `;
 
-export default Search;
+export default PrvSearch;

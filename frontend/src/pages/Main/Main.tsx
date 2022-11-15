@@ -1,8 +1,9 @@
 import styled from 'styled-components';
 import PrvFooter from '../../components/PrvFooter';
 import PrvLogo from '../../components/PrvLogo';
-import Popular from './popular/Popular';
-import Search from './search/Search';
+import PrvSearch from '../../components/PrvSearch';
+import { SUBTITLE, TITLE, TITLE_KOREAN } from '../../constants/main';
+import Popular from './components/TopSearched';
 
 const Main = () => {
 	return (
@@ -13,12 +14,12 @@ const Main = () => {
 					<Title>PRV</Title>
 				</TitleContainer>
 				<ContentContainer>
-					<span>Paper Reference Visualization</span>
-					<span>논문간 인용관계 시각화 솔루션</span>
-					<span>This website renders reference relation of paper</span>
+					<div>{TITLE}</div>
+					<div>{TITLE_KOREAN}</div>
+					<div>{SUBTITLE}</div>
 				</ContentContainer>
 				<Popular />
-				<Search />
+				<PrvSearch />
 			</MainContainer>
 			<PrvFooter />
 		</Container>
@@ -50,8 +51,8 @@ const TitleContainer = styled.div`
 	gap: 10px;
 `;
 
-const Title = styled.span`
-	font-size: 36px;
+const Title = styled.div`
+	${({ theme }) => theme.TYPO.H4};
 `;
 
 const ContentContainer = styled.div`
@@ -59,7 +60,7 @@ const ContentContainer = styled.div`
 	flex-direction: column;
 	align-items: center;
 	gap: 10px;
-	font-size: 12px;
+	${({ theme }) => theme.TYPO.body2};
 `;
 
 export default Main;

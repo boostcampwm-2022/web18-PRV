@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import GithubLogoIcon from '../icons/GithubLogoIcon';
 
 const PrvFooter = () => {
 	return (
@@ -7,7 +8,7 @@ const PrvFooter = () => {
 			<FooterRight>
 				<span>Copyright Ⓒ 2022. View Point All rights reserved.</span>
 				<a href="https://github.com/boostcampwm-2022/web18-PRV" rel="noreferrer" target="_blank">
-					<img src="assets/github-logo.svg" alt="github logo" />
+					<GithubLogoIcon />
 				</a>
 			</FooterRight>
 		</Container>
@@ -22,8 +23,8 @@ const Container = styled.footer`
 	height: 45px;
 	padding: 0 25px;
 	background-color: ${({ theme }) => `${theme.COLOR.offWhite}10`};
-	font-size: 10px;
 	color: ${({ theme }) => `${theme.COLOR.gray1}`};
+	${({ theme }) => theme.TYPO.caption}
 `;
 
 const FooterRight = styled.div`
