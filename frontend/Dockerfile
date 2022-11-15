@@ -1,13 +1,14 @@
-FROM nginx
+FROM node:18 as builder
 WORKDIR /app
-
-COPY ./package.json .
+COPY package.json .
 RUN npm i
 COPY . .
 RUN npm run build
-COPY ./dist ./dist
 
+FROM nginx:alpine
+WORKDIR /usr/share/nginx/statics
 RUN rm /etc/nginx/conf.d/default.conf
 COPY ./nginx.conf /etc/nginx/conf.d
+COPY --from=builder /app/build .
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
