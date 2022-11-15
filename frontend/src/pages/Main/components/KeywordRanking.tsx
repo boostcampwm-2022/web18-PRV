@@ -30,9 +30,7 @@ const KeywordRanking = () => {
       <RankingBar>
         <HeaderContainer>
           <span>인기 검색어</span>
-          {isRankingListOpen ? (
-            ''
-          ) : (
+          {isRankingListOpen || (
             <>
               <HeaderDivideLine />
               <RankingContent>
@@ -51,17 +49,21 @@ const KeywordRanking = () => {
             {isRankingListOpen ? <DropDownReverseIcon /> : <DropdownIcon />}
           </DropdownReverseButton>
         </HeaderContainer>
-        {isRankingListOpen ? <DivideLine /> : ''}
-        <RankingKeywordContainer>
-          {isRankingListOpen &&
-            rankingData.map((data, index) => (
-              <KeywordContainer key={`${data.keyword}${data.count}`}>
-                <span>{index + 1}</span>
-                <span>{data.keyword}</span>
-              </KeywordContainer>
-            ))}
-        </RankingKeywordContainer>
+        {isRankingListOpen && (
+          <>
+            <DivideLine />
+            <RankingKeywordContainer>
+              {rankingData.map((data, index) => (
+                <KeywordContainer key={`${index}${data.keyword}`}>
+                  <span>{index + 1}</span>
+                  <span>{data.keyword}</span>
+                </KeywordContainer>
+              ))}
+            </RankingKeywordContainer>
+          </>
+        )}
       </RankingBar>
+      {isRankingListOpen && <Dimmer onClick={handleButtonClick} />}
     </RankingContainer>
   );
 };
@@ -139,6 +141,15 @@ const RankingKeywordContainer = styled.ul`
 const KeywordContainer = styled.li`
   display: flex;
   gap: 15px;
+`;
+
+const Dimmer = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 5;
 `;
 
 export default KeywordRanking;
