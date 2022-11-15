@@ -19,6 +19,8 @@ export class PopularService {
 	}
 	async insertRedis(data: string) {
 		const isRanking: string = await this.redis.zscore(process.env.REDIS_POPULAR_KEY, data);
-		isRanking ? await this.redis.zadd('Top10', Number(isRanking) + 1, data) : await this.redis.zadd('Top10', 1, data);
+		isRanking
+			? await this.redis.zadd(process.env.REDIS_POPULAR_KEY, Number(isRanking) + 1, data)
+			: await this.redis.zadd(process.env.REDIS_POPULAR_KEY, 1, data);
 	}
 }
