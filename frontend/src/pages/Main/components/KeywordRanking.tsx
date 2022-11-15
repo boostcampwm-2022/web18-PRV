@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import DropdownIcon from '../../../icons/DropdownIcon';
 import DropDownReverseIcon from '../../../icons/DropdownReverseIcon';
+import RankingSlide from './RankingSlide';
 
 interface IRankingData {
   keyword: string;
@@ -17,7 +18,7 @@ const KeywordRanking = () => {
 
   useEffect(() => {
     const fetchKeywordRanking = async () => {
-      const response = await fetch('/data/keywordRanking.json');
+      const response = await fetch('/mock/keywordRanking.json');
       const data: IRankingData[] = await response.json();
       setRankingData(data);
     };
@@ -33,16 +34,7 @@ const KeywordRanking = () => {
           {isRankingListOpen || (
             <>
               <HeaderDivideLine />
-              <RankingContent>
-                <Slide>
-                  {rankingData.length && (
-                    <>
-                      <span>1</span>
-                      <span>{rankingData[0].keyword}</span>
-                    </>
-                  )}
-                </Slide>
-              </RankingContent>
+              <RankingContent>{rankingData.length && <RankingSlide rankingData={rankingData} />}</RankingContent>
             </>
           )}
           <DropdownReverseButton type="button" onClick={handleButtonClick}>
@@ -119,17 +111,6 @@ const HeaderDivideLine = styled.hr`
 const DivideLine = styled.hr`
   width: 100%;
   margin-bottom: 10px;
-`;
-
-const Slide = styled.div`
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  gap: 8px;
-
-  span:last-of-type {
-    ${({ theme }) => theme.TYPO.body1}
-  }
 `;
 
 const RankingKeywordContainer = styled.ul`
