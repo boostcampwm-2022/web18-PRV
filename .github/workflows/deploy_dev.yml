@@ -55,6 +55,6 @@ jobs:
             docker pull ${{ secrets.NCP_CONTAINER_REGISTRY }}/prv-frontend
             docker stop $(docker ps -a -q)
             docker rm $(docker ps -a -q)
-            docker run -d -p 4000:4000 --env-file ${{ secrets.ENV_FILENAME_BACKEND }} ${{ secrets.NCP_CONTAINER_REGISTRY }}/prv-backend
+            docker compose --env-file ${{ secrets.ENV_FILENAME_BACKEND}} up --build -d
             docker run -d -p 3000:80 --env-file ${{ secrets.ENV_FILENAME_FRONTEND }} ${{ secrets.NCP_CONTAINER_REGISTRY }}/prv-frontend
             docker image prune -f
