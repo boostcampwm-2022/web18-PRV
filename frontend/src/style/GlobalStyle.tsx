@@ -16,11 +16,17 @@ const GlobalStyle = createGlobalStyle`
   #root {
     height: 100vh;
     font-family:'times-new-roman';
+    overflow: hidden;
   }
 
   button, input{    
     border: none;
     outline: none;
+    padding: 0;
+  }
+
+  li{
+    list-style: none;
   }
 `;
 
