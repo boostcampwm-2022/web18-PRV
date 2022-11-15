@@ -95,7 +95,12 @@ const PrvSearch = () => {
               <RecentKeywords>
                 {recentKeywords.length > 0 ? (
                   recentKeywords.map((keyword, i) => (
-                    <RecentKeyword key={i} hovered={i === hoverdIndex} onMouseDown={() => setKeyword(keyword)}>
+                    <RecentKeyword
+                      key={i}
+                      hovered={i === hoverdIndex}
+                      onMouseOver={() => setHoveredIndex(i)}
+                      onMouseDown={() => setKeyword(keyword)}
+                    >
                       <Clockicon />
                       {keyword}
                     </RecentKeyword>
@@ -129,7 +134,10 @@ const SearchBox = styled.div`
 `;
 
 const SearchBar = styled.div`
+  width: 100%;
   height: 50px;
+  padding: 0 16px;
+  gap: 16px;
   display: flex;
   align-items: center;
 `;
@@ -153,10 +161,6 @@ const SearchInput = styled.input`
 `;
 
 const SearchButton = styled.button`
-  position: absolute;
-  right: 25px;
-  width: 25px;
-  height: 25px;
   background-color: transparent;
   cursor: pointer;
 `;
@@ -179,9 +183,6 @@ const RecentKeyword = styled.li<{ hovered: boolean }>`
   color: ${({ theme }) => theme.COLOR.black};
   cursor: pointer;
   background-color: ${({ theme, hovered }) => (hovered ? theme.COLOR.gray1 : 'auto')};
-  :hover {
-    background-color: ${({ theme }) => theme.COLOR.gray1};
-  }
   :last-of-type {
     border-radius: 0 0 25px 25px;
   }
