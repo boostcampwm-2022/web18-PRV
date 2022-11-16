@@ -9,9 +9,9 @@ import theme from './style/theme';
 function App() {
   return (
     <BrowserRouter>
+      <Reset />
+      <GlobalStyle />
       <ThemeProvider theme={theme}>
-        <Reset />
-        <GlobalStyle />
         <Routes>
           <Route path={PATH_MAIN} element={<Main />}></Route>
         </Routes>
