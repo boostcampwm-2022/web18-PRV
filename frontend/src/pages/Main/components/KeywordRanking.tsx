@@ -73,7 +73,7 @@ const RankingBar = styled.div`
   position: absolute;
   width: 100%;
   margin-top: 30px;
-  padding: 10px 20px;
+  padding: 5px 20px;
   background-color: ${({ theme }) => theme.COLOR.primary3};
   border: 1px solid ${({ theme }) => theme.COLOR.offWhite};
   border-radius: 20px;
@@ -82,10 +82,11 @@ const RankingBar = styled.div`
 
 const RankingContent = styled.div`
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
   flex-grow: 1;
   margin: 0 10px;
+  height: 25px;
+  overflow: hidden;
 `;
 
 const HeaderContainer = styled.div`
