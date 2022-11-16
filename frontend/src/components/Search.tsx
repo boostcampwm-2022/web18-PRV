@@ -1,8 +1,11 @@
 import { isEmpty } from 'lodash-es';
+import qs from 'qs';
 import { ChangeEvent, KeyboardEvent, useCallback, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import SearchApi from '../api/searchApi';
 import { TYPE_AUTO_COMPLETE_KEYWORDS, TYPE_RECENT_KEYWORDS } from '../constants/main';
+import { PATH_SEARCH_LIST } from '../constants/path';
 import ClockIcon from '../icons/ClockIcon';
 import MaginifyingGlassIcon from '../icons/MagnifyingGlassIcon';
 import { getLocalStorage, setLocalStorage } from '../utils/localStorage';
@@ -22,10 +25,16 @@ const Search = () => {
   const [hoverdIndex, setHoveredIndex] = useState<number>(-1);
   const [autoCompletedDatas, setAutoCompletedDatas] = useState<IAutoCompletedData[]>([]);
 
-  const handleInputChange = (e: ChangeEvent) => {
-    const target = e.target as HTMLInputElement;
-    setKeyword(target.value);
-  };
+  const navigate = useNavigate();
+
+  // keyword 검색
+  const goToSearchList = useCallback((keyword: string) => {
+    const params = { keyword, page: 1, isDoiExist: false };
+    navigate({
+      pathname: PATH_SEARCH_LIST,
+      search: qs.stringify(params, { addQueryPrefix: true }),
+    });
+  }, []);
 
   const getRecentKeywordsFromLocalStorage = useCallback(() => {
     const result = getLocalStorage('recentKeywords');
@@ -34,6 +43,11 @@ const Search = () => {
     }
     return result;
   }, []);
+
+  const handleInputChange = (e: ChangeEvent) => {
+    const target = e.target as HTMLInputElement;
+    setKeyword(target.value);
+  };
 
   // localStorage에서 가져온 recent keywords를 최근에 검색한 순서대로 set
   const handleInputFocus = useCallback(() => {
@@ -47,31 +61,31 @@ const Search = () => {
     setHoveredIndex(-1);
   }, []);
 
-  // localStorage에 최근 검색어를 중복없이 최대 5개까지 저장
-  const handleSearchButtonClick = () => {
+  // localStorage에 최근 검색어를 중복없이 최대 5개까지 저장 후 search-list로 이동
+  const handleSearchButtonClick = (keyword: string) => {
     if (!keyword) return;
     const recentKeywords = getRecentKeywordsFromLocalStorage();
     const recentSet = new Set(recentKeywords);
     recentSet.delete(keyword);
     recentSet.add(keyword);
     setLocalStorage('recentKeywords', Array.from(recentSet).slice(-5));
-    // Todo : 검색 api 호출
-    console.log('검색', keyword);
+    goToSearchList(keyword);
   };
 
   const handleEnterKeyPress = () => {
+    // hover된 항목이 없는경우
     if (hoverdIndex < 0) {
-      handleSearchButtonClick();
+      handleSearchButtonClick(keyword);
       return;
     }
+    // hover된 항목이 있는경우
     switch (getDropdownType()) {
       case TYPE_AUTO_COMPLETE_KEYWORDS:
         // Todo : 상세정보 api 호출
         console.log('상세정보', autoCompletedDatas[hoverdIndex].doi);
         break;
       case TYPE_RECENT_KEYWORDS:
-        // Todo : 검색 api 호출
-        console.log('검색', recentKeywords[hoverdIndex]);
+        handleSearchButtonClick(recentKeywords[hoverdIndex]);
         break;
     }
   };
@@ -103,11 +117,6 @@ const Search = () => {
     else return TYPE_RECENT_KEYWORDS;
   };
 
-  const handleRecentKeywordMouseDown = (keyword: string) => {
-    // Todo : 검색 api 호출
-    console.log('검색', keyword);
-  };
-
   // keyword 강조
   const highlightKeyword = (text: string) => {
     if (keyword !== '' && text.toLocaleLowerCase().includes(keyword.toLocaleLowerCase())) {
@@ -127,7 +136,7 @@ const Search = () => {
     if (keyword.length < 2) return;
     const timer = setTimeout(() => {
       searchApi
-        .getAutoComplete(keyword)
+        .getAutoComplete({ keyword })
         .then(({ data }) => setAutoCompletedDatas(data))
         .catch((err) => {
           switch (err.response.status) {
@@ -156,7 +165,7 @@ const Search = () => {
             onBlur={handleInputBlur}
             onKeyDown={handleInputKeyPress}
           />
-          <SearchButton type="button" onClick={handleSearchButtonClick}>
+          <SearchButton type="button" onClick={() => handleSearchButtonClick(keyword)}>
             <MaginifyingGlassIcon />
           </SearchButton>
         </SearchBar>
@@ -164,7 +173,7 @@ const Search = () => {
           <>
             <Hr />
             <DropdownContainer>
-              {getDropdownType() === 'AUTO_COMPLETE_KEYWORDS' ? (
+              {getDropdownType() === TYPE_AUTO_COMPLETE_KEYWORDS ? (
                 <>
                   {autoCompletedDatas.map((data, i) => (
                     <AutoCompleted
@@ -193,7 +202,7 @@ const Search = () => {
                         key={i}
                         hovered={i === hoverdIndex}
                         onMouseOver={() => setHoveredIndex(i)}
-                        onMouseDown={() => handleRecentKeywordMouseDown(keyword)}
+                        onMouseDown={() => handleSearchButtonClick(keyword)}
                       >
                         <ClockIcon />
                         {keyword}

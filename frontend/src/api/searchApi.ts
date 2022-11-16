@@ -1,4 +1,14 @@
-import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
+import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
+
+export interface IGetSearch {
+  keyword?: string;
+  page?: string;
+  isDoiExist?: string;
+}
+
+export interface IGetAutoComplete {
+  keyword: string;
+}
 
 const MAX_RETRY_COUNT = 5;
 
@@ -6,7 +16,7 @@ const customAxiosInstance = (baseURL: string) => {
   const axiosInstance = axios.create({
     baseURL,
   });
-  const onFulfilled = (response: any) => response;
+  const onFulfilled = (response: AxiosResponse) => response;
   let retryCount = 0;
 
   const retry = (errorConfig: AxiosRequestConfig<unknown>) => {
@@ -29,7 +39,6 @@ const customAxiosInstance = (baseURL: string) => {
   axiosInstance.interceptors.response.use(onFulfilled, onRejected);
   return axiosInstance;
 };
-
 export default class SearchApi {
   private readonly baseURL = '/search';
   private readonly instance: AxiosInstance;
@@ -38,7 +47,11 @@ export default class SearchApi {
     this.instance = customAxiosInstance(this.baseURL);
   }
 
-  getAutoComplete(keyword: string) {
-    return this.instance.get(`/auto-complete?keyword=${keyword}`);
+  getSearch(params: IGetSearch) {
+    return this.instance.get('', { params });
+  }
+
+  getAutoComplete(params: IGetAutoComplete) {
+    return this.instance.get('/auto-complete', { params });
   }
 }
