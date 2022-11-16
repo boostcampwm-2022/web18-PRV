@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { RankingModule } from './popular/ranking.module';
+import { RankingModule } from './ranking/ranking.module';
 import { SearchModule } from './search/search.module';
 
 @Module({

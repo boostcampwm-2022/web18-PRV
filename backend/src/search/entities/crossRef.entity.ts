@@ -3,7 +3,7 @@ interface name {
 	family: string;
 }
 export class CrossRef {
-	title: string;
-	author: name;
-	doi: string;
+	title?: string;
+	author?: name;
+	doi?: string;
 }
