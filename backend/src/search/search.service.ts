@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { CrossRefResponse, CrossRefItem, PaperInfo } from './entities/crossRef.entity';
-import { CROSSREF_API_URL } from 'src/util';
+import { CROSSREF_API_URL } from '../util';
 
 @Injectable()
 export class SearchService {

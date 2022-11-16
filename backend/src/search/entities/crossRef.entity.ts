@@ -10,7 +10,7 @@ export interface CrossRefResponse {
 	};
 }
 export interface CrossRefItem {
-	title?: string;
+	title?: string[];
 	author?: {
 		given?: string;
 		family?: string;
