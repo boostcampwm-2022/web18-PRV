@@ -1,0 +1,33 @@
+version: '3'
+
+services:
+  prv:
+    restart: always
+    env_file:
+      - ${ENV_FILE}
+    image: ${NCP_CONTAINER_REGISTRY}
+    links:
+      - redis
+      - mongo
+    ports:
+      - 4000:4000
+    networks:
+      - viewpoint
+
+  mongo:
+    image: mongo
+    ports:
+      - 27017:27017
+    networks:
+      - viewpoint
+
+  redis:
+    image: redis
+    ports:
+      - 6379:6379
+    networks:
+      - viewpoint
+
+networks:
+  viewpoint:
+    driver: bridge
