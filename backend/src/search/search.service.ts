@@ -1,38 +1,28 @@
 import { Injectable } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
-import { autoComplete } from './entities/autoComplete.entity';
-import { CrossRef } from './entities/crossRef.entity';
-
-interface CrossRefResponse {
-	message: {
-		items: CrossRefItem[];
-	};
-}
-type CrossRefItem = CrossRef & { DOI?: string };
+import { CrossRefResponse, CrossRefItem, PaperInfo } from './entities/crossRef.entity';
+import { CROSSREF_API_URL } from 'src/util';
 
 @Injectable()
 export class SearchService {
 	constructor(private readonly httpService: HttpService) {}
 	async getCrossRefData(keyword: string) {
-		const crossRefdata = await this.httpService.axiosRef.get<CrossRefResponse>(
-			`https://api.crossref.org/works?query=${keyword}&rows=5&select=author,title,DOI`,
-		);
+		const crossRefdata = await this.httpService.axiosRef.get<CrossRefResponse>(CROSSREF_API_URL(keyword));
 		const items = crossRefdata.data.message.items;
 		return items;
 	}
 	parseCrossRefData(items: CrossRefItem[]) {
-		const result: CrossRef[] = [];
+		const result: PaperInfo[] = [];
 		items.map((item) => {
-			const tmp: CrossRef = {};
-			tmp.title = item.title[0];
-			if (item.author) {
-				tmp.author = {
-					given: item.author[0].given,
-					family: item.author[0].family,
-				};
-			}
-			tmp.doi = item.DOI;
-			result.push(tmp);
+			const paperInfo: PaperInfo = {};
+			paperInfo.title = item.title[0];
+			paperInfo.authors = item.author?.reduce((acc, cur) => {
+				const authorName = `${cur.given ? cur.given + ' ' : ''}${cur.family || ''}`;
+				acc.push(authorName);
+				return acc;
+			}, []);
+			paperInfo.doi = item.DOI;
+			result.push(paperInfo);
 		});
 		return result;
 	}

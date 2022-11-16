@@ -13,6 +13,7 @@ export class RankingService {
 			}),
 		);
 		return scores.map((score, i) => {
+			//ToDo topTen 배열로만 변경
 			const tmp: Popular = { keyword: topTen[i], count: Number(score) };
 			return tmp;
 		});
