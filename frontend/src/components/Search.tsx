@@ -1,7 +1,6 @@
 import { isEmpty } from 'lodash-es';
-import qs from 'qs';
 import { ChangeEvent, KeyboardEvent, useCallback, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { createSearchParams, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import SearchApi from '../api/searchApi';
 import { TYPE_AUTO_COMPLETE_KEYWORDS, TYPE_RECENT_KEYWORDS } from '../constants/main';
@@ -29,10 +28,10 @@ const Search = () => {
 
   // keyword 검색
   const goToSearchList = useCallback((keyword: string) => {
-    const params = { keyword, page: 1, isDoiExist: false };
+    const params = { keyword, page: '1', isDoiExist: 'false' };
     navigate({
       pathname: PATH_SEARCH_LIST,
-      search: qs.stringify(params, { addQueryPrefix: true }),
+      search: createSearchParams(params).toString(),
     });
   }, []);
 
@@ -90,7 +89,7 @@ const Search = () => {
     }
   };
 
-  // 방향키, enter 키 입력 이벤트 핸들러
+  // 방향키, enter키 입력 이벤트 핸들러
   const handleInputKeyPress = (e: KeyboardEvent) => {
     const length =
       getDropdownType() === TYPE_AUTO_COMPLETE_KEYWORDS ? autoCompletedDatas.length : recentKeywords.length;
@@ -187,7 +186,7 @@ const Search = () => {
                 <>
                   {autoCompletedDatas.map((data, i) => (
                     <AutoCompleted
-                      key={i}
+                      key={data.doi}
                       hovered={i === hoverdIndex}
                       onMouseOver={() => setHoveredIndex(i)}
                       onMouseDown={() => handleAutoCompletedDown(i)}
@@ -210,7 +209,7 @@ const Search = () => {
                   {!isEmpty(recentKeywords) ? (
                     recentKeywords.map((keyword, i) => (
                       <RecentKeyword
-                        key={i}
+                        key={keyword}
                         hovered={i === hoverdIndex}
                         onMouseOver={() => setHoveredIndex(i)}
                         onMouseDown={() => handleSearchButtonClick(keyword)}
