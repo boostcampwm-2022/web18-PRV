@@ -1,31 +1,23 @@
 import { isEmpty } from 'lodash-es';
 import { ChangeEvent, KeyboardEvent, useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
-import Clockicon from '../icons/ClockIcon';
+import { TYPE_AUTO_COMPLETE_KEYWORDS, TYPE_RECENT_KEYWORDS } from '../constants/main';
+import ClockIcon from '../icons/ClockIcon';
 import MaginifyingGlassIcon from '../icons/MagnifyingGlassIcon';
 import { getLocalStorage, setLocalStorage } from '../utils/localStorage';
 
-interface Author {
-  family: string;
-  given: string;
-}
-interface AutoCompletedPaperInfo {
-  author?: Author;
+interface IAutoCompletedData {
+  authors?: string[];
   doi: string;
   title: string;
 }
 
-interface AutoCompletedData {
-  author: AutoCompletedPaperInfo[];
-  title: AutoCompletedPaperInfo[];
-}
-
-const PrvSearch = () => {
+const Search = () => {
   const [keyword, setKeyword] = useState<string>('');
   const [recentKeywords, setRecentKeywords] = useState<string[]>([]);
   const [isFocused, setIsFocused] = useState<boolean>(false);
   const [hoverdIndex, setHoveredIndex] = useState<number>(-1);
-  const [autoCompletedDatas, setAutoCompletedDatas] = useState<AutoCompletedData>({ author: [], title: [] });
+  const [autoCompletedDatas, setAutoCompletedDatas] = useState<IAutoCompletedData[]>([]);
 
   const handleInputChange = (e: ChangeEvent) => {
     const target = e.target as HTMLInputElement;
@@ -33,9 +25,9 @@ const PrvSearch = () => {
   };
 
   const getRecentKeywordsFromLocalStorage = useCallback(() => {
-    let result = getLocalStorage('recentKeywords');
+    const result = getLocalStorage('recentKeywords');
     if (!Array.isArray(result)) {
-      result = [];
+      return [];
     }
     return result;
   }, []);
@@ -61,7 +53,7 @@ const PrvSearch = () => {
     recentSet.add(keyword);
     setLocalStorage('recentKeywords', Array.from(recentSet).slice(-5));
     // Todo : 검색 api 호출
-    console.log(keyword);
+    console.log('검색', keyword);
   };
 
   const handleEnterKeyPress = () => {
@@ -70,11 +62,11 @@ const PrvSearch = () => {
       return;
     }
     switch (getDropdownType()) {
-      case 'AUTO_COMPLETE_KEYWORDS':
+      case TYPE_AUTO_COMPLETE_KEYWORDS:
         // Todo : 상세정보 api 호출
-        console.log('상세정보', [...autoCompletedDatas.author, ...autoCompletedDatas.title][hoverdIndex].doi);
+        console.log('상세정보', autoCompletedDatas[hoverdIndex].doi);
         break;
-      case 'RECENT_KEYWORDS':
+      case TYPE_RECENT_KEYWORDS:
         // Todo : 검색 api 호출
         console.log('검색', recentKeywords[hoverdIndex]);
         break;
@@ -84,9 +76,7 @@ const PrvSearch = () => {
   // 방향키, enter 키 입력 이벤트 핸들러
   const handleInputKeyPress = (e: KeyboardEvent) => {
     const length =
-      getDropdownType() === 'AUTO_COMPLETE_KEYWORDS'
-        ? autoCompletedDatas.author.length + autoCompletedDatas.title.length
-        : recentKeywords.length;
+      getDropdownType() === TYPE_AUTO_COMPLETE_KEYWORDS ? autoCompletedDatas.length : recentKeywords.length;
     switch (e.code) {
       case 'ArrowDown':
         setHoveredIndex((prev) => (prev + 1) % length);
@@ -102,12 +92,12 @@ const PrvSearch = () => {
 
   const handleAutoCompletedDown = (index: number) => {
     // Todo : 상세정보 api 호출
-    console.log('상세정보', [...autoCompletedDatas.author, ...autoCompletedDatas.title][index].doi);
+    console.log('상세정보', autoCompletedDatas[index].doi);
   };
 
   const getDropdownType = () => {
-    if (keyword.length >= 2 && !isEmpty(autoCompletedDatas)) return 'AUTO_COMPLETE_KEYWORDS';
-    else return 'RECENT_KEYWORDS';
+    if (keyword.length >= 2 && !isEmpty(autoCompletedDatas)) return TYPE_AUTO_COMPLETE_KEYWORDS;
+    else return TYPE_RECENT_KEYWORDS;
   };
 
   const handleRecentKeywordMouseDown = (keyword: string) => {
@@ -139,7 +129,7 @@ const PrvSearch = () => {
 
   return (
     <Container>
-      <SearchBox>
+      <SearchBox isFocused={isFocused}>
         <SearchBar>
           <SearchInput
             placeholder="저자, 제목, 키워드"
@@ -159,8 +149,7 @@ const PrvSearch = () => {
             <DropdownContainer>
               {getDropdownType() === 'AUTO_COMPLETE_KEYWORDS' ? (
                 <>
-                  <SectionLabel>제목</SectionLabel>
-                  {autoCompletedDatas.title.map((data, i) => (
+                  {autoCompletedDatas.map((data, i) => (
                     <AutoCompleted
                       key={i}
                       hovered={i === hoverdIndex}
@@ -168,25 +157,12 @@ const PrvSearch = () => {
                       onMouseDown={() => handleAutoCompletedDown(i)}
                     >
                       <Title>{highlightKeyword(data.title)}</Title>
-                      {data.author && (
+                      {data.authors && (
                         <Author>
-                          author : {highlightKeyword(String(`${data.author.given} ${data.author.family}`))}
-                        </Author>
-                      )}
-                    </AutoCompleted>
-                  ))}
-                  <SectionLabel>저자</SectionLabel>
-                  {autoCompletedDatas.author.map((data, i) => (
-                    <AutoCompleted
-                      key={autoCompletedDatas.title.length + i}
-                      hovered={autoCompletedDatas.title.length + i === hoverdIndex}
-                      onMouseOver={() => setHoveredIndex(autoCompletedDatas.title.length + i)}
-                      onMouseDown={() => handleAutoCompletedDown(autoCompletedDatas.title.length + i)}
-                    >
-                      <Title>{highlightKeyword(data.title)}</Title>
-                      {data.author && (
-                        <Author>
-                          author : {highlightKeyword(String(`${data.author.given} ${data.author.family}`))}
+                          authors :{' '}
+                          {data.authors.map((author, i) => (
+                            <span key={i}>{highlightKeyword(author)}</span>
+                          ))}
                         </Author>
                       )}
                     </AutoCompleted>
@@ -202,7 +178,7 @@ const PrvSearch = () => {
                         onMouseOver={() => setHoveredIndex(i)}
                         onMouseDown={() => handleRecentKeywordMouseDown(keyword)}
                       >
-                        <Clockicon />
+                        <ClockIcon />
                         {keyword}
                       </RecentKeyword>
                     ))
@@ -227,7 +203,7 @@ const Container = styled.div`
   margin-top: 20px;
 `;
 
-const SearchBox = styled.div`
+const SearchBox = styled.div<{ isFocused: boolean }>`
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -235,6 +211,7 @@ const SearchBox = styled.div`
   max-height: 100%;
   background-color: ${({ theme }) => theme.COLOR.offWhite};
   border-radius: 25px;
+  padding-bottom: ${({ isFocused }) => (isFocused ? '25px' : 0)};
 `;
 
 const SearchBar = styled.div`
@@ -262,14 +239,6 @@ const AutoCompleted = styled.li<{ hovered: boolean }>`
   color: ${({ theme }) => theme.COLOR.black};
   cursor: pointer;
   background-color: ${({ theme, hovered }) => (hovered ? theme.COLOR.gray1 : 'auto')};
-  :last-of-type {
-    border-radius: 0 0 25px 25px;
-  }
-`;
-
-const SectionLabel = styled.h3`
-  ${({ theme }) => theme.TYPO.body_h}
-  color: ${({ theme }) => theme.COLOR.black};
 `;
 
 const Title = styled.div`
@@ -278,6 +247,9 @@ const Title = styled.div`
 
 const Author = styled.div`
   ${({ theme }) => theme.TYPO.caption}
+  >span:not(:last-of-type)::after {
+    content: ', ';
+  }
 `;
 
 const SearchInput = styled.input`
@@ -299,10 +271,10 @@ const SearchButton = styled.button`
 const DropdownContainer = styled.div`
   width: 100%;
   overflow-y: auto;
+  overflow-x: hidden;
   display: flex;
   flex-direction: column;
   gap: 8px;
-  padding: 0;
   ${({ theme }) => theme.TYPO.body1}
   color: ${({ theme }) => theme.COLOR.gray2};
 `;
@@ -315,18 +287,15 @@ const RecentKeyword = styled.li<{ hovered: boolean }>`
   color: ${({ theme }) => theme.COLOR.black};
   cursor: pointer;
   background-color: ${({ theme, hovered }) => (hovered ? theme.COLOR.gray1 : 'auto')};
-  :last-of-type {
-    border-radius: 0 0 25px 25px;
-  }
 `;
 
 const NoneRecentKeywords = styled.div`
-  padding: 25px 0;
+  padding-top: 25px;
   text-align: center;
 `;
 
 const Emphasize = styled.span`
-  font-weight: 700;
+  color: #3244ff;
 `;
 
-export default PrvSearch;
+export default Search;
