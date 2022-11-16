@@ -132,6 +132,16 @@ const Search = () => {
     return text;
   };
 
+  // keyword와 매치되는 첫번째 author 찾기
+  const findMatchedAuthor = (authors: string[]) => {
+    return authors
+      .concat()
+      .reduce(
+        (_, crr, i, arr: string[]) => (crr.toLowerCase().includes(keyword.toLowerCase()) ? arr.splice(i)[0] : ''),
+        '',
+      );
+  };
+
   useEffect(() => {
     if (keyword.length < 2) return;
     const timer = setTimeout(() => {
@@ -186,9 +196,10 @@ const Search = () => {
                       {data.authors && (
                         <Author>
                           authors :{' '}
-                          {data.authors.map((author, i) => (
-                            <span key={i}>{highlightKeyword(author)}</span>
-                          ))}
+                          {data.authors.every((author) => !author.toLowerCase().includes(keyword.toLowerCase()))
+                            ? data.authors[0]
+                            : highlightKeyword(findMatchedAuthor(data.authors))}
+                          {data.authors.length > 1 && <span>외 {data.authors.length - 1}명</span>}
                         </Author>
                       )}
                     </AutoCompleted>
@@ -273,9 +284,6 @@ const Title = styled.div`
 
 const Author = styled.div`
   ${({ theme }) => theme.TYPO.caption}
-  >span:not(:last-of-type)::after {
-    content: ', ';
-  }
 `;
 
 const SearchInput = styled.input`
