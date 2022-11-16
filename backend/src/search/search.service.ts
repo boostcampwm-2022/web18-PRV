@@ -21,7 +21,7 @@ export class SearchService {
 		return items;
 	}
 	parseCrossRefData(items: CrossRefItem[]) {
-		const result: autoComplete = { title: [], author: [] };
+		const result: autoComplete = { autocomplete: [] };
 		items.map((item) => {
 			const tmp: CrossRef = {};
 			tmp.title = item.title[0];
@@ -32,7 +32,7 @@ export class SearchService {
 				};
 			}
 			tmp.doi = item.DOI;
-			result.title.push(tmp);
+			result.autocomplete.push(tmp);
 		});
 		return result;
 	}
