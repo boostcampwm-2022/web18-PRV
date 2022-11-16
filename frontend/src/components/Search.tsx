@@ -1,6 +1,7 @@
 import { isEmpty } from 'lodash-es';
 import { ChangeEvent, KeyboardEvent, useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
+import SearchApi from '../api/searchApi';
 import { TYPE_AUTO_COMPLETE_KEYWORDS, TYPE_RECENT_KEYWORDS } from '../constants/main';
 import ClockIcon from '../icons/ClockIcon';
 import MaginifyingGlassIcon from '../icons/MagnifyingGlassIcon';
@@ -11,6 +12,8 @@ interface IAutoCompletedData {
   doi: string;
   title: string;
 }
+
+const searchApi = new SearchApi();
 
 const Search = () => {
   const [keyword, setKeyword] = useState<string>('');
@@ -122,9 +125,23 @@ const Search = () => {
 
   useEffect(() => {
     if (keyword.length < 2) return;
-    fetch('mock/autoCompleted.json')
-      .then((data) => data.json())
-      .then(setAutoCompletedDatas);
+    const timer = setTimeout(() => {
+      searchApi
+        .getAutoComplete(keyword)
+        .then(({ data }) => setAutoCompletedDatas(data))
+        .catch((err) => {
+          switch (err.response.status) {
+            case 400:
+              console.debug('bad request');
+              break;
+            default:
+              console.debug(err);
+          }
+        });
+    }, 150);
+    return () => {
+      clearTimeout(timer);
+    };
   }, [keyword]);
 
   return (
