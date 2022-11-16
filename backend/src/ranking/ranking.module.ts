@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { RedisModule } from '@liaoliaots/nestjs-redis';
-import { PopularController } from './popular.controller';
-import { PopularService } from './popular.service';
+import { RankingController } from './ranking.controller';
+import { RankingService } from './ranking.service';
 import { ConfigModule } from '@nestjs/config';
 @Module({
 	imports: [
@@ -13,7 +13,7 @@ import { ConfigModule } from '@nestjs/config';
 			},
 		}),
 	],
-	controllers: [PopularController],
-	providers: [PopularService],
+	controllers: [RankingController],
+	providers: [RankingService],
 })
-export class PopularModule {}
+export class RankingModule {}

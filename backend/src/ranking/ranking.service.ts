@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { Popular } from './entities/popular.entity';
+import { Popular } from './entities/ranking.entity';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import Redis from 'ioredis';
 @Injectable()
-export class PopularService {
+export class RankingService {
 	constructor(@InjectRedis() private readonly redis: Redis) {}
 	async getAll() {
 		const topTen = await this.redis.zrevrangebyscore(process.env.REDIS_POPULAR_KEY, '+inf', 1);
@@ -13,6 +13,7 @@ export class PopularService {
 			}),
 		);
 		return scores.map((score, i) => {
+			//ToDo topTen 배열로만 변경
 			const tmp: Popular = { keyword: topTen[i], count: Number(score) };
 			return tmp;
 		});
