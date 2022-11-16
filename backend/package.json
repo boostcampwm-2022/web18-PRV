@@ -23,6 +23,7 @@
 	},
 	"dependencies": {
 		"@liaoliaots/nestjs-redis": "^9.0.4",
+		"@nestjs/axios": "^1.0.0",
 		"@nestjs/common": "^9.0.0",
 		"@nestjs/config": "^2.2.0",
 		"@nestjs/core": "^9.0.0",
@@ -45,6 +46,7 @@
 		"@types/supertest": "^2.0.11",
 		"@typescript-eslint/eslint-plugin": "^5.0.0",
 		"@typescript-eslint/parser": "^5.0.0",
+		"axios": "^1.1.3",
 		"eslint": "^8.0.1",
 		"eslint-config-prettier": "^8.3.0",
 		"eslint-plugin-prettier": "^4.0.0",

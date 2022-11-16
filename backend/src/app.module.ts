@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common';
-import { PopularModule } from './popular/popular.module';
+import { RankingModule } from './ranking/ranking.module';
+import { SearchModule } from './search/search.module';
 
 @Module({
-	imports: [PopularModule],
+	imports: [RankingModule, SearchModule],
 })
 export class AppModule {}
