@@ -156,7 +156,7 @@ const Search = () => {
               console.debug(err);
           }
         });
-    }, 150);
+    }, 500);
     return () => {
       clearTimeout(timer);
     };

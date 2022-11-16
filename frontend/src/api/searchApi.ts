@@ -27,7 +27,7 @@ const customAxiosInstance = (baseURL: string) => {
     return new Promise((resolve) => {
       setTimeout(() => {
         resolve(axiosInstance.request(errorConfig));
-      }, 500);
+      });
     });
   };
   const onRejected = (error: { config: AxiosRequestConfig<unknown> }) => {
@@ -39,6 +39,7 @@ const customAxiosInstance = (baseURL: string) => {
   axiosInstance.interceptors.response.use(onFulfilled, onRejected);
   return axiosInstance;
 };
+
 export default class SearchApi {
   private readonly baseURL = '/search';
   private readonly instance: AxiosInstance;
