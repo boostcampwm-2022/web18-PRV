@@ -3,7 +3,7 @@ import PrvFooter from '../../components/PrvFooter';
 import PrvLogo from '../../components/PrvLogo';
 import PrvSearch from '../../components/PrvSearch';
 import { SUBTITLE, TITLE, TITLE_KOREAN } from '../../constants/main';
-import Popular from './components/TopSearched';
+import KeywordRanking from './components/KeywordRanking';
 
 const Main = () => {
   return (
@@ -18,7 +18,7 @@ const Main = () => {
           <div>{TITLE_KOREAN}</div>
           <div>{SUBTITLE}</div>
         </ContentContainer>
-        <Popular />
+        <KeywordRanking />
         <PrvSearch />
       </MainContainer>
       <PrvFooter />
