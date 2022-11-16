@@ -27,10 +27,6 @@ const Main = () => {
 };
 
 const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  align-items: center;
   height: 100%;
   background-color: ${({ theme }) => theme.COLOR.primary3};
   color: ${({ theme }) => theme.COLOR.offWhite};
@@ -46,6 +42,7 @@ const MainContainer = styled.main`
 `;
 
 const TitleContainer = styled.div`
+  margin-top: 150px;
   display: flex;
   align-items: center;
   gap: 10px;
