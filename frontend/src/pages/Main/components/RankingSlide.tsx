@@ -21,7 +21,7 @@ interface ISlideProps {
 const RankingSlide = ({ rankingData }: IRankingSlideProps) => {
   const [keywordIndex, setKeywordIndex] = useState(0);
   const [transition, setTransition] = useState('');
-  const newRankingData = [...rankingData, rankingData[0]];
+  const newRankingData = [...rankingData.slice(0, 10), rankingData[0]];
   const dataSize = newRankingData.length;
 
   // 마지막 인덱스 도착시 처음 인덱스로 되돌리는 함수
