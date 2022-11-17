@@ -3,7 +3,7 @@ import { ChangeEvent, KeyboardEvent, useCallback, useEffect, useState } from 're
 import { createSearchParams, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import SearchApi from '../api/searchApi';
-import { TYPE_AUTO_COMPLETE_KEYWORDS, TYPE_RECENT_KEYWORDS } from '../constants/main';
+import { DROPDOWN_TYPE } from '../constants/main';
 import { PATH_SEARCH_LIST } from '../constants/path';
 import ClockIcon from '../icons/ClockIcon';
 import MaginifyingGlassIcon from '../icons/MagnifyingGlassIcon';
@@ -79,11 +79,11 @@ const Search = () => {
     }
     // hover된 항목이 있는경우
     switch (getDropdownType()) {
-      case TYPE_AUTO_COMPLETE_KEYWORDS:
+      case DROPDOWN_TYPE.AUTO_COMPLETE_KEYWORDS:
         // Todo : 상세정보 api 호출
         console.log('상세정보', autoCompletedDatas[hoverdIndex].doi);
         break;
-      case TYPE_RECENT_KEYWORDS:
+      case DROPDOWN_TYPE.RECENT_KEYWORDS:
         handleSearchButtonClick(recentKeywords[hoverdIndex]);
         break;
     }
@@ -92,7 +92,7 @@ const Search = () => {
   // 방향키, enter키 입력 이벤트 핸들러
   const handleInputKeyPress = (e: KeyboardEvent) => {
     const length =
-      getDropdownType() === TYPE_AUTO_COMPLETE_KEYWORDS ? autoCompletedDatas.length : recentKeywords.length;
+      getDropdownType() === DROPDOWN_TYPE.AUTO_COMPLETE_KEYWORDS ? autoCompletedDatas.length : recentKeywords.length;
     switch (e.code) {
       case 'ArrowDown':
         setHoveredIndex((prev) => (prev + 1) % length);
@@ -112,8 +112,8 @@ const Search = () => {
   };
 
   const getDropdownType = () => {
-    if (keyword.length >= 2 && !isEmpty(autoCompletedDatas)) return TYPE_AUTO_COMPLETE_KEYWORDS;
-    else return TYPE_RECENT_KEYWORDS;
+    if (keyword.length >= 2 && !isEmpty(autoCompletedDatas)) return DROPDOWN_TYPE.AUTO_COMPLETE_KEYWORDS;
+    else return DROPDOWN_TYPE.RECENT_KEYWORDS;
   };
 
   // keyword 강조
@@ -182,7 +182,7 @@ const Search = () => {
           <>
             <Hr />
             <DropdownContainer>
-              {getDropdownType() === TYPE_AUTO_COMPLETE_KEYWORDS ? (
+              {getDropdownType() === DROPDOWN_TYPE.AUTO_COMPLETE_KEYWORDS ? (
                 <>
                   {autoCompletedDatas.map((data, i) => (
                     <AutoCompleted
