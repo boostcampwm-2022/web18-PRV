@@ -9,6 +9,6 @@ export class SearchController {
   async getAutoCompletePapers(@Query('keyword', SearchValidationPipe) keyword: string) {
     const items = await this.searchService.getCrossRefData(keyword);
     const data = this.searchService.parseCrossRefData(items);
-    return { keyword, data };
+    return { keyword: decodeURIComponent(keyword), data };
   }
 }
