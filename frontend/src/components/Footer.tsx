@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 import GithubLogoIcon from '../icons/GithubLogoIcon';
 
-const PrvFooter = () => {
+const Footer = () => {
   return (
     <Container>
       <span>문의사항, 버그제보: vp.prv@gmail.com</span>
@@ -35,4 +35,4 @@ const FooterRight = styled.div`
   gap: 15px;
 `;
 
-export default PrvFooter;
+export default Footer;
