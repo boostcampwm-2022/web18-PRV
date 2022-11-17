@@ -1,8 +1,8 @@
 import styled from 'styled-components';
-import PrvFooter from '../../components/PrvFooter';
-import PrvLogo from '../../components/PrvLogo';
-import PrvSearch from '../../components/PrvSearch';
+import Footer from '../../components/Footer';
+import Search from '../../components/Search';
 import { SUBTITLE, TITLE, TITLE_KOREAN } from '../../constants/main';
+import LogoIcon from '../../icons/LogoIcon';
 import KeywordRanking from './components/KeywordRanking';
 
 const Main = () => {
@@ -10,7 +10,7 @@ const Main = () => {
     <Container>
       <MainContainer>
         <TitleContainer>
-          <PrvLogo />
+          <LogoIcon />
           <Title>PRV</Title>
         </TitleContainer>
         <ContentContainer>
@@ -19,9 +19,9 @@ const Main = () => {
           <div>{SUBTITLE}</div>
         </ContentContainer>
         <KeywordRanking />
-        <PrvSearch />
+        <Search />
       </MainContainer>
-      <PrvFooter />
+      <Footer />
     </Container>
   );
 };

@@ -1,4 +1,4 @@
-export class Popular {
+export class Ranking {
   keyword: string;
   count: number;
 }
