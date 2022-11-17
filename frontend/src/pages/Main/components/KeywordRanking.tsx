@@ -45,7 +45,7 @@ const KeywordRanking = () => {
       ) : (
         <RankingBar>
           <HeaderContainer>
-            <span>인기 검색어</span>
+            <HeaderTitle>인기 검색어</HeaderTitle>
             <HeaderDivideLine />
             <RankingContent onClick={handleButtonClick}>
               {isLoading && (rankingData.length ? <RankingSlide rankingData={rankingData} /> : '데이터가 없습니다.')}
@@ -96,8 +96,8 @@ const RankingBar = styled.div`
 
 const RankingContent = styled.div`
   display: flex;
+  flex-grow: 1;
   align-items: center;
-  width: 300px;
   margin: 0 10px;
   height: 25px;
   cursor: pointer;
@@ -111,6 +111,10 @@ const HeaderContainer = styled.div`
   height: 23px;
   width: 100%;
   ${({ theme }) => theme.TYPO.body_h}
+`;
+
+const HeaderTitle = styled.span`
+  width: 70px;
 `;
 
 const DropdownReverseButton = styled.button`
