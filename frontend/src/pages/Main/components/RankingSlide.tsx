@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import styled from 'styled-components';
-import { SLIDE_DELAY, TRANSITION_SETTING, TRANSITION_TIME } from '../../../constants/ranking';
 import useInterval from '../../../customHooks/useInterval';
 
 interface IRankingData {
@@ -17,6 +16,10 @@ interface ISlideProps {
   keywordIndex: number;
   dataSize: number;
 }
+
+const SLIDE_DELAY = 2500;
+const TRANSITION_TIME = 1500;
+const TRANSITION_SETTING = `transform linear ${TRANSITION_TIME}ms`;
 
 const RankingSlide = ({ rankingData }: IRankingSlideProps) => {
   const [keywordIndex, setKeywordIndex] = useState(0);
