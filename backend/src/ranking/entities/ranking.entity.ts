@@ -1,4 +1,4 @@
 export class Popular {
-	keyword: string;
-	count: number;
+  keyword: string;
+  count: number;
 }
