@@ -41,7 +41,7 @@ const customAxiosInstance = (baseURL: string) => {
 };
 
 export default class SearchApi {
-  private readonly baseURL = '/search';
+  private readonly baseURL = 'http://49.50.172.204:4000/search';
   private readonly instance: AxiosInstance;
 
   constructor() {
