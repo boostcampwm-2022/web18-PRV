@@ -1,21 +1,14 @@
 import { createGlobalStyle } from 'styled-components';
 
 const GlobalStyle = createGlobalStyle`
-  @font-face {
-      font-family: 'times-new-roman';
-      src: url('font/times-new-roman.ttf');
-      font-weight: normal;
-      font-style: normal;
-  }
-
   *, *::before, *::after {
-    font-family: 'times-new-roman';
     box-sizing: border-box;
+    font-family: 'Times New Roman', sans-serif;
   }
 
   #root {
     height: 100vh;
-    font-family:'times-new-roman';
+    font-family: 'Times New Roman', sans-serif;
   }
 
   button, input{    
