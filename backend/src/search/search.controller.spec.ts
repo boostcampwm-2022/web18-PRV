@@ -30,7 +30,7 @@ describe('SearchController', () => {
     try {
       await controller.getAutoCompletePapers('');
     } catch (e) {
-      expect(e).toBeInstanceOf(TypeError);
+      expect(e).toBeInstanceOf(BadRequestException);
     }
   });
 });
