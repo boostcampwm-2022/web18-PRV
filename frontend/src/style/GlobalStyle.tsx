@@ -21,6 +21,11 @@ const GlobalStyle = createGlobalStyle`
   button, input{    
     border: none;
     outline: none;
+    padding: 0;
+  }
+
+  li{
+    list-style: none;
   }
 `;
 
