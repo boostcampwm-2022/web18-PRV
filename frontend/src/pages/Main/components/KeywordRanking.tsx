@@ -12,15 +12,25 @@ interface IRankingData {
 const KeywordRanking = () => {
   const [isRankingListOpen, setisRankingListOpen] = useState(false);
   const [rankingData, setRankingData] = useState<IRankingData[]>([]);
+  const [error, setError] = useState<string>();
   const handleButtonClick = () => {
     setisRankingListOpen((prev) => !prev);
   };
 
   useEffect(() => {
     const fetchKeywordRanking = async () => {
-      const response = await fetch('/mock/keywordRanking.json');
-      const data: IRankingData[] = await response.json();
-      setRankingData(data);
+      try {
+        const response = await fetch('http://49.50.172.204:4000/keyword-ranking');
+        if (!response.ok) {
+          throw Error(`Response: ${response.statusText}`);
+        }
+        const data: IRankingData[] = await response.json();
+        setRankingData(data);
+      } catch (err) {
+        let message = 'Unknown Error';
+        if (err instanceof Error) message = err.message;
+        setError(message);
+      }
     };
 
     fetchKeywordRanking();
@@ -28,33 +38,35 @@ const KeywordRanking = () => {
 
   return (
     <RankingContainer>
-      <RankingBar>
-        <HeaderContainer>
-          <span>인기 검색어</span>
-          {isRankingListOpen || (
+      {error ? (
+        <div>{error}</div>
+      ) : (
+        <RankingBar>
+          <HeaderContainer>
+            <span>인기 검색어</span>
+            <HeaderDivideLine />
+            <RankingContent>
+              {rankingData.length ? <RankingSlide rankingData={rankingData} /> : '데이터가 없습니다.'}
+            </RankingContent>
+            <DropdownReverseButton type="button" onClick={handleButtonClick}>
+              {isRankingListOpen ? <DropDownReverseIcon /> : <DropdownIcon />}
+            </DropdownReverseButton>
+          </HeaderContainer>
+          {isRankingListOpen && (
             <>
-              <HeaderDivideLine />
-              <RankingContent>{rankingData.length && <RankingSlide rankingData={rankingData} />}</RankingContent>
+              <DivideLine />
+              <RankingKeywordContainer>
+                {rankingData.slice(0, 10).map((data, index) => (
+                  <KeywordContainer key={`${index}${data.keyword}`}>
+                    <KeywordIndex>{index + 1}</KeywordIndex>
+                    <Keyword>{data.keyword}</Keyword>
+                  </KeywordContainer>
+                ))}
+              </RankingKeywordContainer>
             </>
           )}
-          <DropdownReverseButton type="button" onClick={handleButtonClick}>
-            {isRankingListOpen ? <DropDownReverseIcon /> : <DropdownIcon />}
-          </DropdownReverseButton>
-        </HeaderContainer>
-        {isRankingListOpen && (
-          <>
-            <DivideLine />
-            <RankingKeywordContainer>
-              {rankingData.map((data, index) => (
-                <KeywordContainer key={`${index}${data.keyword}`}>
-                  <span>{index + 1}</span>
-                  <Keyword>{data.keyword}</Keyword>
-                </KeywordContainer>
-              ))}
-            </RankingKeywordContainer>
-          </>
-        )}
-      </RankingBar>
+        </RankingBar>
+      )}
       {isRankingListOpen && <Dimmer onClick={handleButtonClick} />}
     </RankingContainer>
   );
@@ -73,7 +85,7 @@ const RankingBar = styled.div`
   position: absolute;
   width: 100%;
   margin-top: 30px;
-  padding: 10px 20px;
+  padding: 5px 20px 10px 20px;
   background-color: ${({ theme }) => theme.COLOR.primary3};
   border: 1px solid ${({ theme }) => theme.COLOR.offWhite};
   border-radius: 20px;
@@ -82,16 +94,18 @@ const RankingBar = styled.div`
 
 const RankingContent = styled.div`
   display: flex;
-  justify-content: space-between;
   align-items: center;
   flex-grow: 1;
   margin: 0 10px;
+  height: 25px;
 `;
 
 const HeaderContainer = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
+  position: relative;
+  height: 23px;
   width: 100%;
   ${({ theme }) => theme.TYPO.body_h}
 `;
@@ -129,6 +143,10 @@ const KeywordContainer = styled.li`
       text-decoration: underline;
     }
   }
+`;
+
+const KeywordIndex = styled.span`
+  width: 20px;
 `;
 
 const Keyword = styled.span`
