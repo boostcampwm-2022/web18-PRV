@@ -47,7 +47,9 @@ const KeywordRanking = () => {
             {isRankingListOpen || (
               <>
                 <HeaderDivideLine />
-                <RankingContent>{rankingData.length && <RankingSlide rankingData={rankingData} />}</RankingContent>
+                <RankingContent>
+                  {rankingData.length ? <RankingSlide rankingData={rankingData} /> : '데이터가 없습니다.'}
+                </RankingContent>
               </>
             )}
             <DropdownReverseButton type="button" onClick={handleButtonClick}>
@@ -96,11 +98,10 @@ const RankingBar = styled.div`
 
 const RankingContent = styled.div`
   display: flex;
-  flex-direction: column;
+  align-items: center;
   flex-grow: 1;
   margin: 0 10px;
   height: 25px;
-  overflow: hidden;
 `;
 
 const HeaderContainer = styled.div`

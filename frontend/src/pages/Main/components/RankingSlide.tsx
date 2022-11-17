@@ -48,16 +48,26 @@ const RankingSlide = ({ rankingData }: IRankingSlideProps) => {
   }, SLIDE_DELAY);
 
   return (
-    <Slide keywordIndex={keywordIndex} transition={transition} dataSize={dataSize}>
-      {newRankingData.map((data, index) => (
-        <SlideItem key={`${index}${data.keyword}`}>
-          <span>{index === dataSize - 1 ? 1 : index + 1}</span>
-          <span>{data.keyword}</span>
-        </SlideItem>
-      ))}
-    </Slide>
+    <Container>
+      <Slide keywordIndex={keywordIndex} transition={transition} dataSize={dataSize}>
+        {newRankingData.map((data, index) => (
+          <SlideItem key={`${index}${data.keyword}`}>
+            <span>{index === dataSize - 1 ? 1 : index + 1}</span>
+            <span>{data.keyword}</span>
+          </SlideItem>
+        ))}
+      </Slide>
+    </Container>
   );
 };
+
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  height: 25px;
+  overflow-y: hidden;
+`;
 
 const Slide = styled.ul<ISlideProps>`
   display: flex;
