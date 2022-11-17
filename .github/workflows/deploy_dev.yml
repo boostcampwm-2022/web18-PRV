@@ -1,16 +1,18 @@
+name: Auto deploy to NCP
+
 on:
   push:
     branches:
       - dev
 
 jobs:
-  push_to_registry:
-    name: Push to ncp container registry
+  push_to_registry_be:
+    name: (BE) Build & Push
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
-      - name: Set up Docker Buildx
+        uses: actions/checkout@v3
+      - name: Set up Docker Buildx 1
         uses: docker/setup-buildx-action@v2
       - name: Login to NCP Container Registry
         uses: docker/login-action@v2
@@ -18,29 +20,50 @@ jobs:
           registry: ${{ secrets.NCP_CONTAINER_REGISTRY }}
           username: ${{ secrets.NCP_ACCESS_KEY }}
           password: ${{ secrets.NCP_SECRET_KEY }}
-      - name: BE - build and push
+      - name: build and push
         uses: docker/build-push-action@v3
         with:
           context: ./backend
           file: ./backend/Dockerfile
           push: true
-          tags: ${{ secrets.NCP_CONTAINER_REGISTRY }}/prv-backend:latest
+          tags: |
+            ${{ secrets.NCP_CONTAINER_REGISTRY }}/prv-backend:latest
+            ${{ secrets.NCP_CONTAINER_REGISTRY }}/prv-backend:${{ github.run_number }}
+          cache-from: type=registry,ref=${{ secrets.NCP_CONTAINER_REGISTRY }}/prv-backend:latest
+          cache-to: type=inline
           secrets: |
             GIT_AUTH_TOKEN=${{ secrets.GIT_TOKEN }}
-
-      - name: FE - build and push
+  push_to_registry_fe:
+    name: (FE) Build & Push
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Set up Docker Buildx 1
+        uses: docker/setup-buildx-action@v2
+      - name: Login to NCP Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ secrets.NCP_CONTAINER_REGISTRY }}
+          username: ${{ secrets.NCP_ACCESS_KEY }}
+          password: ${{ secrets.NCP_SECRET_KEY }}
+      - name: build and push
         uses: docker/build-push-action@v3
         with:
           context: ./frontend
           file: ./frontend/Dockerfile
           push: true
-          tags: ${{ secrets.NCP_CONTAINER_REGISTRY }}/prv-frontend:latest
+          tags: |
+            ${{ secrets.NCP_CONTAINER_REGISTRY }}/prv-frontend:latest
+            ${{ secrets.NCP_CONTAINER_REGISTRY }}/prv-frontend:${{ github.run_number }}
+          cache-from: type=registry,ref=${{ secrets.NCP_CONTAINER_REGISTRY }}/prv-frontend:latest
+          cache-to: type=inline
           secrets: |
             GIT_AUTH_TOKEN=${{ secrets.GIT_TOKEN }}
 
   pull_from_registry:
     name: Connect server ssh and pull from container registry
-    needs: push_to_registry
+    needs: [push_to_registry_be, push_to_registry_fe]
     runs-on: ubuntu-latest
     steps:
       - name: connect ssh
@@ -51,10 +74,6 @@ jobs:
           password: ${{ secrets.DEV_PASSWORD }}
           port: ${{ secrets.DEV_PORT }}
           script: |
-            docker pull ${{ secrets.NCP_CONTAINER_REGISTRY }}/prv-backend
-            docker pull ${{ secrets.NCP_CONTAINER_REGISTRY }}/prv-frontend
-            docker stop $(docker ps -a -q)
-            docker rm $(docker ps -a -q)
-            docker compose --env-file ${{ secrets.ENV_FILENAME_BACKEND}} up --build -d
-            docker run -d -p 3000:80 --env-file ${{ secrets.ENV_FILENAME_FRONTEND }} ${{ secrets.NCP_CONTAINER_REGISTRY }}/prv-frontend
+            docker compose --env-file ${{ secrets.ENV_FILENAME_BACKEND }} pull
+            docker compose --env-file ${{ secrets.ENV_FILENAME_BACKEND }} up -d
             docker image prune -f
