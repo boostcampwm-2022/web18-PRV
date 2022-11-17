@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 import Footer from '../../components/Footer';
 import Search from '../../components/Search';
+import StarLayer from '../../components/StarLayer';
 import { SUBTITLE, TITLE, TITLE_KOREAN } from '../../constants/main';
 import LogoIcon from '../../icons/LogoIcon';
 import KeywordRanking from './components/KeywordRanking';
@@ -8,6 +9,7 @@ import KeywordRanking from './components/KeywordRanking';
 const Main = () => {
   return (
     <Container>
+      <StarLayer />
       <MainContainer>
         <TitleContainer>
           <LogoIcon />
