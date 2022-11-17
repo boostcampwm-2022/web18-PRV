@@ -1,8 +1,8 @@
 import styled from 'styled-components';
 import Footer from '../../components/Footer';
-import Logo from '../../components/Logo';
 import Search from '../../components/Search';
 import { SUBTITLE, TITLE, TITLE_KOREAN } from '../../constants/main';
+import LogoIcon from '../../icons/LogoIcon';
 import KeywordRanking from './components/KeywordRanking';
 
 const Main = () => {
@@ -10,7 +10,7 @@ const Main = () => {
     <Container>
       <MainContainer>
         <TitleContainer>
-          <Logo />
+          <LogoIcon />
           <Title>PRV</Title>
         </TitleContainer>
         <ContentContainer>
