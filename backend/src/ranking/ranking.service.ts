@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { Popular } from './entities/ranking.entity';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import Redis from 'ioredis';
 @Injectable()

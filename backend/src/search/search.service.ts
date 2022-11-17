@@ -15,7 +15,7 @@ export class SearchService {
     const result: PaperInfo[] = [];
     items.map((item) => {
       const paperInfo: PaperInfo = {};
-      paperInfo.title = item.title[0];
+      paperInfo.title = item.title?.[0];
       paperInfo.authors = item.author?.reduce((acc, cur) => {
         const authorName = `${cur.given ? cur.given + ' ' : ''}${cur.family || ''}`;
         acc.push(authorName);
