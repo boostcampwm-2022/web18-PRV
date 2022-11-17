@@ -56,7 +56,7 @@ const Search = () => {
     const recentKeywords = getRecentKeywordsFromLocalStorage();
     setRecentKeywords(recentKeywords.reverse());
     setIsFocused(true);
-  }, []);
+  }, [getRecentKeywordsFromLocalStorage]);
 
   const handleInputBlur = useCallback(() => {
     setIsFocused(false);
