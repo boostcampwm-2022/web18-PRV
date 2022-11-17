@@ -1,5 +1,5 @@
 import { debounce } from 'lodash-es';
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import styled, { keyframes } from 'styled-components';
 import theme from '../style/theme';
 
@@ -7,24 +7,25 @@ const StarLayer = () => {
   const [height, setHeight] = useState<number>(0);
   const [width, setWidth] = useState<number>(0);
 
-  const resizeCallback = useCallback(
-    debounce(() => {
-      setHeight(window.innerHeight);
-      setWidth(window.innerWidth);
-    }, 150),
+  const resizeCallback = useMemo(
+    () =>
+      debounce(() => {
+        setHeight(window.innerHeight);
+        setWidth(window.innerWidth);
+      }, 150),
     [],
   );
 
   useEffect(() => {
     resizeCallback();
     window.addEventListener('resize', resizeCallback);
-  }, []);
+    return () => window.removeEventListener('resize', resizeCallback);
+  }, [resizeCallback]);
 
   return (
     <Container>
-      {Array.from({ length: 100 }).map((v, i) => {
+      {Array.from({ length: 100 }).map((_, i) => {
         const randomSize = Math.random();
-        
         return (
           <Star
             key={i}
