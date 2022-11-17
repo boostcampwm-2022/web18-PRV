@@ -15,14 +15,14 @@ services:
       - viewpoint
 
   mongo:
-    image: mongo
+    image: mongo:6.0.2
     ports:
       - 27017:27017
     networks:
       - viewpoint
 
   redis:
-    image: redis
+    image: redis:7.0.5
     ports:
       - 6379:6379
     networks:
