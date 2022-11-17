@@ -1,4 +1,4 @@
-export class PaperInfo {
+export interface PaperInfo {
   title?: string;
   authors?: string[];
   doi?: string;
