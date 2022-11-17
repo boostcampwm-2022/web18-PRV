@@ -23,14 +23,14 @@ describe('SearchController', () => {
 
   it('get auto-complete data', async () => {
     const items = await controller.getAutoCompletePapers('covid');
-    expect(items.length).toBe(5);
+    expect(items.data.length).toBe(5);
   });
 
   it('throw err when keyword is empty', async () => {
     try {
       await controller.getAutoCompletePapers('');
     } catch (e) {
-      expect(e).toBeInstanceOf(TypeError);
+      expect(e).toBeInstanceOf(BadRequestException);
     }
   });
 });

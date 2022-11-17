@@ -12,18 +12,18 @@ export class SearchService {
     return items;
   }
   parseCrossRefData(items: CrossRefItem[]) {
-    const result: PaperInfo[] = [];
-    items.map((item) => {
-      const paperInfo: PaperInfo = {};
-      paperInfo.title = item.title[0];
-      paperInfo.authors = item.author?.reduce((acc, cur) => {
-        const authorName = `${cur.given ? cur.given + ' ' : ''}${cur.family || ''}`;
-        acc.push(authorName);
-        return acc;
-      }, []);
-      paperInfo.doi = item.DOI;
-      result.push(paperInfo);
-    });
-    return result;
+    return items
+      .map((item) => {
+        const paperInfo: PaperInfo = {};
+        paperInfo.title = item.title?.[0];
+        paperInfo.authors = item.author?.reduce((acc, cur) => {
+          const authorName = `${cur.given ? cur.given + ' ' : ''}${cur.family || ''}`;
+          authorName && acc.push(authorName);
+          return acc;
+        }, []);
+        paperInfo.doi = item.DOI;
+        return paperInfo;
+      })
+      .filter((info) => info.title || info.authors?.length > 0);
   }
 }
