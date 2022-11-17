@@ -3,6 +3,14 @@ import { useEffect, useMemo, useState } from 'react';
 import styled, { keyframes } from 'styled-components';
 import theme from '../style/theme';
 
+const COLORS = [
+  theme.COLOR.secondary1,
+  theme.COLOR.secondary2,
+  theme.COLOR.primary1,
+  theme.COLOR.primary2,
+  theme.COLOR.offWhite,
+];
+
 const StarLayer = () => {
   const [height, setHeight] = useState<number>(0);
   const [width, setWidth] = useState<number>(0);
@@ -24,22 +32,31 @@ const StarLayer = () => {
 
   return (
     <Container>
-      {Array.from({ length: 100 }).map((_, i) => {
+      {Array.from({ length: 15 }).map((_, i) => {
         const randomSize = Math.random();
         return (
-          <Star
+          <Stars
             key={i}
             style={{
-              width: `${randomSize * 3 + 1}px`,
-              height: `${randomSize * 3 + 1}px`,
-              animationDuration: `${Math.random() * 5 + 5}s`,
-              animationDelay: `${Math.random() * 5}s`,
-              top: `${Math.random() * height}px`,
-              left: `${Math.random() * width}px`,
+              animationDuration: `${randomSize * 5 + 5}s`,
+              animationDelay: `${randomSize * 5}s`,
             }}
           >
-            <Blur />
-          </Star>
+            {Array.from({ length: 20 }).map((_, j) => (
+              <Star
+                key={j}
+                style={{
+                  backgroundColor: `${COLORS[j % COLORS.length]}`,
+                  width: `${randomSize * 3 + 1}px`,
+                  height: `${randomSize * 3 + 1}px`,
+                  top: `${Math.random() * height}px`,
+                  left: `${Math.random() * width}px`,
+                }}
+              >
+                <Blur />
+              </Star>
+            ))}
+          </Stars>
         );
       })}
     </Container>
@@ -54,35 +71,35 @@ const Container = styled.div`
 
 const twinkle = keyframes`
   0% {
-    transform: scale(1, 1);
-    background: ${theme.COLOR.offWhite}00;
+    opacity: 0;
     animation-timing-function: ease-in;
   }
 
   60% {
-    transform: scale(0.8, 0.8);
-    background: ${theme.COLOR.offWhite}99;
+    opacity: 1;
     animation-timing-function: ease-out;
   }
 
   80% {
-    background: ${theme.COLOR.offWhite}00;
-    transform: scale(1, 1);
+    opacity: 0;
   }
 
   100% {
-    background: ${theme.COLOR.offWhite}00;
-    transform: scale(1, 1);
+    opacity: 0;
   }
+`;
+
+const Stars = styled.div`
+  opacity: 0;
+  animation-name: ${twinkle};
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
 `;
 
 const Star = styled.div`
   position: absolute;
-  background: ${theme.COLOR.offWhite}00;
+  background: ${theme.COLOR.offWhite};
   border-radius: 5px;
-  animation-name: ${twinkle};
-  animation-timing-function: linear;
-  animation-iteration-count: infinite;
 `;
 
 const Blur = styled.div`
@@ -90,9 +107,6 @@ const Blur = styled.div`
   width: inherit;
   height: inherit;
   border-radius: inherit;
-  animation-name: inherit;
-  animation-timing-function: inherit;
-  animation-iteration-count: inherit;
   filter: blur(5px);
 `;
 
