@@ -27,13 +27,16 @@ const Search = () => {
   const navigate = useNavigate();
 
   // keyword 검색
-  const goToSearchList = useCallback((keyword: string) => {
-    const params = { keyword, page: '1', isDoiExist: 'false' };
-    navigate({
-      pathname: PATH_SEARCH_LIST,
-      search: createSearchParams(params).toString(),
-    });
-  }, []);
+  const goToSearchList = useCallback(
+    (keyword: string) => {
+      const params = { keyword, page: '1', isDoiExist: 'false' };
+      navigate({
+        pathname: PATH_SEARCH_LIST,
+        search: createSearchParams(params).toString(),
+      });
+    },
+    [navigate],
+  );
 
   const getRecentKeywordsFromLocalStorage = useCallback(() => {
     const result = getLocalStorage('recentKeywords');
