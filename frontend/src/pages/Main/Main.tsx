@@ -2,12 +2,14 @@ import styled from 'styled-components';
 import PrvFooter from '../../components/PrvFooter';
 import PrvLogo from '../../components/PrvLogo';
 import PrvSearch from '../../components/PrvSearch';
+import StarLayer from '../../components/StarLayer';
 import { SUBTITLE, TITLE, TITLE_KOREAN } from '../../constants/main';
 import KeywordRanking from './components/KeywordRanking';
 
 const Main = () => {
   return (
     <Container>
+      <StarLayer />
       <MainContainer>
         <TitleContainer>
           <PrvLogo />
