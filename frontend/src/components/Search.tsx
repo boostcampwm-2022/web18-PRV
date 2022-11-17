@@ -138,10 +138,7 @@ const Search = () => {
   const findMatchedAuthor = (authors: string[]) => {
     return authors
       .concat()
-      .reduce(
-        (_, crr, i, arr: string[]) => (crr.toLowerCase().includes(keyword.toLowerCase()) ? arr.splice(i)[0] : ''),
-        '',
-      );
+      .filter((v, i, arr: string[]) => v.toLowerCase().includes(keyword.toLowerCase()) && arr.splice(i))[0];
   };
 
   useEffect(() => {
@@ -151,7 +148,7 @@ const Search = () => {
         .getAutoComplete({ keyword })
         .then(({ data }) => {
           const { papers, keyword: _keyword } = data;
-          if (_keyword === keyword) setAutoCompletedDatas(papers);
+          if (_keyword.trim() === keyword.trim()) setAutoCompletedDatas(papers);
         })
         .catch((err) => {
           switch (err.response.status) {
@@ -278,6 +275,7 @@ const AutoCompleted = styled.li<{ hovered: boolean }>`
   flex-direction: column;
   width: 100%;
   padding: 8px 30px;
+  gap: 4px;
   color: ${({ theme }) => theme.COLOR.black};
   cursor: pointer;
   background-color: ${({ theme, hovered }) => (hovered ? theme.COLOR.gray1 : 'auto')};
@@ -289,6 +287,7 @@ const Title = styled.div`
 
 const Author = styled.div`
   ${({ theme }) => theme.TYPO.caption}
+  color: ${({ theme }) => theme.COLOR.gray3};
 `;
 
 const SearchInput = styled.input`
@@ -335,6 +334,7 @@ const NoneRecentKeywords = styled.div`
 
 const Emphasize = styled.span`
   color: #3244ff;
+  font-weight: 700;
 `;
 
 export default Search;
