@@ -20,7 +20,7 @@ const KeywordRanking = () => {
   useEffect(() => {
     const fetchKeywordRanking = async () => {
       try {
-        const response = await fetch('/keyword-ranking');
+        const response = await fetch('http://49.50.172.204:4000/keyword-ranking');
         if (!response.ok) {
           throw Error(`Response: ${response.statusText}`);
         }
@@ -44,14 +44,10 @@ const KeywordRanking = () => {
         <RankingBar>
           <HeaderContainer>
             <span>인기 검색어</span>
-            {isRankingListOpen || (
-              <>
-                <HeaderDivideLine />
-                <RankingContent>
-                  {rankingData.length ? <RankingSlide rankingData={rankingData} /> : '데이터가 없습니다.'}
-                </RankingContent>
-              </>
-            )}
+            <HeaderDivideLine />
+            <RankingContent>
+              {rankingData.length ? <RankingSlide rankingData={rankingData} /> : '데이터가 없습니다.'}
+            </RankingContent>
             <DropdownReverseButton type="button" onClick={handleButtonClick}>
               {isRankingListOpen ? <DropDownReverseIcon /> : <DropdownIcon />}
             </DropdownReverseButton>
@@ -89,7 +85,7 @@ const RankingBar = styled.div`
   position: absolute;
   width: 100%;
   margin-top: 30px;
-  padding: 5px 20px;
+  padding: 5px 20px 10px 20px;
   background-color: ${({ theme }) => theme.COLOR.primary3};
   border: 1px solid ${({ theme }) => theme.COLOR.offWhite};
   border-radius: 20px;
@@ -108,6 +104,7 @@ const HeaderContainer = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
+  position: relative;
   height: 23px;
   width: 100%;
   ${({ theme }) => theme.TYPO.body_h}
