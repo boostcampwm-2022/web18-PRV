@@ -149,7 +149,10 @@ const Search = () => {
     const timer = setTimeout(() => {
       searchApi
         .getAutoComplete({ keyword })
-        .then(({ data }) => setAutoCompletedDatas(data))
+        .then(({ data }) => {
+          const { papers, keyword: _keyword } = data;
+          if (_keyword === keyword) setAutoCompletedDatas(papers);
+        })
         .catch((err) => {
           switch (err.response.status) {
             case 400:
