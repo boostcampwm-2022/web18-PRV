@@ -42,7 +42,7 @@ const AutoCompletedList = ({ autoCompletedDatas, keyword, hoverdIndex, setHovere
   };
 
   return (
-    <>
+    <Container>
       {!isEmpty(autoCompletedDatas) ? (
         autoCompletedDatas.map((data, i) => (
           <AutoCompleted
@@ -64,11 +64,15 @@ const AutoCompletedList = ({ autoCompletedDatas, keyword, hoverdIndex, setHovere
           </AutoCompleted>
         ))
       ) : (
-        <NoneResult>자동완성 검색어가 없습니다.</NoneResult>
+        <NoResult>자동완성 검색어가 없습니다.</NoResult>
       )}
-    </>
+    </Container>
   );
 };
+
+const Container = styled.div`
+  overflow-y: auto;
+`;
 
 const AutoCompleted = styled.li<{ hovered: boolean }>`
   display: flex;
@@ -95,8 +99,10 @@ const Emphasize = styled.span`
   font-weight: 700;
 `;
 
-const NoneResult = styled.div`
+const NoResult = styled.div`
   padding-top: 25px;
   text-align: center;
+  overflow: hidden;
 `;
+
 export default AutoCompletedList;

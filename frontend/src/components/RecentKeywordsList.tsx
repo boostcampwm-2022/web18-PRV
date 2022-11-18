@@ -16,10 +16,10 @@ const RecentKeywordsList = ({
   setHoveredIndex,
 }: RecentKeywordsListProps) => {
   return (
-    <>
+    <Container>
       {!isEmpty(recentKeywords) ? (
         recentKeywords.map((keyword, i) => (
-          <RecentKeyword
+          <Keyword
             key={keyword}
             hovered={i === hoverdIndex}
             onMouseOver={() => setHoveredIndex(i)}
@@ -27,16 +27,20 @@ const RecentKeywordsList = ({
           >
             <Clockicon />
             {keyword}
-          </RecentKeyword>
+          </Keyword>
         ))
       ) : (
-        <NoneResult>최근 검색어가 없습니다.</NoneResult>
+        <NoResult>최근 검색어가 없습니다.</NoResult>
       )}
-    </>
+    </Container>
   );
 };
 
-const RecentKeyword = styled.li<{ hovered: boolean }>`
+const Container = styled.div`
+  overflow-y: auto;
+`;
+
+const Keyword = styled.li<{ hovered: boolean }>`
   display: flex;
   gap: 20px;
   width: 100%;
@@ -46,9 +50,10 @@ const RecentKeyword = styled.li<{ hovered: boolean }>`
   background-color: ${({ theme, hovered }) => (hovered ? theme.COLOR.gray1 : 'auto')};
 `;
 
-const NoneResult = styled.div`
+const NoResult = styled.div`
   padding-top: 25px;
   text-align: center;
+  overflow: hidden;
 `;
 
 export default RecentKeywordsList;

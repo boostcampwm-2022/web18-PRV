@@ -145,7 +145,7 @@ const Search = () => {
 
   return (
     <Container>
-      <SearchBox isFocused={isFocused}>
+      <SearchBox>
         <SearchBar>
           <SearchInput
             placeholder="저자, 제목, 키워드"
@@ -160,30 +160,27 @@ const Search = () => {
           </SearchButton>
         </SearchBar>
         {isFocused && (
-          <>
-            <Hr />
-            <DropdownContainer>
-              {getDropdownType() === DROPDOWN_TYPE.RECENT_KEYWORDS && (
-                <RecentKeywordsList
-                  recentKeywords={recentKeywords}
+          <DropdownContainer>
+            {getDropdownType() === DROPDOWN_TYPE.RECENT_KEYWORDS && (
+              <RecentKeywordsList
+                recentKeywords={recentKeywords}
+                hoverdIndex={hoverdIndex}
+                handleMouseDwon={handleSearchButtonClick}
+                setHoveredIndex={setHoveredIndex}
+              />
+            )}
+            {getDropdownType() === DROPDOWN_TYPE.AUTO_COMPLETE &&
+              (isLoading ? (
+                <MoonLoader />
+              ) : (
+                <AutoCompletedList
+                  autoCompletedDatas={autoCompletedDatas}
+                  keyword={keyword}
                   hoverdIndex={hoverdIndex}
-                  handleMouseDwon={handleSearchButtonClick}
                   setHoveredIndex={setHoveredIndex}
                 />
-              )}
-              {getDropdownType() === DROPDOWN_TYPE.AUTO_COMPLETE &&
-                (isLoading ? (
-                  <MoonLoader />
-                ) : (
-                  <AutoCompletedList
-                    autoCompletedDatas={autoCompletedDatas}
-                    keyword={keyword}
-                    hoverdIndex={hoverdIndex}
-                    setHoveredIndex={setHoveredIndex}
-                  />
-                ))}
-            </DropdownContainer>
-          </>
+              ))}
+          </DropdownContainer>
         )}
       </SearchBox>
     </Container>
@@ -198,7 +195,7 @@ const Container = styled.div`
   margin-top: 20px;
 `;
 
-const SearchBox = styled.div<{ isFocused: boolean }>`
+const SearchBox = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -206,7 +203,7 @@ const SearchBox = styled.div<{ isFocused: boolean }>`
   max-height: 100%;
   background-color: ${({ theme }) => theme.COLOR.offWhite};
   border-radius: 25px;
-  padding-bottom: ${({ isFocused }) => (isFocused ? '25px' : 0)};
+  overflow-y: auto;
 `;
 
 const SearchBar = styled.div`
@@ -217,13 +214,6 @@ const SearchBar = styled.div`
   gap: 16px;
   display: flex;
   align-items: center;
-`;
-
-const Hr = styled.hr`
-  margin: 0;
-  width: 90%;
-  border-top: 1px solid ${({ theme }) => theme.COLOR.gray1};
-  border-bottom: none;
 `;
 
 const SearchInput = styled.input`
@@ -251,6 +241,13 @@ const DropdownContainer = styled.div`
   gap: 8px;
   ${({ theme }) => theme.TYPO.body1}
   color: ${({ theme }) => theme.COLOR.gray2};
+  padding-bottom: 25px;
+  :before {
+    content: '';
+    width: 90%;
+    margin: 0 auto;
+    border-top: 1px solid ${({ theme }) => theme.COLOR.gray1};
+  }
 `;
 
 export default Search;
