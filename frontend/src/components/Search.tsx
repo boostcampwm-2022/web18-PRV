@@ -8,6 +8,7 @@ import { PATH_SEARCH_LIST } from '../constants/path';
 import ClockIcon from '../icons/ClockIcon';
 import MaginifyingGlassIcon from '../icons/MagnifyingGlassIcon';
 import { getLocalStorage, setLocalStorage } from '../utils/localStorage';
+import MoonLoader from './MoonLoader';
 
 interface IAutoCompletedData {
   authors?: string[];
@@ -23,6 +24,7 @@ const Search = () => {
   const [isFocused, setIsFocused] = useState<boolean>(false);
   const [hoverdIndex, setHoveredIndex] = useState<number>(-1);
   const [autoCompletedDatas, setAutoCompletedDatas] = useState<IAutoCompletedData[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const navigate = useNavigate();
 
@@ -115,18 +117,21 @@ const Search = () => {
   };
 
   const getDropdownType = () => {
-    if (keyword.length >= 2 && !isEmpty(autoCompletedDatas)) return DROPDOWN_TYPE.AUTO_COMPLETE_KEYWORDS;
-    else return DROPDOWN_TYPE.RECENT_KEYWORDS;
+    return keyword.length >= 2 ? DROPDOWN_TYPE.AUTO_COMPLETE_KEYWORDS : DROPDOWN_TYPE.RECENT_KEYWORDS;
   };
 
   // keyword 강조
   const highlightKeyword = (text: string) => {
-    if (keyword !== '' && text.toLocaleLowerCase().includes(keyword.toLocaleLowerCase())) {
-      const parts = text.split(new RegExp(`(${keyword})`, 'gi'));
+    if (keyword !== '' && text.toLocaleLowerCase().includes(keyword.trim().toLocaleLowerCase())) {
+      const parts = text.split(new RegExp(`(${keyword.trim()})`, 'gi'));
       return (
         <>
           {parts.map((part, index) =>
-            part.toLowerCase() === keyword.toLowerCase() ? <Emphasize key={index}>{part}</Emphasize> : part,
+            part.trim().toLowerCase() === keyword.trim().toLowerCase() ? (
+              <Emphasize key={index}>{part}</Emphasize>
+            ) : (
+              part
+            ),
           )}
         </>
       );
@@ -143,12 +148,16 @@ const Search = () => {
 
   useEffect(() => {
     if (keyword.length < 2) return;
+    setIsLoading(true);
     const timer = setTimeout(() => {
       searchApi
         .getAutoComplete({ keyword })
         .then(({ data }) => {
           const { papers, keyword: _keyword } = data;
-          if (_keyword.trim() === keyword.trim()) setAutoCompletedDatas(papers);
+          if (_keyword.trim() === keyword.trim()) {
+            setIsLoading(false);
+            setAutoCompletedDatas(papers);
+          }
         })
         .catch((err) => {
           switch (err.response.status) {
@@ -159,7 +168,7 @@ const Search = () => {
               console.debug(err);
           }
         });
-    }, 500);
+    }, 150);
     return () => {
       clearTimeout(timer);
     };
@@ -185,29 +194,7 @@ const Search = () => {
           <>
             <Hr />
             <DropdownContainer>
-              {getDropdownType() === DROPDOWN_TYPE.AUTO_COMPLETE_KEYWORDS ? (
-                <>
-                  {autoCompletedDatas.map((data, i) => (
-                    <AutoCompleted
-                      key={data.doi}
-                      hovered={i === hoverdIndex}
-                      onMouseOver={() => setHoveredIndex(i)}
-                      onMouseDown={() => handleAutoCompletedDown(i)}
-                    >
-                      <Title>{highlightKeyword(data.title)}</Title>
-                      {data.authors && (
-                        <Author>
-                          authors :{' '}
-                          {data.authors.every((author) => !author.toLowerCase().includes(keyword.toLowerCase()))
-                            ? data.authors[0]
-                            : highlightKeyword(findMatchedAuthor(data.authors))}
-                          {data.authors.length > 1 && <span>외 {data.authors.length - 1}명</span>}
-                        </Author>
-                      )}
-                    </AutoCompleted>
-                  ))}
-                </>
-              ) : (
+              {getDropdownType() === DROPDOWN_TYPE.RECENT_KEYWORDS ? (
                 <>
                   {!isEmpty(recentKeywords) ? (
                     recentKeywords.map((keyword, i) => (
@@ -222,7 +209,35 @@ const Search = () => {
                       </RecentKeyword>
                     ))
                   ) : (
-                    <NoneRecentKeywords>최근 검색어가 없습니다.</NoneRecentKeywords>
+                    <NoneResult>최근 검색어가 없습니다.</NoneResult>
+                  )}
+                </>
+              ) : isLoading ? (
+                <MoonLoader />
+              ) : (
+                <>
+                  {!isEmpty(autoCompletedDatas) ? (
+                    autoCompletedDatas.map((data, i) => (
+                      <AutoCompleted
+                        key={data.doi}
+                        hovered={i === hoverdIndex}
+                        onMouseOver={() => setHoveredIndex(i)}
+                        onMouseDown={() => handleAutoCompletedDown(i)}
+                      >
+                        <Title>{highlightKeyword(data.title)}</Title>
+                        {data.authors && (
+                          <Author>
+                            authors :{' '}
+                            {data.authors.every((author) => !author.toLowerCase().includes(keyword.toLowerCase()))
+                              ? data.authors[0]
+                              : highlightKeyword(findMatchedAuthor(data.authors))}
+                            {data.authors.length > 1 && <span>외 {data.authors.length - 1}명</span>}
+                          </Author>
+                        )}
+                      </AutoCompleted>
+                    ))
+                  ) : (
+                    <NoneResult>자동완성 검색어가 없습니다.</NoneResult>
                   )}
                 </>
               )}
@@ -327,7 +342,7 @@ const RecentKeyword = styled.li<{ hovered: boolean }>`
   background-color: ${({ theme, hovered }) => (hovered ? theme.COLOR.gray1 : 'auto')};
 `;
 
-const NoneRecentKeywords = styled.div`
+const NoneResult = styled.div`
   padding-top: 25px;
   text-align: center;
 `;
