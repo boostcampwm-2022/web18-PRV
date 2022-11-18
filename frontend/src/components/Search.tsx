@@ -84,7 +84,7 @@ const Search = () => {
     }
     // hover된 항목이 있는경우
     switch (getDropdownType()) {
-      case DROPDOWN_TYPE.AUTO_COMPLETE_KEYWORDS:
+      case DROPDOWN_TYPE.AUTO_COMPLETE:
         // Todo : 상세정보 api 호출
         console.log('상세정보', autoCompletedDatas[hoverdIndex].doi);
         break;
@@ -97,7 +97,7 @@ const Search = () => {
   // 방향키, enter키 입력 이벤트 핸들러
   const handleInputKeyPress = (e: KeyboardEvent) => {
     const length =
-      getDropdownType() === DROPDOWN_TYPE.AUTO_COMPLETE_KEYWORDS ? autoCompletedDatas.length : recentKeywords.length;
+      getDropdownType() === DROPDOWN_TYPE.AUTO_COMPLETE ? autoCompletedDatas.length : recentKeywords.length;
     switch (e.code) {
       case 'ArrowDown':
         setHoveredIndex((prev) => (prev + 1) % length);
@@ -112,7 +112,7 @@ const Search = () => {
   };
 
   const getDropdownType = () => {
-    return keyword.length >= 2 ? DROPDOWN_TYPE.AUTO_COMPLETE_KEYWORDS : DROPDOWN_TYPE.RECENT_KEYWORDS;
+    return keyword.length >= 2 ? DROPDOWN_TYPE.AUTO_COMPLETE : DROPDOWN_TYPE.RECENT_KEYWORDS;
   };
 
   useEffect(() => {
@@ -171,7 +171,7 @@ const Search = () => {
                   setHoveredIndex={setHoveredIndex}
                 />
               )}
-              {getDropdownType() === DROPDOWN_TYPE.AUTO_COMPLETE_KEYWORDS &&
+              {getDropdownType() === DROPDOWN_TYPE.AUTO_COMPLETE &&
                 (isLoading ? (
                   <MoonLoader />
                 ) : (
