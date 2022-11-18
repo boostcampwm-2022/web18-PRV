@@ -1,5 +1,5 @@
 import { isEmpty } from 'lodash-es';
-import { useEffect } from 'react';
+import { Dispatch, SetStateAction, useEffect } from 'react';
 import styled from 'styled-components';
 import { IAutoCompletedData } from './Search';
 
@@ -7,7 +7,7 @@ interface AutoCompletedListProps {
   autoCompletedDatas: IAutoCompletedData[];
   keyword: string;
   hoverdIndex: number;
-  setHoveredIndex: (prop: number) => void;
+  setHoveredIndex: Dispatch<SetStateAction<number>>;
 }
 
 const AutoCompletedList = ({ autoCompletedDatas, keyword, hoverdIndex, setHoveredIndex }: AutoCompletedListProps) => {

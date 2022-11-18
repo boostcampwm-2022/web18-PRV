@@ -1,5 +1,5 @@
 import { isEmpty } from 'lodash-es';
-import { useEffect } from 'react';
+import { Dispatch, SetStateAction, useEffect } from 'react';
 import styled from 'styled-components';
 import Clockicon from '../icons/ClockIcon';
 
@@ -7,7 +7,7 @@ interface RecentKeywordsListProps {
   recentKeywords: string[];
   hoverdIndex: number;
   handleMouseDwon: (prop: string) => void;
-  setHoveredIndex: (prop: number) => void;
+  setHoveredIndex: Dispatch<SetStateAction<number>>;
 }
 
 const RecentKeywordsList = ({
