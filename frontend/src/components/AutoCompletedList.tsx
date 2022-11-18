@@ -17,28 +17,22 @@ const AutoCompletedList = ({ autoCompletedDatas, keyword, hoverdIndex, setHovere
 
   // keyword 강조
   const highlightKeyword = (text: string) => {
-    if (keyword !== '' && text.toLocaleLowerCase().includes(keyword.trim().toLocaleLowerCase())) {
-      const parts = text.split(new RegExp(`(${keyword.trim()})`, 'gi'));
-      return (
-        <>
-          {parts.map((part, index) =>
-            part.trim().toLowerCase() === keyword.trim().toLowerCase() ? (
-              <Emphasize key={index}>{part}</Emphasize>
-            ) : (
-              part
-            ),
-          )}
-        </>
-      );
-    }
-    return text;
+    const rawKeyword = keyword.trim().toLowerCase();
+    return rawKeyword !== '' && text.toLowerCase().includes(rawKeyword)
+      ? text
+          .split(new RegExp(`(${rawKeyword})`, 'gi'))
+          .map((part, i) => (part.trim().toLowerCase() === rawKeyword ? <Emphasize key={i}>{part}</Emphasize> : part))
+      : text;
   };
 
-  // keyword와 매치되는 첫번째 author 찾기
-  const findMatchedAuthor = (authors: string[]) => {
-    return authors
-      .concat()
-      .filter((v, i, arr: string[]) => v.toLowerCase().includes(keyword.toLowerCase()) && arr.splice(i))[0];
+  // 대표 author찾기
+  const getRepresentativeAuthor = (authors: string[]) => {
+    return (
+      authors
+        .concat()
+        .filter((v, i, arr: string[]) => v.toLowerCase().includes(keyword.toLowerCase()) && arr.splice(i))?.[0] ||
+      authors[0]
+    );
   };
 
   return (
@@ -54,10 +48,7 @@ const AutoCompletedList = ({ autoCompletedDatas, keyword, hoverdIndex, setHovere
             <Title>{highlightKeyword(data.title)}</Title>
             {data.authors && (
               <Author>
-                authors :{' '}
-                {data.authors.every((author) => !author.toLowerCase().includes(keyword.toLowerCase()))
-                  ? data.authors[0]
-                  : highlightKeyword(findMatchedAuthor(data.authors))}
+                authors : {highlightKeyword(getRepresentativeAuthor(data.authors))}
                 {data.authors.length > 1 && <span>외 {data.authors.length - 1}명</span>}
               </Author>
             )}
