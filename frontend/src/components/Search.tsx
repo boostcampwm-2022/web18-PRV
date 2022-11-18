@@ -62,7 +62,6 @@ const Search = () => {
 
   const handleInputBlur = useCallback(() => {
     setIsFocused(false);
-    setHoveredIndex(-1);
   }, []);
 
   // localStorage에 최근 검색어를 중복없이 최대 5개까지 저장 후 search-list로 이동

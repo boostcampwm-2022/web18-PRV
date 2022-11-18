@@ -1,4 +1,5 @@
 import { isEmpty } from 'lodash-es';
+import { useEffect } from 'react';
 import styled from 'styled-components';
 import Clockicon from '../icons/ClockIcon';
 
@@ -15,6 +16,10 @@ const RecentKeywordsList = ({
   handleMouseDwon,
   setHoveredIndex,
 }: RecentKeywordsListProps) => {
+  useEffect(() => {
+    setHoveredIndex(-1);
+  }, [setHoveredIndex]);
+
   return (
     <Container>
       {!isEmpty(recentKeywords) ? (

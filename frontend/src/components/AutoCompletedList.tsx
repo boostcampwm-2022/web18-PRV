@@ -1,4 +1,5 @@
 import { isEmpty } from 'lodash-es';
+import { useEffect } from 'react';
 import styled from 'styled-components';
 import { IAutoCompletedData } from './Search';
 
@@ -34,6 +35,10 @@ const AutoCompletedList = ({ autoCompletedDatas, keyword, hoverdIndex, setHovere
       authors[0]
     );
   };
+
+  useEffect(() => {
+    setHoveredIndex(-1);
+  }, [setHoveredIndex]);
 
   return (
     <Container>
