@@ -1,16 +1,16 @@
-import { isEmpty } from 'lodash-es';
 import { ChangeEvent, KeyboardEvent, useCallback, useEffect, useState } from 'react';
 import { createSearchParams, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import SearchApi from '../api/searchApi';
 import { DROPDOWN_TYPE } from '../constants/main';
 import { PATH_SEARCH_LIST } from '../constants/path';
-import ClockIcon from '../icons/ClockIcon';
 import MaginifyingGlassIcon from '../icons/MagnifyingGlassIcon';
 import { getLocalStorage, setLocalStorage } from '../utils/localStorage';
+import AutoCompletedList from './AutoCompletedList';
 import MoonLoader from './MoonLoader';
+import RecentKeywordsList from './RecentKeywordsList';
 
-interface IAutoCompletedData {
+export interface IAutoCompletedData {
   authors?: string[];
   doi: string;
   title: string;
@@ -111,39 +111,8 @@ const Search = () => {
     }
   };
 
-  const handleAutoCompletedDown = (index: number) => {
-    // Todo : 상세정보 api 호출
-    console.log('상세정보', autoCompletedDatas[index].doi);
-  };
-
   const getDropdownType = () => {
     return keyword.length >= 2 ? DROPDOWN_TYPE.AUTO_COMPLETE_KEYWORDS : DROPDOWN_TYPE.RECENT_KEYWORDS;
-  };
-
-  // keyword 강조
-  const highlightKeyword = (text: string) => {
-    if (keyword !== '' && text.toLocaleLowerCase().includes(keyword.trim().toLocaleLowerCase())) {
-      const parts = text.split(new RegExp(`(${keyword.trim()})`, 'gi'));
-      return (
-        <>
-          {parts.map((part, index) =>
-            part.trim().toLowerCase() === keyword.trim().toLowerCase() ? (
-              <Emphasize key={index}>{part}</Emphasize>
-            ) : (
-              part
-            ),
-          )}
-        </>
-      );
-    }
-    return text;
-  };
-
-  // keyword와 매치되는 첫번째 author 찾기
-  const findMatchedAuthor = (authors: string[]) => {
-    return authors
-      .concat()
-      .filter((v, i, arr: string[]) => v.toLowerCase().includes(keyword.toLowerCase()) && arr.splice(i))[0];
   };
 
   useEffect(() => {
@@ -194,53 +163,25 @@ const Search = () => {
           <>
             <Hr />
             <DropdownContainer>
-              {getDropdownType() === DROPDOWN_TYPE.RECENT_KEYWORDS ? (
-                <>
-                  {!isEmpty(recentKeywords) ? (
-                    recentKeywords.map((keyword, i) => (
-                      <RecentKeyword
-                        key={keyword}
-                        hovered={i === hoverdIndex}
-                        onMouseOver={() => setHoveredIndex(i)}
-                        onMouseDown={() => handleSearchButtonClick(keyword)}
-                      >
-                        <ClockIcon />
-                        {keyword}
-                      </RecentKeyword>
-                    ))
-                  ) : (
-                    <NoneResult>최근 검색어가 없습니다.</NoneResult>
-                  )}
-                </>
-              ) : isLoading ? (
-                <MoonLoader />
-              ) : (
-                <>
-                  {!isEmpty(autoCompletedDatas) ? (
-                    autoCompletedDatas.map((data, i) => (
-                      <AutoCompleted
-                        key={data.doi}
-                        hovered={i === hoverdIndex}
-                        onMouseOver={() => setHoveredIndex(i)}
-                        onMouseDown={() => handleAutoCompletedDown(i)}
-                      >
-                        <Title>{highlightKeyword(data.title)}</Title>
-                        {data.authors && (
-                          <Author>
-                            authors :{' '}
-                            {data.authors.every((author) => !author.toLowerCase().includes(keyword.toLowerCase()))
-                              ? data.authors[0]
-                              : highlightKeyword(findMatchedAuthor(data.authors))}
-                            {data.authors.length > 1 && <span>외 {data.authors.length - 1}명</span>}
-                          </Author>
-                        )}
-                      </AutoCompleted>
-                    ))
-                  ) : (
-                    <NoneResult>자동완성 검색어가 없습니다.</NoneResult>
-                  )}
-                </>
+              {getDropdownType() === DROPDOWN_TYPE.RECENT_KEYWORDS && (
+                <RecentKeywordsList
+                  recentKeywords={recentKeywords}
+                  hoverdIndex={hoverdIndex}
+                  handleMouseDwon={handleSearchButtonClick}
+                  setHoveredIndex={setHoveredIndex}
+                />
               )}
+              {getDropdownType() === DROPDOWN_TYPE.AUTO_COMPLETE_KEYWORDS &&
+                (isLoading ? (
+                  <MoonLoader />
+                ) : (
+                  <AutoCompletedList
+                    autoCompletedDatas={autoCompletedDatas}
+                    keyword={keyword}
+                    hoverdIndex={hoverdIndex}
+                    setHoveredIndex={setHoveredIndex}
+                  />
+                ))}
             </DropdownContainer>
           </>
         )}
@@ -285,26 +226,6 @@ const Hr = styled.hr`
   border-bottom: none;
 `;
 
-const AutoCompleted = styled.li<{ hovered: boolean }>`
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  padding: 8px 30px;
-  gap: 4px;
-  color: ${({ theme }) => theme.COLOR.black};
-  cursor: pointer;
-  background-color: ${({ theme, hovered }) => (hovered ? theme.COLOR.gray1 : 'auto')};
-`;
-
-const Title = styled.div`
-  ${({ theme }) => theme.TYPO.body1}
-`;
-
-const Author = styled.div`
-  ${({ theme }) => theme.TYPO.caption}
-  color: ${({ theme }) => theme.COLOR.gray3};
-`;
-
 const SearchInput = styled.input`
   width: 100%;
   height: 100%;
@@ -330,26 +251,6 @@ const DropdownContainer = styled.div`
   gap: 8px;
   ${({ theme }) => theme.TYPO.body1}
   color: ${({ theme }) => theme.COLOR.gray2};
-`;
-
-const RecentKeyword = styled.li<{ hovered: boolean }>`
-  display: flex;
-  gap: 20px;
-  width: 100%;
-  padding: 8px 16px;
-  color: ${({ theme }) => theme.COLOR.black};
-  cursor: pointer;
-  background-color: ${({ theme, hovered }) => (hovered ? theme.COLOR.gray1 : 'auto')};
-`;
-
-const NoneResult = styled.div`
-  padding-top: 25px;
-  text-align: center;
-`;
-
-const Emphasize = styled.span`
-  color: #3244ff;
-  font-weight: 700;
 `;
 
 export default Search;
