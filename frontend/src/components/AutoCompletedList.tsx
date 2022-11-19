@@ -1,19 +1,18 @@
-import { isEmpty } from 'lodash-es';
 import { Dispatch, SetStateAction, useEffect } from 'react';
 import styled from 'styled-components';
-import { IAutoCompletedData } from './Search';
+import { IAutoCompletedItem } from './Search';
 
 interface AutoCompletedListProps {
-  autoCompletedDatas: IAutoCompletedData[];
+  autoCompletedItems: IAutoCompletedItem[];
   keyword: string;
   hoverdIndex: number;
   setHoveredIndex: Dispatch<SetStateAction<number>>;
 }
 
-const AutoCompletedList = ({ autoCompletedDatas, keyword, hoverdIndex, setHoveredIndex }: AutoCompletedListProps) => {
+const AutoCompletedList = ({ autoCompletedItems, keyword, hoverdIndex, setHoveredIndex }: AutoCompletedListProps) => {
   const handleAutoCompletedDown = (index: number) => {
     // Todo : 상세정보 api 호출
-    console.log('상세정보', autoCompletedDatas[index].doi);
+    console.log('상세정보', autoCompletedItems[index].doi);
   };
 
   // keyword 강조
@@ -42,19 +41,19 @@ const AutoCompletedList = ({ autoCompletedDatas, keyword, hoverdIndex, setHovere
 
   return (
     <Container>
-      {!isEmpty(autoCompletedDatas) ? (
-        autoCompletedDatas.map((data, i) => (
+      {autoCompletedItems.length > 0 ? (
+        autoCompletedItems.map((item, i) => (
           <AutoCompleted
-            key={data.doi}
+            key={item.doi}
             hovered={i === hoverdIndex}
             onMouseOver={() => setHoveredIndex(i)}
             onMouseDown={() => handleAutoCompletedDown(i)}
           >
-            <Title>{highlightKeyword(data.title)}</Title>
-            {data.authors && (
+            <Title>{highlightKeyword(item.title)}</Title>
+            {item.authors && (
               <Author>
-                authors : {highlightKeyword(getRepresentativeAuthor(data.authors))}
-                {data.authors.length > 1 && <span>외 {data.authors.length - 1}명</span>}
+                authors : {highlightKeyword(getRepresentativeAuthor(item.authors))}
+                {item.authors.length > 1 && <span>외 {item.authors.length - 1}명</span>}
               </Author>
             )}
           </AutoCompleted>

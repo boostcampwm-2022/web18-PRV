@@ -5,4 +5,6 @@ export const SUBTITLE = `This website renders reference relation of paper`;
 export enum DROPDOWN_TYPE {
   AUTO_COMPLETE = 'AUTO_COMPLETE',
   RECENT_KEYWORDS = 'RECENT_KEYWORDS',
+  HIDDEN = 'HIDDEN',
+  LOADING = 'LOADING',
 }

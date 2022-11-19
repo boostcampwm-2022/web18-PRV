@@ -1,4 +1,4 @@
-import { ChangeEvent, KeyboardEvent, useCallback, useEffect, useState } from 'react';
+import { ChangeEvent, KeyboardEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import { createSearchParams, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import SearchApi from '../api/searchApi';
@@ -10,7 +10,7 @@ import AutoCompletedList from './AutoCompletedList';
 import MoonLoader from './MoonLoader';
 import RecentKeywordsList from './RecentKeywordsList';
 
-export interface IAutoCompletedData {
+export interface IAutoCompletedItem {
   authors?: string[];
   doi: string;
   title: string;
@@ -23,10 +23,23 @@ const Search = () => {
   const [recentKeywords, setRecentKeywords] = useState<string[]>([]);
   const [isFocused, setIsFocused] = useState<boolean>(false);
   const [hoverdIndex, setHoveredIndex] = useState<number>(-1);
-  const [autoCompletedDatas, setAutoCompletedDatas] = useState<IAutoCompletedData[]>([]);
+  const [autoCompletedItems, setAutoCompletedItems] = useState<IAutoCompletedItem[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const navigate = useNavigate();
+
+  const dropdownType = useMemo<DROPDOWN_TYPE>(() => {
+    if (!isFocused) {
+      return DROPDOWN_TYPE.HIDDEN;
+    }
+    if (isLoading) {
+      return DROPDOWN_TYPE.LOADING;
+    }
+    if (keyword.length > 2) {
+      return DROPDOWN_TYPE.AUTO_COMPLETE;
+    }
+    return DROPDOWN_TYPE.RECENT_KEYWORDS;
+  }, [isFocused, isLoading, keyword]);
 
   // keyword 검색
   const goToSearchList = useCallback(
@@ -54,15 +67,15 @@ const Search = () => {
   };
 
   // localStorage에서 가져온 recent keywords를 최근에 검색한 순서대로 set
-  const handleInputFocus = useCallback(() => {
+  const handleInputFocus = () => {
     const recentKeywords = getRecentKeywordsFromLocalStorage();
     setRecentKeywords(recentKeywords.reverse());
     setIsFocused(true);
-  }, [getRecentKeywordsFromLocalStorage]);
+  };
 
-  const handleInputBlur = useCallback(() => {
+  const handleInputBlur = () => {
     setIsFocused(false);
-  }, []);
+  };
 
   // localStorage에 최근 검색어를 중복없이 최대 5개까지 저장 후 search-list로 이동
   const handleSearchButtonClick = (keyword: string) => {
@@ -75,17 +88,17 @@ const Search = () => {
     goToSearchList(keyword);
   };
 
-  const handleEnterKeyPress = () => {
+  const handleEnterKeyDown = () => {
     // hover된 항목이 없는경우
     if (hoverdIndex < 0) {
       handleSearchButtonClick(keyword);
       return;
     }
-    // hover된 항목이 있는경우
-    switch (getDropdownType()) {
+    // hover된 항목으로 검색
+    switch (dropdownType) {
       case DROPDOWN_TYPE.AUTO_COMPLETE:
         // Todo : 상세정보 api 호출
-        console.log('상세정보', autoCompletedDatas[hoverdIndex].doi);
+        console.log('상세정보', autoCompletedItems[hoverdIndex].doi);
         break;
       case DROPDOWN_TYPE.RECENT_KEYWORDS:
         handleSearchButtonClick(recentKeywords[hoverdIndex]);
@@ -94,9 +107,8 @@ const Search = () => {
   };
 
   // 방향키, enter키 입력 이벤트 핸들러
-  const handleInputKeyPress = (e: KeyboardEvent) => {
-    const length =
-      getDropdownType() === DROPDOWN_TYPE.AUTO_COMPLETE ? autoCompletedDatas.length : recentKeywords.length;
+  const handleInputKeyDown = (e: KeyboardEvent) => {
+    const length = dropdownType === DROPDOWN_TYPE.AUTO_COMPLETE ? autoCompletedItems.length : recentKeywords.length;
     switch (e.code) {
       case 'ArrowDown':
         setHoveredIndex((prev) => (prev + 1) % length);
@@ -105,13 +117,32 @@ const Search = () => {
         setHoveredIndex((prev) => (prev - 1 < 0 ? length - 1 : (prev - 1) % length));
         break;
       case 'Enter':
-        handleEnterKeyPress();
+        handleEnterKeyDown();
         break;
     }
   };
 
-  const getDropdownType = () => {
-    return keyword.length >= 2 ? DROPDOWN_TYPE.AUTO_COMPLETE : DROPDOWN_TYPE.RECENT_KEYWORDS;
+  const renderDropdownContent = (type: DROPDOWN_TYPE) => {
+    return {
+      [DROPDOWN_TYPE.AUTO_COMPLETE]: (
+        <AutoCompletedList
+          autoCompletedItems={autoCompletedItems}
+          keyword={keyword}
+          hoverdIndex={hoverdIndex}
+          setHoveredIndex={setHoveredIndex}
+        />
+      ),
+      [DROPDOWN_TYPE.RECENT_KEYWORDS]: (
+        <RecentKeywordsList
+          recentKeywords={recentKeywords}
+          hoverdIndex={hoverdIndex}
+          handleMouseDown={handleSearchButtonClick}
+          setHoveredIndex={setHoveredIndex}
+        />
+      ),
+      [DROPDOWN_TYPE.LOADING]: <MoonLoader />,
+      [DROPDOWN_TYPE.HIDDEN]: <></>,
+    }[type];
   };
 
   useEffect(() => {
@@ -124,7 +155,7 @@ const Search = () => {
           const { papers, keyword: _keyword } = data;
           if (_keyword.trim() === keyword.trim()) {
             setIsLoading(false);
-            setAutoCompletedDatas(papers);
+            setAutoCompletedItems(papers);
           }
         })
         .catch((err) => {
@@ -137,9 +168,7 @@ const Search = () => {
           }
         });
     }, 150);
-    return () => {
-      clearTimeout(timer);
-    };
+    return () => clearTimeout(timer);
   }, [keyword]);
 
   return (
@@ -152,35 +181,13 @@ const Search = () => {
             onChange={handleInputChange}
             onFocus={handleInputFocus}
             onBlur={handleInputBlur}
-            onKeyDown={handleInputKeyPress}
+            onKeyDown={handleInputKeyDown}
           />
           <SearchButton type="button" onClick={() => handleSearchButtonClick(keyword)}>
             <MaginifyingGlassIcon />
           </SearchButton>
         </SearchBar>
-        {isFocused && (
-          <DropdownContainer>
-            {getDropdownType() === DROPDOWN_TYPE.RECENT_KEYWORDS && (
-              <RecentKeywordsList
-                recentKeywords={recentKeywords}
-                hoverdIndex={hoverdIndex}
-                handleMouseDwon={handleSearchButtonClick}
-                setHoveredIndex={setHoveredIndex}
-              />
-            )}
-            {getDropdownType() === DROPDOWN_TYPE.AUTO_COMPLETE &&
-              (isLoading ? (
-                <MoonLoader />
-              ) : (
-                <AutoCompletedList
-                  autoCompletedDatas={autoCompletedDatas}
-                  keyword={keyword}
-                  hoverdIndex={hoverdIndex}
-                  setHoveredIndex={setHoveredIndex}
-                />
-              ))}
-          </DropdownContainer>
-        )}
+        <DropdownContainer>{renderDropdownContent(dropdownType)}</DropdownContainer>
       </SearchBox>
     </Container>
   );
@@ -241,11 +248,17 @@ const DropdownContainer = styled.div`
   ${({ theme }) => theme.TYPO.body1}
   color: ${({ theme }) => theme.COLOR.gray2};
   padding-bottom: 25px;
-  :before {
+  ::before {
     content: '';
     width: 90%;
     margin: 0 auto;
     border-top: 1px solid ${({ theme }) => theme.COLOR.gray1};
+  }
+  :empty {
+    padding-bottom: 0;
+    ::before {
+      content: none;
+    }
   }
 `;
 

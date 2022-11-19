@@ -6,14 +6,14 @@ import Clockicon from '../icons/ClockIcon';
 interface RecentKeywordsListProps {
   recentKeywords: string[];
   hoverdIndex: number;
-  handleMouseDwon: (prop: string) => void;
+  handleMouseDown: (prop: string) => void;
   setHoveredIndex: Dispatch<SetStateAction<number>>;
 }
 
 const RecentKeywordsList = ({
   recentKeywords,
   hoverdIndex,
-  handleMouseDwon,
+  handleMouseDown,
   setHoveredIndex,
 }: RecentKeywordsListProps) => {
   useEffect(() => {
@@ -28,7 +28,7 @@ const RecentKeywordsList = ({
             key={keyword}
             hovered={i === hoverdIndex}
             onMouseOver={() => setHoveredIndex(i)}
-            onMouseDown={() => handleMouseDwon(keyword)}
+            onMouseDown={() => handleMouseDown(keyword)}
           >
             <Clockicon />
             {keyword}
