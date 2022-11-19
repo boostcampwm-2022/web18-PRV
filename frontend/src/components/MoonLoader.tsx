@@ -41,7 +41,7 @@ const MoonLoader = () => {
             </feMerge>
           </filter>
           <pattern id="image11" x="0" y="0" patternUnits="userSpaceOnUse" height="100" width="100">
-            <image x="0" y="0" height="100" width="100" xlinkHref="https://www.icalendar37.net/lunar/api/i.png"></image>
+            <image x="0" y="0" height="100" width="100" xlinkHref="assets/moon.png"></image>
           </pattern>
         </defs>
         <g>
