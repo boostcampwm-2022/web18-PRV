@@ -1,7 +1,7 @@
 import { SearchController } from '../search.controller';
 import { SearchService } from '../search.service';
 import { HttpService } from '@nestjs/axios';
-import { CrossRefResponse } from '../entities/crossRef.entity';
+import { CrossRefResponse, PaperInfo, PaperInfoExtended } from '../entities/crossRef.entity';
 import mockData from './crossref.mock';
 import { Test, TestingModule } from '@nestjs/testing';
 describe('SearchController', () => {
@@ -44,11 +44,17 @@ describe('SearchController', () => {
     const keyword = 'coffee';
     const items = await controller.getAutoCompletePapers(keyword);
     expect(items.length).toBe(5);
+    items.forEach((item) => {
+      expect(item).toBeInstanceOf(PaperInfo);
+    });
   });
 
   it('(GET) /search?keyword=coffee', async () => {
     const keyword = 'coffee';
     const items = await controller.getPapers(keyword, 0);
     expect(items.length).toBe(10);
+    items.forEach((item) => {
+      expect(item).toBeInstanceOf(PaperInfoExtended);
+    });
   });
 });
