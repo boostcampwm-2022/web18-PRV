@@ -7,7 +7,7 @@ describe('keyword validation', () => {
     type: 'query',
     data: 'keyword',
   };
-  it('사용자의 키워드가 crossref query에 영향을 주지 않는다.', () => {
+  it('client로부터 전달받은 keyword가 query params를 변경시키지 않는다.', () => {
     const keywords = ['coffee', 'coffee&row=10', '?query=coffee', 'hello  coffee'];
     const encodedWords = keywords.map((keyword) => {
       return target.transform(keyword, metadata);
@@ -20,6 +20,8 @@ describe('keyword validation', () => {
 
   it('공백 검색시 throw', () => {
     const keyword = '';
-    expect(() => target.transform(keyword, metadata)).toThrow(BadRequestException);
+    expect(() => target.transform(keyword, metadata)).toThrowError(
+      new BadRequestException('공백으로는 검색할 수 없습니다.'),
+    );
   });
 });

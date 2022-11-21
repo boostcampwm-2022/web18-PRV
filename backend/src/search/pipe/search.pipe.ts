@@ -3,7 +3,7 @@ import { ArgumentMetadata, BadRequestException, PipeTransform } from '@nestjs/co
 export class SearchValidationPipe implements PipeTransform {
   transform(value: string, metadata: ArgumentMetadata) {
     if (!this.isKeywordValid(value)) {
-      throw new BadRequestException(`empty value`);
+      throw new BadRequestException(`공백으로는 검색할 수 없습니다.`);
     }
     return encodeURIComponent(value);
   }
