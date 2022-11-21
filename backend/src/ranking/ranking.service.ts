@@ -6,15 +6,19 @@ import { Ranking } from './entities/ranking.entity';
 @Injectable()
 export class RankingService {
   constructor(@InjectRedis() private readonly redis: Redis) {}
-  async getAll() {
+  async getTen() {
     const redisSearchData = await this.redis.zrevrangebyscore(process.env.REDIS_POPULAR_KEY, '+inf', 1);
     const topTen = redisSearchData.slice(0, 10);
     const result: Ranking[] = [];
-    topTen.map((v) => {
-      const tmp: Ranking = { keyword: '', count: 0 };
-      tmp.keyword = v;
-      result.push(tmp);
-    });
+    await Promise.all(
+      topTen.map(async (v) => {
+        const tmp: Ranking = { keyword: '', count: 0 };
+        tmp.keyword = v;
+        const score = await this.redis.zscore(process.env.REDIS_POPULAR_KEY, v);
+        tmp.count = Number(score);
+        result.push(tmp);
+      }),
+    );
     return result;
   }
   async insertRedis(data: string) {

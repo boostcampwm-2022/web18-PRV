@@ -2,6 +2,9 @@ export interface PaperInfo {
   title?: string;
   authors?: string[];
   doi?: string;
+  publishedAt?: string;
+  citations?: number;
+  references?: number;
 }
 
 export interface CrossRefResponse {

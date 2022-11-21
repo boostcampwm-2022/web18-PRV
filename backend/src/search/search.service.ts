@@ -6,11 +6,20 @@ import { CROSSREF_API_URL } from '../util';
 @Injectable()
 export class SearchService {
   constructor(private readonly httpService: HttpService) {}
-  async getCrossRefData(keyword: string) {
+  async getCrossRefAutoComplateData(keyword: string) {
     const crossRefdata = await this.httpService.axiosRef.get<CrossRefResponse>(CROSSREF_API_URL(keyword));
     const items = crossRefdata.data.message.items;
     return items;
   }
+
+  async getCrossRefData(keyword: string, page: number, isDoiExist: boolean) {
+    const crossRefdata = await this.httpService.axiosRef.get<CrossRefResponse>(
+      CROSSREF_API_URL(keyword, 10, ['title', 'authors', 'publishedAt', 'citations', 'references', 'DOI'], page),
+    );
+    const items = crossRefdata.data.message.items;
+    return items;
+  }
+
   parseCrossRefData(items: CrossRefItem[]) {
     return items
       .map((item) => {
