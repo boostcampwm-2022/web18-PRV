@@ -12,6 +12,7 @@ interface IRankingData {
 const KeywordRanking = () => {
   const [isRankingListOpen, setisRankingListOpen] = useState(false);
   const [rankingData, setRankingData] = useState<IRankingData[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string>();
   const handleButtonClick = () => {
     setisRankingListOpen((prev) => !prev);
@@ -26,6 +27,7 @@ const KeywordRanking = () => {
         }
         const data: IRankingData[] = await response.json();
         setRankingData(data);
+        setIsLoading(true);
       } catch (err) {
         let message = 'Unknown Error';
         if (err instanceof Error) message = err.message;
@@ -45,8 +47,8 @@ const KeywordRanking = () => {
           <HeaderContainer>
             <span>인기 검색어</span>
             <HeaderDivideLine />
-            <RankingContent>
-              {rankingData.length ? <RankingSlide rankingData={rankingData} /> : '데이터가 없습니다.'}
+            <RankingContent onClick={handleButtonClick}>
+              {isLoading && (rankingData.length ? <RankingSlide rankingData={rankingData} /> : '데이터가 없습니다.')}
             </RankingContent>
             <DropdownReverseButton type="button" onClick={handleButtonClick}>
               {isRankingListOpen ? <DropDownReverseIcon /> : <DropdownIcon />}
@@ -55,7 +57,7 @@ const KeywordRanking = () => {
           {isRankingListOpen && (
             <>
               <DivideLine />
-              <RankingKeywordContainer>
+              <RankingKeywordContainer onClick={handleButtonClick}>
                 {rankingData.slice(0, 10).map((data, index) => (
                   <KeywordContainer key={`${index}${data.keyword}`}>
                     <KeywordIndex>{index + 1}</KeywordIndex>
@@ -85,7 +87,7 @@ const RankingBar = styled.div`
   position: absolute;
   width: 100%;
   margin-top: 30px;
-  padding: 5px 20px 10px 20px;
+  padding: 5px 20px;
   background-color: ${({ theme }) => theme.COLOR.primary3};
   border: 1px solid ${({ theme }) => theme.COLOR.offWhite};
   border-radius: 20px;
@@ -95,9 +97,10 @@ const RankingBar = styled.div`
 const RankingContent = styled.div`
   display: flex;
   align-items: center;
-  flex-grow: 1;
+  width: 300px;
   margin: 0 10px;
   height: 25px;
+  cursor: pointer;
 `;
 
 const HeaderContainer = styled.div`
@@ -131,6 +134,7 @@ const RankingKeywordContainer = styled.ul`
   display: flex;
   flex-direction: column;
   gap: 8px;
+  margin-bottom: 10px;
 `;
 
 const KeywordContainer = styled.li`

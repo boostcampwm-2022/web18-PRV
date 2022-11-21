@@ -27,6 +27,7 @@ services:
       - 6379:6379
     networks:
       - viewpoint
+    command: redis-server --save 60 1000 --loglevel notice --requirepass ${REDIS_PASSWORD}
 
   client:
     image: ${NCP_CONTAINER_REGISTRY}/prv-frontend
