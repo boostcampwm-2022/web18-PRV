@@ -2,13 +2,19 @@ import { ChangeEvent, KeyboardEvent, useCallback, useEffect, useMemo, useState }
 import { createSearchParams, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import SearchApi from '../api/searchApi';
-import { DROPDOWN_TYPE } from '../constants/main';
 import { PATH_SEARCH_LIST } from '../constants/path';
 import MaginifyingGlassIcon from '../icons/MagnifyingGlassIcon';
 import { getLocalStorage, setLocalStorage } from '../utils/localStorage';
 import AutoCompletedList from './AutoCompletedList';
 import MoonLoader from './MoonLoader';
 import RecentKeywordsList from './RecentKeywordsList';
+
+enum DROPDOWN_TYPE {
+  AUTO_COMPLETE = 'AUTO_COMPLETE',
+  RECENT_KEYWORDS = 'RECENT_KEYWORDS',
+  HIDDEN = 'HIDDEN',
+  LOADING = 'LOADING',
+}
 
 export interface IAutoCompletedItem {
   authors?: string[];
