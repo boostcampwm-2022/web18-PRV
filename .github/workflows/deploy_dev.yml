@@ -7,6 +7,7 @@ on:
 
 jobs:
   changes:
+    name: Diff check
     runs-on: ubuntu-latest
     permissions:
       pull-requests: read
@@ -14,6 +15,7 @@ jobs:
       backend: ${{ steps.filter.outputs.backend }}
       frontend: ${{ steps.filter.outputs.frontend }}
     steps:
+      - uses: actions/checkout@v3
       - uses: dorny/paths-filter@v2
         id: filter
         with:
