@@ -36,7 +36,7 @@ describe('SearchController', () => {
     controller = module.get(SearchController);
   });
 
-  it('seaerch controller 정의', () => {
+  it('search controller 정의', () => {
     expect(controller).toBeDefined();
   });
 
