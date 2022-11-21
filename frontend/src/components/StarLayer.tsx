@@ -32,23 +32,23 @@ const StarLayer = () => {
 
   return (
     <Container>
-      {Array.from({ length: 15 }).map((_, i) => {
-        const randomSize = Math.random();
+      {Array.from({ length: 15 }, (_, i) => {
+        const randomConstant = Math.random();
         return (
           <Stars
             key={i}
             style={{
-              animationDuration: `${randomSize * 5 + 5}s`,
-              animationDelay: `${randomSize * 5}s`,
+              animationDuration: `${randomConstant * 5 + 5}s`,
+              animationDelay: `${randomConstant * 5}s`,
             }}
           >
-            {Array.from({ length: 20 }).map((_, j) => (
+            {Array.from({ length: 20 }, (_, j) => (
               <Star
                 key={j}
                 style={{
                   backgroundColor: `${COLORS[j % COLORS.length]}`,
-                  width: `${randomSize * 3 + 1}px`,
-                  height: `${randomSize * 3 + 1}px`,
+                  width: `${randomConstant * 3 + 1}px`,
+                  height: `${randomConstant * 3 + 1}px`,
                   top: `${Math.random() * height}px`,
                   left: `${Math.random() * width}px`,
                 }}
@@ -67,6 +67,7 @@ const Container = styled.div`
   position: absolute;
   width: 100%;
   height: 100%;
+  overflow: hidden;
 `;
 
 const twinkle = keyframes`
