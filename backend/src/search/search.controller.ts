@@ -7,8 +7,15 @@ export class SearchController {
   constructor(private readonly searchService: SearchService) {}
   @Get('auto-complete')
   async getAutoCompletePapers(@Query('keyword', SearchValidationPipe) keyword: string) {
-    const items = await this.searchService.getCrossRefData(keyword);
+    const items = await this.searchService.getCrossRefAutoCompleteData(keyword);
     const papers = this.searchService.parseCrossRefData(items);
-    return { keyword: decodeURIComponent(keyword), papers };
+    return papers;
+  }
+
+  @Get()
+  async getPapers(@Query('keyword', SearchValidationPipe) keyword: string, page: number, isDoiExist?: boolean) {
+    const items = await this.searchService.getCrossRefData(keyword, page, isDoiExist);
+    const papers = this.searchService.parseCrossRefData(items);
+    return papers;
   }
 }
