@@ -6,17 +6,22 @@ import { CROSSREF_API_URL } from '../util';
 @Injectable()
 export class SearchService {
   constructor(private readonly httpService: HttpService) {}
-  async getCrossRefAutoComplateData(keyword: string) {
-    const crossRefdata = await this.httpService.axiosRef.get<CrossRefResponse>(CROSSREF_API_URL(keyword));
-    const items = crossRefdata.data.message.items;
+  async getCrossRefAutoCompleteData(keyword: string) {
+    const crossRefData = await this.httpService.axiosRef.get<CrossRefResponse>(CROSSREF_API_URL(keyword));
+    const items = crossRefData.data.message.items;
     return items;
   }
 
   async getCrossRefData(keyword: string, page: number, isDoiExist: boolean) {
-    const crossRefdata = await this.httpService.axiosRef.get<CrossRefResponse>(
-      CROSSREF_API_URL(keyword, 10, ['title', 'authors', 'publishedAt', 'citations', 'references', 'DOI'], page),
+    const crossRefData = await this.httpService.axiosRef.get<CrossRefResponse>(
+      CROSSREF_API_URL(
+        keyword,
+        10,
+        ['title', 'author', 'created', 'is-referenced-by-count', 'references-count', 'DOI'],
+        page,
+      ),
     );
-    const items = crossRefdata.data.message.items;
+    const items = crossRefData.data.message.items;
     return items;
   }
 
@@ -31,6 +36,9 @@ export class SearchService {
           return acc;
         }, []);
         paperInfo.doi = item.DOI;
+        paperInfo.publishedAt = item.created?.['date-time'];
+        paperInfo.citations = item['is-referenced-by-count'];
+        paperInfo.references = item['references-count'];
         return paperInfo;
       })
       .filter((info) => info.title || info.authors?.length > 0);

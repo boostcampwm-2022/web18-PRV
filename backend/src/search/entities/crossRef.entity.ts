@@ -19,4 +19,9 @@ export interface CrossRefItem {
     family?: string;
   }[];
   DOI?: string;
+  created?: {
+    'date-time': string;
+  };
+  'is-referenced-by-count'?: number;
+  'references-count'?: number;
 }

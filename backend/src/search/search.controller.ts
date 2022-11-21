@@ -7,7 +7,7 @@ export class SearchController {
   constructor(private readonly searchService: SearchService) {}
   @Get('auto-complete')
   async getAutoCompletePapers(@Query('keyword', SearchValidationPipe) keyword: string) {
-    const items = await this.searchService.getCrossRefAutoComplateData(keyword);
+    const items = await this.searchService.getCrossRefAutoCompleteData(keyword);
     const paper = this.searchService.parseCrossRefData(items);
     return paper;
   }
