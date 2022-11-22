@@ -12,17 +12,18 @@ export class SearchService {
     return items;
   }
 
-  async getCrossRefData(keyword: string, page: number, isDoiExist: boolean) {
+  async getCrossRefData(keyword: string, rows: number, page: number, isDoiExist: boolean) {
     const crossRefdata = await this.httpService.axiosRef.get<CrossRefResponse>(
       CROSSREF_API_URL(
         keyword,
-        10,
+        rows,
         ['title', 'author', 'created', 'is-referenced-by-count', 'references-count', 'DOI'],
         page,
       ),
     );
     const items = crossRefdata.data.message.items;
-    return items;
+    const totalItems = crossRefdata.data.message['total-results'];
+    return { items, totalItems };
   }
 
   parseCrossRefData(items: CrossRefItem[]) {

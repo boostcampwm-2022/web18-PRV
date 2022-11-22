@@ -10,6 +10,7 @@ export class PaperInfoExtended extends PaperInfo {
 }
 export interface CrossRefResponse {
   message: {
+    'total-results': number;
     items: CrossRefItem[];
   };
 }
