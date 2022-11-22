@@ -1,6 +1,6 @@
 import { ChangeEvent, KeyboardEvent, useCallback, useMemo, useState } from 'react';
 import { createSearchParams, useNavigate } from 'react-router-dom';
-import { useQueryClient, useQuery } from 'react-query';
+import { useQuery } from 'react-query';
 import styled from 'styled-components';
 import Api from '../api/api';
 import { PATH_SEARCH_LIST } from '../constants/path';
@@ -32,19 +32,13 @@ const Search = () => {
   const [isFocused, setIsFocused] = useState<boolean>(false);
   const [hoverdIndex, setHoveredIndex] = useState<number>(-1);
   const debouncedValue = useDebounceValue(keyword, 150);
-  const queryClient = useQueryClient();
 
   const { isLoading, data: autoCompletedItems } = useQuery<IAutoCompletedItem[]>(
     ['getAutoComplete', debouncedValue],
-    async () => {
-      await queryClient.cancelQueries('getAutoComplete');
-      return api
-        .getAutoComplete({ keyword: debouncedValue })
-        .then((res) => res.data)
-        .catch((e) => console.error(e));
-    },
+    () => api.getAutoComplete({ keyword: debouncedValue }).then((res) => res.data),
     {
       enabled: !!(debouncedValue && debouncedValue.length >= 2),
+      retry: 3,
     },
   );
 
