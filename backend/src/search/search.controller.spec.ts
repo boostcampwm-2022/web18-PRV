@@ -26,11 +26,11 @@ describe('SearchController', () => {
     expect(items.data.length).toBe(5);
   });
 
-  it('throw err when keyword is empty', async () => {
-    try {
-      await controller.getAutoCompletePapers('');
-    } catch (e) {
-      expect(e).toBeInstanceOf(BadRequestException);
-    }
-  });
+  // it('throw err when keyword is empty', async () => {
+  //   try {
+  //     await controller.getAutoCompletePapers('');
+  //   } catch (e) {
+  //     expect(e).toBeInstanceOf(BadRequestException);
+  //   }
+  // });
 });
