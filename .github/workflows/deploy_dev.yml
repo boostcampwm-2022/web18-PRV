@@ -86,6 +86,9 @@ jobs:
   pull_from_registry:
     name: Connect server ssh and pull from container registry
     needs: [push_to_registry_be, push_to_registry_fe]
+    if: |
+      always() && 
+      (needs.push_to_registry_be.result == 'success' || needs.push_to_registry_fe.result == 'success')
     runs-on: ubuntu-latest
     steps:
       - name: connect ssh
