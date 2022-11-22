@@ -3,26 +3,18 @@ import styled from 'styled-components';
 import { IAutoCompletedItem } from './Search';
 
 interface AutoCompletedListProps {
-<<<<<<< HEAD
-  autoCompletedItems: IAutoCompletedItem[];
-=======
   autoCompletedItems?: IAutoCompletedItem[];
->>>>>>> a624b9962317eb66fd2db8066ed17a8769e4abe1
   keyword: string;
   hoverdIndex: number;
   setHoveredIndex: Dispatch<SetStateAction<number>>;
 }
 
-<<<<<<< HEAD
-const AutoCompletedList = ({ autoCompletedItems, keyword, hoverdIndex, setHoveredIndex }: AutoCompletedListProps) => {
-=======
 const AutoCompletedList = ({
   autoCompletedItems = [],
   keyword,
   hoverdIndex,
   setHoveredIndex,
 }: AutoCompletedListProps) => {
->>>>>>> a624b9962317eb66fd2db8066ed17a8769e4abe1
   const handleAutoCompletedDown = (index: number) => {
     // Todo : 상세정보 api 호출
     console.log('상세정보', autoCompletedItems[index].doi);
