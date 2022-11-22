@@ -1,15 +1,15 @@
 import { ChangeEvent, KeyboardEvent, useCallback, useMemo, useState } from 'react';
+import { useQuery, useQueryClient } from 'react-query';
 import { createSearchParams, useNavigate } from 'react-router-dom';
-import { useQueryClient, useQuery } from 'react-query';
 import styled from 'styled-components';
 import Api from '../api/api';
 import { PATH_SEARCH_LIST } from '../constants/path';
+import useDebounceValue from '../customHooks/useDebouncedValue';
 import MaginifyingGlassIcon from '../icons/MagnifyingGlassIcon';
 import { getLocalStorage, setLocalStorage } from '../utils/localStorage';
 import AutoCompletedList from './AutoCompletedList';
 import MoonLoader from './MoonLoader';
 import RecentKeywordsList from './RecentKeywordsList';
-import useDebounceValue from '../customHooks/useDebouncedValue';
 
 enum DROPDOWN_TYPE {
   AUTO_COMPLETE = 'AUTO_COMPLETE',
@@ -24,10 +24,14 @@ export interface IAutoCompletedItem {
   title: string;
 }
 
+interface SearchProps {
+  initialKeyword?: string;
+}
+
 const api = new Api();
 
-const Search = () => {
-  const [keyword, setKeyword] = useState<string>('');
+const Search = ({ initialKeyword = '' }: SearchProps) => {
+  const [keyword, setKeyword] = useState<string>(initialKeyword);
   const [recentKeywords, setRecentKeywords] = useState<string[]>([]);
   const [isFocused, setIsFocused] = useState<boolean>(false);
   const [hoverdIndex, setHoveredIndex] = useState<number>(-1);
@@ -66,7 +70,7 @@ const Search = () => {
   // keyword 검색
   const goToSearchList = useCallback(
     (keyword: string) => {
-      const params = { keyword, page: '1', isDoiExist: 'false' };
+      const params = { keyword, page: '1', hasDoi: 'true', rows: '20' };
       navigate({
         pathname: PATH_SEARCH_LIST,
         search: createSearchParams(params).toString(),
@@ -197,7 +201,6 @@ const Container = styled.div`
   flex: 1;
   overflow-y: auto;
   z-index: 3;
-  margin-top: 20px;
 `;
 
 const SearchBox = styled.div`
@@ -209,6 +212,7 @@ const SearchBox = styled.div`
   background-color: ${({ theme }) => theme.COLOR.offWhite};
   border-radius: 25px;
   overflow-y: auto;
+  margin: auto;
 `;
 
 const SearchBar = styled.div`

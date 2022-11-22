@@ -3,7 +3,8 @@ import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 export interface IGetSearch {
   keyword?: string;
   page?: string;
-  isDoiExist?: string;
+  hasDoi?: string;
+  rows?: string;
 }
 
 export interface IGetAutoComplete {
@@ -53,7 +54,9 @@ export default class Api {
   }
 
   getSearch(params: IGetSearch) {
-    return this.instance.get('/search', { params });
+    return this.instance.get('/search', {
+      params,
+    });
   }
 
   getAutoComplete(params: IGetAutoComplete) {
