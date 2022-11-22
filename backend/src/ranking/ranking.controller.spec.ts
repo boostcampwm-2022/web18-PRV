@@ -31,5 +31,4 @@ describe('RankingServiceTest', () => {
     const topTen = await controller.getTen();
     expect(topTen.length).toBeLessThanOrEqual(10);
   });
-  it(`insert To Redis`, async () => {});
 });

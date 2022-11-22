@@ -3,6 +3,7 @@ import { RedisModule } from '@liaoliaots/nestjs-redis';
 import { RankingController } from './ranking.controller';
 import { RankingService } from './ranking.service';
 import { ConfigModule } from '@nestjs/config';
+
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true, envFilePath: `.dev.env` }),

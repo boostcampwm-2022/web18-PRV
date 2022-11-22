@@ -20,17 +20,4 @@ describe('SearchController', () => {
   it('should be defined', () => {
     expect(controller).toBeDefined();
   });
-
-  it('get auto-complete data', async () => {
-    const items = await controller.getAutoCompletePapers('covid');
-    expect(items.data.length).toBe(5);
-  });
-
-  // it('throw err when keyword is empty', async () => {
-  //   try {
-  //     await controller.getAutoCompletePapers('');
-  //   } catch (e) {
-  //     expect(e).toBeInstanceOf(BadRequestException);
-  //   }
-  // });
 });

@@ -1,21 +1,42 @@
 import { Controller, Get, Query } from '@nestjs/common';
 import { SearchService } from './search.service';
-import { SearchValidationPipe } from './pipe/search.pipe';
+import { PositiveIntegerValidationPipe, SearchValidationPipe } from './pipe/search.pipe';
 
 @Controller('search')
 export class SearchController {
   constructor(private readonly searchService: SearchService) {}
   @Get('auto-complete')
   async getAutoCompletePapers(@Query('keyword', SearchValidationPipe) keyword: string) {
-    const items = await this.searchService.getCrossRefAutoComplateData(keyword);
-    const data = this.searchService.parseCrossRefData(items);
-    return { keyword, data };
+    const items = await this.searchService.getCrossRefAutoCompleteData(keyword);
+    const papers = this.searchService.parseCrossRefData(items);
+    return papers;
   }
 
   @Get()
-  async getPapers(@Query('keyword', SearchValidationPipe) keyword: string, page: number, isDoiExist?: boolean) {
-    const items = await this.searchService.getCrossRefData(keyword, page, isDoiExist);
-    const data = this.searchService.parseCrossRefData(items);
-    return { keyword, data };
+  async getPapers(
+    @Query('keyword', SearchValidationPipe) keyword: string,
+    @Query('rows', PositiveIntegerValidationPipe) rows = 20,
+    @Query('page', PositiveIntegerValidationPipe) page = 1,
+    @Query('hasDoi') hasDoi = true,
+  ) {
+    const { items, totalItems } = await this.searchService.getCrossRefData(keyword, rows, page, hasDoi);
+    const papers = this.searchService.parseCrossRefData(items);
+    return {
+      papers,
+      pageInfo: {
+        totalItems,
+        totalPages: Math.ceil(totalItems / rows),
+      },
+    };
+  }
+  @Get('elastic')
+  test(@Query('test') data: string) {
+    console.log('elastic-search');
+    this.searchService.putElasticSearch(data);
+  }
+  @Get('getElastic')
+  async getTest(@Query('test') data: string) {
+    console.log('get-elastic');
+    return await this.searchService.getElasticSearch(data);
   }
 }

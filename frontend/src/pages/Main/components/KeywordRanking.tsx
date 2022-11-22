@@ -96,8 +96,8 @@ const RankingBar = styled.div`
 
 const RankingContent = styled.div`
   display: flex;
+  flex-grow: 1;
   align-items: center;
-  width: 300px;
   margin: 0 10px;
   height: 25px;
   cursor: pointer;

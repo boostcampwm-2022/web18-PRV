@@ -1,15 +1,22 @@
-import { isEmpty } from 'lodash-es';
-import { ChangeEvent, KeyboardEvent, useCallback, useEffect, useState } from 'react';
+import { ChangeEvent, KeyboardEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import { createSearchParams, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import SearchApi from '../api/searchApi';
-import { DROPDOWN_TYPE } from '../constants/main';
 import { PATH_SEARCH_LIST } from '../constants/path';
-import ClockIcon from '../icons/ClockIcon';
 import MaginifyingGlassIcon from '../icons/MagnifyingGlassIcon';
 import { getLocalStorage, setLocalStorage } from '../utils/localStorage';
+import AutoCompletedList from './AutoCompletedList';
+import MoonLoader from './MoonLoader';
+import RecentKeywordsList from './RecentKeywordsList';
 
-interface IAutoCompletedData {
+enum DROPDOWN_TYPE {
+  AUTO_COMPLETE = 'AUTO_COMPLETE',
+  RECENT_KEYWORDS = 'RECENT_KEYWORDS',
+  HIDDEN = 'HIDDEN',
+  LOADING = 'LOADING',
+}
+
+export interface IAutoCompletedItem {
   authors?: string[];
   doi: string;
   title: string;
@@ -22,9 +29,23 @@ const Search = () => {
   const [recentKeywords, setRecentKeywords] = useState<string[]>([]);
   const [isFocused, setIsFocused] = useState<boolean>(false);
   const [hoverdIndex, setHoveredIndex] = useState<number>(-1);
-  const [autoCompletedDatas, setAutoCompletedDatas] = useState<IAutoCompletedData[]>([]);
+  const [autoCompletedItems, setAutoCompletedItems] = useState<IAutoCompletedItem[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const navigate = useNavigate();
+
+  const dropdownType = useMemo<DROPDOWN_TYPE>(() => {
+    if (!isFocused) {
+      return DROPDOWN_TYPE.HIDDEN;
+    }
+    if (isLoading) {
+      return DROPDOWN_TYPE.LOADING;
+    }
+    if (keyword.length > 2) {
+      return DROPDOWN_TYPE.AUTO_COMPLETE;
+    }
+    return DROPDOWN_TYPE.RECENT_KEYWORDS;
+  }, [isFocused, isLoading, keyword]);
 
   // keyword 검색
   const goToSearchList = useCallback(
@@ -52,16 +73,15 @@ const Search = () => {
   };
 
   // localStorage에서 가져온 recent keywords를 최근에 검색한 순서대로 set
-  const handleInputFocus = useCallback(() => {
+  const handleInputFocus = () => {
     const recentKeywords = getRecentKeywordsFromLocalStorage();
     setRecentKeywords(recentKeywords.reverse());
     setIsFocused(true);
-  }, [getRecentKeywordsFromLocalStorage]);
+  };
 
-  const handleInputBlur = useCallback(() => {
+  const handleInputBlur = () => {
     setIsFocused(false);
-    setHoveredIndex(-1);
-  }, []);
+  };
 
   // localStorage에 최근 검색어를 중복없이 최대 5개까지 저장 후 search-list로 이동
   const handleSearchButtonClick = (keyword: string) => {
@@ -74,17 +94,17 @@ const Search = () => {
     goToSearchList(keyword);
   };
 
-  const handleEnterKeyPress = () => {
+  const handleEnterKeyDown = () => {
     // hover된 항목이 없는경우
     if (hoverdIndex < 0) {
       handleSearchButtonClick(keyword);
       return;
     }
-    // hover된 항목이 있는경우
-    switch (getDropdownType()) {
-      case DROPDOWN_TYPE.AUTO_COMPLETE_KEYWORDS:
+    // hover된 항목으로 검색
+    switch (dropdownType) {
+      case DROPDOWN_TYPE.AUTO_COMPLETE:
         // Todo : 상세정보 api 호출
-        console.log('상세정보', autoCompletedDatas[hoverdIndex].doi);
+        console.log('상세정보', autoCompletedItems[hoverdIndex].doi);
         break;
       case DROPDOWN_TYPE.RECENT_KEYWORDS:
         handleSearchButtonClick(recentKeywords[hoverdIndex]);
@@ -93,9 +113,8 @@ const Search = () => {
   };
 
   // 방향키, enter키 입력 이벤트 핸들러
-  const handleInputKeyPress = (e: KeyboardEvent) => {
-    const length =
-      getDropdownType() === DROPDOWN_TYPE.AUTO_COMPLETE_KEYWORDS ? autoCompletedDatas.length : recentKeywords.length;
+  const handleInputKeyDown = (e: KeyboardEvent) => {
+    const length = dropdownType === DROPDOWN_TYPE.AUTO_COMPLETE ? autoCompletedItems.length : recentKeywords.length;
     switch (e.code) {
       case 'ArrowDown':
         setHoveredIndex((prev) => (prev + 1) % length);
@@ -104,54 +123,46 @@ const Search = () => {
         setHoveredIndex((prev) => (prev - 1 < 0 ? length - 1 : (prev - 1) % length));
         break;
       case 'Enter':
-        handleEnterKeyPress();
+        handleEnterKeyDown();
         break;
     }
   };
 
-  const handleAutoCompletedDown = (index: number) => {
-    // Todo : 상세정보 api 호출
-    console.log('상세정보', autoCompletedDatas[index].doi);
-  };
-
-  const getDropdownType = () => {
-    if (keyword.length >= 2 && !isEmpty(autoCompletedDatas)) return DROPDOWN_TYPE.AUTO_COMPLETE_KEYWORDS;
-    else return DROPDOWN_TYPE.RECENT_KEYWORDS;
-  };
-
-  // keyword 강조
-  const highlightKeyword = (text: string) => {
-    if (keyword !== '' && text.toLocaleLowerCase().includes(keyword.toLocaleLowerCase())) {
-      const parts = text.split(new RegExp(`(${keyword})`, 'gi'));
-      return (
-        <>
-          {parts.map((part, index) =>
-            part.toLowerCase() === keyword.toLowerCase() ? <Emphasize key={index}>{part}</Emphasize> : part,
-          )}
-        </>
-      );
-    }
-    return text;
-  };
-
-  // keyword와 매치되는 첫번째 author 찾기
-  const findMatchedAuthor = (authors: string[]) => {
-    return authors
-      .concat()
-      .reduce(
-        (_, crr, i, arr: string[]) => (crr.toLowerCase().includes(keyword.toLowerCase()) ? arr.splice(i)[0] : ''),
-        '',
-      );
+  const renderDropdownContent = (type: DROPDOWN_TYPE) => {
+    return {
+      [DROPDOWN_TYPE.AUTO_COMPLETE]: (
+        <AutoCompletedList
+          autoCompletedItems={autoCompletedItems}
+          keyword={keyword}
+          hoverdIndex={hoverdIndex}
+          setHoveredIndex={setHoveredIndex}
+        />
+      ),
+      [DROPDOWN_TYPE.RECENT_KEYWORDS]: (
+        <RecentKeywordsList
+          recentKeywords={recentKeywords}
+          hoverdIndex={hoverdIndex}
+          handleMouseDown={handleSearchButtonClick}
+          setHoveredIndex={setHoveredIndex}
+        />
+      ),
+      [DROPDOWN_TYPE.LOADING]: <MoonLoader />,
+      [DROPDOWN_TYPE.HIDDEN]: <></>,
+    }[type];
   };
 
   useEffect(() => {
     if (keyword.length < 2) return;
+    setIsLoading(true);
     const timer = setTimeout(() => {
       searchApi
         .getAutoComplete({ keyword })
         .then(({ data }) => {
           const { papers, keyword: _keyword } = data;
-          if (_keyword === keyword) setAutoCompletedDatas(papers);
+          if (_keyword.trim() === keyword.trim()) {
+            setIsLoading(false);
+            setAutoCompletedItems(papers);
+          }
         })
         .catch((err) => {
           switch (err.response.status) {
@@ -162,15 +173,13 @@ const Search = () => {
               console.debug(err);
           }
         });
-    }, 500);
-    return () => {
-      clearTimeout(timer);
-    };
+    }, 150);
+    return () => clearTimeout(timer);
   }, [keyword]);
 
   return (
     <Container>
-      <SearchBox isFocused={isFocused}>
+      <SearchBox>
         <SearchBar>
           <SearchInput
             placeholder="저자, 제목, 키워드"
@@ -178,60 +187,13 @@ const Search = () => {
             onChange={handleInputChange}
             onFocus={handleInputFocus}
             onBlur={handleInputBlur}
-            onKeyDown={handleInputKeyPress}
+            onKeyDown={handleInputKeyDown}
           />
           <SearchButton type="button" onClick={() => handleSearchButtonClick(keyword)}>
             <MaginifyingGlassIcon />
           </SearchButton>
         </SearchBar>
-        {isFocused && (
-          <>
-            <Hr />
-            <DropdownContainer>
-              {getDropdownType() === DROPDOWN_TYPE.AUTO_COMPLETE_KEYWORDS ? (
-                <>
-                  {autoCompletedDatas.map((data, i) => (
-                    <AutoCompleted
-                      key={data.doi}
-                      hovered={i === hoverdIndex}
-                      onMouseOver={() => setHoveredIndex(i)}
-                      onMouseDown={() => handleAutoCompletedDown(i)}
-                    >
-                      <Title>{highlightKeyword(data.title)}</Title>
-                      {data.authors && (
-                        <Author>
-                          authors :{' '}
-                          {data.authors.every((author) => !author.toLowerCase().includes(keyword.toLowerCase()))
-                            ? data.authors[0]
-                            : highlightKeyword(findMatchedAuthor(data.authors))}
-                          {data.authors.length > 1 && <span>외 {data.authors.length - 1}명</span>}
-                        </Author>
-                      )}
-                    </AutoCompleted>
-                  ))}
-                </>
-              ) : (
-                <>
-                  {!isEmpty(recentKeywords) ? (
-                    recentKeywords.map((keyword, i) => (
-                      <RecentKeyword
-                        key={keyword}
-                        hovered={i === hoverdIndex}
-                        onMouseOver={() => setHoveredIndex(i)}
-                        onMouseDown={() => handleSearchButtonClick(keyword)}
-                      >
-                        <ClockIcon />
-                        {keyword}
-                      </RecentKeyword>
-                    ))
-                  ) : (
-                    <NoneRecentKeywords>최근 검색어가 없습니다.</NoneRecentKeywords>
-                  )}
-                </>
-              )}
-            </DropdownContainer>
-          </>
-        )}
+        <DropdownContainer>{renderDropdownContent(dropdownType)}</DropdownContainer>
       </SearchBox>
     </Container>
   );
@@ -245,7 +207,7 @@ const Container = styled.div`
   margin-top: 20px;
 `;
 
-const SearchBox = styled.div<{ isFocused: boolean }>`
+const SearchBox = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -253,7 +215,7 @@ const SearchBox = styled.div<{ isFocused: boolean }>`
   max-height: 100%;
   background-color: ${({ theme }) => theme.COLOR.offWhite};
   border-radius: 25px;
-  padding-bottom: ${({ isFocused }) => (isFocused ? '25px' : 0)};
+  overflow-y: auto;
 `;
 
 const SearchBar = styled.div`
@@ -264,31 +226,6 @@ const SearchBar = styled.div`
   gap: 16px;
   display: flex;
   align-items: center;
-`;
-
-const Hr = styled.hr`
-  margin: 0;
-  width: 90%;
-  border-top: 1px solid ${({ theme }) => theme.COLOR.gray1};
-  border-bottom: none;
-`;
-
-const AutoCompleted = styled.li<{ hovered: boolean }>`
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  padding: 8px 30px;
-  color: ${({ theme }) => theme.COLOR.black};
-  cursor: pointer;
-  background-color: ${({ theme, hovered }) => (hovered ? theme.COLOR.gray1 : 'auto')};
-`;
-
-const Title = styled.div`
-  ${({ theme }) => theme.TYPO.body1}
-`;
-
-const Author = styled.div`
-  ${({ theme }) => theme.TYPO.caption}
 `;
 
 const SearchInput = styled.input`
@@ -316,25 +253,19 @@ const DropdownContainer = styled.div`
   gap: 8px;
   ${({ theme }) => theme.TYPO.body1}
   color: ${({ theme }) => theme.COLOR.gray2};
-`;
-
-const RecentKeyword = styled.li<{ hovered: boolean }>`
-  display: flex;
-  gap: 20px;
-  width: 100%;
-  padding: 8px 16px;
-  color: ${({ theme }) => theme.COLOR.black};
-  cursor: pointer;
-  background-color: ${({ theme, hovered }) => (hovered ? theme.COLOR.gray1 : 'auto')};
-`;
-
-const NoneRecentKeywords = styled.div`
-  padding-top: 25px;
-  text-align: center;
-`;
-
-const Emphasize = styled.span`
-  color: #3244ff;
+  padding-bottom: 25px;
+  ::before {
+    content: '';
+    width: 90%;
+    margin: 0 auto;
+    border-top: 1px solid ${({ theme }) => theme.COLOR.gray1};
+  }
+  :empty {
+    padding-bottom: 0;
+    ::before {
+      content: none;
+    }
+  }
 `;
 
 export default Search;

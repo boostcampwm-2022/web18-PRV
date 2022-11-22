@@ -11,7 +11,6 @@ export class RankingController {
   // TODO: search 됐을 때, this.popularService.insertRedis(searchStr);
   @Get('/insert')
   async insertCache(@Query('keyword') searchStr: string) {
-    console.log(searchStr);
     this.rankingService.insertRedis(searchStr);
   }
 }
