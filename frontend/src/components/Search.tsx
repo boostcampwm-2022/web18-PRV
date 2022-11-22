@@ -1,13 +1,26 @@
+<<<<<<< HEAD
 import { ChangeEvent, KeyboardEvent, useCallback, useEffect, useMemo, useState } from 'react';
+=======
+import { ChangeEvent, KeyboardEvent, useCallback, useMemo, useState } from 'react';
+>>>>>>> a624b9962317eb66fd2db8066ed17a8769e4abe1
 import { createSearchParams, useNavigate } from 'react-router-dom';
+import { useQueryClient, useQuery } from 'react-query';
 import styled from 'styled-components';
+<<<<<<< HEAD
 import SearchApi from '../api/searchApi';
+=======
+import Api from '../api/api';
+>>>>>>> a624b9962317eb66fd2db8066ed17a8769e4abe1
 import { PATH_SEARCH_LIST } from '../constants/path';
 import MaginifyingGlassIcon from '../icons/MagnifyingGlassIcon';
 import { getLocalStorage, setLocalStorage } from '../utils/localStorage';
 import AutoCompletedList from './AutoCompletedList';
 import MoonLoader from './MoonLoader';
 import RecentKeywordsList from './RecentKeywordsList';
+<<<<<<< HEAD
+=======
+import useDebounceValue from '../customHooks/useDebouncedValue';
+>>>>>>> a624b9962317eb66fd2db8066ed17a8769e4abe1
 
 enum DROPDOWN_TYPE {
   AUTO_COMPLETE = 'AUTO_COMPLETE',
@@ -22,15 +35,34 @@ export interface IAutoCompletedItem {
   title: string;
 }
 
-const searchApi = new SearchApi();
+const api = new Api();
 
 const Search = () => {
   const [keyword, setKeyword] = useState<string>('');
   const [recentKeywords, setRecentKeywords] = useState<string[]>([]);
   const [isFocused, setIsFocused] = useState<boolean>(false);
   const [hoverdIndex, setHoveredIndex] = useState<number>(-1);
+<<<<<<< HEAD
   const [autoCompletedItems, setAutoCompletedItems] = useState<IAutoCompletedItem[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+=======
+  const debouncedValue = useDebounceValue(keyword, 150);
+  const queryClient = useQueryClient();
+
+  const { isLoading, data: autoCompletedItems } = useQuery<IAutoCompletedItem[]>(
+    ['getAutoComplete', debouncedValue],
+    async () => {
+      await queryClient.cancelQueries('getAutoComplete');
+      return api
+        .getAutoComplete({ keyword: debouncedValue })
+        .then((res) => res.data)
+        .catch((e) => console.error(e));
+    },
+    {
+      enabled: !!(debouncedValue && debouncedValue.length >= 2),
+    },
+  );
+>>>>>>> a624b9962317eb66fd2db8066ed17a8769e4abe1
 
   const navigate = useNavigate();
 
@@ -41,11 +73,19 @@ const Search = () => {
     if (isLoading) {
       return DROPDOWN_TYPE.LOADING;
     }
+<<<<<<< HEAD
     if (keyword.length > 2) {
       return DROPDOWN_TYPE.AUTO_COMPLETE;
     }
     return DROPDOWN_TYPE.RECENT_KEYWORDS;
   }, [isFocused, isLoading, keyword]);
+=======
+    if (debouncedValue.length >= 2) {
+      return DROPDOWN_TYPE.AUTO_COMPLETE;
+    }
+    return DROPDOWN_TYPE.RECENT_KEYWORDS;
+  }, [isFocused, isLoading, debouncedValue]);
+>>>>>>> a624b9962317eb66fd2db8066ed17a8769e4abe1
 
   // keyword 검색
   const goToSearchList = useCallback(
@@ -104,7 +144,11 @@ const Search = () => {
     switch (dropdownType) {
       case DROPDOWN_TYPE.AUTO_COMPLETE:
         // Todo : 상세정보 api 호출
+<<<<<<< HEAD
         console.log('상세정보', autoCompletedItems[hoverdIndex].doi);
+=======
+        console.log('상세정보', autoCompletedItems?.[hoverdIndex].doi);
+>>>>>>> a624b9962317eb66fd2db8066ed17a8769e4abe1
         break;
       case DROPDOWN_TYPE.RECENT_KEYWORDS:
         handleSearchButtonClick(recentKeywords[hoverdIndex]);
@@ -114,7 +158,14 @@ const Search = () => {
 
   // 방향키, enter키 입력 이벤트 핸들러
   const handleInputKeyDown = (e: KeyboardEvent) => {
+<<<<<<< HEAD
     const length = dropdownType === DROPDOWN_TYPE.AUTO_COMPLETE ? autoCompletedItems.length : recentKeywords.length;
+=======
+    const length = dropdownType === DROPDOWN_TYPE.AUTO_COMPLETE ? autoCompletedItems?.length : recentKeywords.length;
+
+    if (length === undefined) return;
+
+>>>>>>> a624b9962317eb66fd2db8066ed17a8769e4abe1
     switch (e.code) {
       case 'ArrowDown':
         setHoveredIndex((prev) => (prev + 1) % length);
@@ -151,6 +202,7 @@ const Search = () => {
     }[type];
   };
 
+<<<<<<< HEAD
   useEffect(() => {
     if (keyword.length < 2) return;
     setIsLoading(true);
@@ -177,6 +229,8 @@ const Search = () => {
     return () => clearTimeout(timer);
   }, [keyword]);
 
+=======
+>>>>>>> a624b9962317eb66fd2db8066ed17a8769e4abe1
   return (
     <Container>
       <SearchBox>

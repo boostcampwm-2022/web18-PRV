@@ -2,9 +2,6 @@ export class PaperInfo {
   title?: string;
   authors?: string[];
   doi?: string;
-  publishedAt?: string;
-  citations?: number;
-  references?: number;
 }
 export class PaperInfoExtended extends PaperInfo {
   publishedAt?: string;

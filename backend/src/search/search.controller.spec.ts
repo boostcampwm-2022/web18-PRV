@@ -3,7 +3,6 @@ import { SearchController } from './search.controller';
 import { SearchService } from './search.service';
 import { HttpModule } from '@nestjs/axios';
 import { BadRequestException } from '@nestjs/common';
-
 describe('SearchController', () => {
   let controller: SearchController;
 
