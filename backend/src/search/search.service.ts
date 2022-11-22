@@ -10,7 +10,8 @@ export class SearchService {
   async getCrossRefAutoCompleteData(keyword: string) {
     const crossRefdata = await this.httpService.axiosRef.get<CrossRefResponse>(CROSSREF_API_URL(keyword));
     const items = crossRefdata.data.message.items;
-    return items;
+    const totalItems = crossRefdata.data.message['total-results'];
+    return { items, totalItems };
   }
 
   async getCrossRefData(keyword: string, rows: number, page: number, isDoiExist: boolean) {
@@ -27,6 +28,27 @@ export class SearchService {
     return { items, totalItems };
   }
 
+  async crawlAllCrossRefData(keyword: string, totalItems: number, rows: number) {
+    const pages = await Promise.allSettled(
+      Array(Math.ceil(totalItems / rows))
+        .fill(0)
+        .map((_, i) => {
+          return this.getCrossRefData(keyword, rows, i + 1, false);
+        }),
+    );
+    console.log(totalItems);
+    console.log(pages.length);
+    pages.forEach((page) => {
+      if (page.status === 'fulfilled') {
+        const papers = this.parseCrossRefData(page.value.items);
+        papers.forEach((paper) => {
+          this.putElasticSearch(paper);
+        });
+      } else {
+        console.log(page.reason);
+      }
+    });
+  }
   parseCrossRefData(items: CrossRefItem[]) {
     return items
       .map((item) => {
@@ -45,28 +67,45 @@ export class SearchService {
       })
       .filter((info) => info.title || info.authors?.length > 0);
   }
-  async putElasticSearch(keyword: string) {
+  async putElasticSearch(paper: PaperInfoExtended) {
     return await this.esService.index({
       index: 'keyword-search',
+      id: paper.doi,
       document: {
-        keyword,
+        ...paper,
       },
     });
   }
-  async getElasticSearch(keyword: string) {
+  async getElasticSearch(keyword: string, size = 5) {
+    console.log(keyword);
     return await this.esService.search({
       index: 'keyword-search',
-      // q: `keyword:${keyword}`,
-      // query: {
-      //   wildcard: { keyword: { value: `*${keyword}*` } },
-      //   // black hole -> black hole 검색 안됨
-      // },
+      size,
       query: {
-        prefix: {
-          keyword: keyword,
+        bool: {
+          should: [
+            {
+              match_bool_prefix: {
+                title: {
+                  query: keyword,
+                },
+              },
+            },
+            {
+              match_bool_prefix: {
+                author: {
+                  query: keyword,
+                },
+              },
+            },
+          ],
         },
       },
     });
   }
+  async getAllElasticData() {
+    return await this.esService.search({ index: 'keyword-search' });
+  }
+  //match: title , author (상위5개의 fuzzi점수를 비교해서 큰쪽을 가져가는걸로)
 }
 //title, author
