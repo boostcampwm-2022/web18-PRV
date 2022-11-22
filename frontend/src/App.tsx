@@ -9,7 +9,16 @@ import SearchList from './pages/SearchList/SearchList';
 import GlobalStyle from './style/GlobalStyle';
 import theme from './style/theme';
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      refetchOnMount: false,
+      refetchOnReconnect: false,
+      staleTime: 5 * 60 * 1000,
+    },
+  },
+});
 
 function App() {
   return (

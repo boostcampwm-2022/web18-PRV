@@ -2,7 +2,7 @@ import { ChangeEvent, KeyboardEvent, useCallback, useMemo, useState } from 'reac
 import { createSearchParams, useNavigate } from 'react-router-dom';
 import { useQueryClient, useQuery } from 'react-query';
 import styled from 'styled-components';
-import SearchApi from '../api/searchApi';
+import Api from '../api/api';
 import { PATH_SEARCH_LIST } from '../constants/path';
 import MaginifyingGlassIcon from '../icons/MagnifyingGlassIcon';
 import { getLocalStorage, setLocalStorage } from '../utils/localStorage';
@@ -24,7 +24,7 @@ export interface IAutoCompletedItem {
   title: string;
 }
 
-const searchApi = new SearchApi();
+const api = new Api();
 
 const Search = () => {
   const [keyword, setKeyword] = useState<string>('');
@@ -38,13 +38,12 @@ const Search = () => {
     ['getAutoComplete', debouncedValue],
     async () => {
       await queryClient.cancelQueries('getAutoComplete');
-      return searchApi
+      return api
         .getAutoComplete({ keyword: debouncedValue })
         .then((res) => res.data)
         .catch((e) => console.error(e));
     },
     {
-      staleTime: 5 * 60 * 1000,
       enabled: !!(debouncedValue && debouncedValue.length >= 2),
     },
   );

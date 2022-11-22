@@ -40,19 +40,23 @@ const customAxiosInstance = (baseURL: string) => {
   return axiosInstance;
 };
 
-export default class SearchApi {
-  private readonly baseURL = 'http://49.50.172.204:4000/search';
+export default class Api {
+  private readonly baseURL = 'http://49.50.172.204:4000';
   private readonly instance: AxiosInstance;
 
   constructor() {
     this.instance = customAxiosInstance(this.baseURL);
   }
 
+  getKeywordRanking() {
+    return this.instance.get('/keyword-ranking');
+  }
+
   getSearch(params: IGetSearch) {
-    return this.instance.get('', { params });
+    return this.instance.get('/search', { params });
   }
 
   getAutoComplete(params: IGetAutoComplete) {
-    return this.instance.get('/auto-complete', { params });
+    return this.instance.get('/search/auto-complete', { params });
   }
 }
