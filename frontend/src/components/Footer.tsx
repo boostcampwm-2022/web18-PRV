@@ -1,9 +1,14 @@
 import styled from 'styled-components';
 import GithubLogoIcon from '../icons/GithubLogoIcon';
 
-const Footer = () => {
+interface FooterProps {
+  bgColor?: string;
+  contentColor?: string;
+}
+
+const Footer = ({ bgColor, contentColor }: FooterProps) => {
   return (
-    <Container>
+    <Container bgColor={bgColor} contentColor={contentColor}>
       <span>문의사항, 버그제보: vp.prv@gmail.com</span>
       <FooterRight>
         <span>Copyright Ⓒ 2022. View Point All rights reserved.</span>
@@ -15,17 +20,15 @@ const Footer = () => {
   );
 };
 
-const Container = styled.footer`
-  position: absolute;
-  bottom: 0;
+const Container = styled.footer<{ bgColor?: string; contentColor?: string }>`
   display: flex;
   justify-content: space-between;
   align-items: center;
   width: 100%;
   height: 45px;
   padding: 0 25px;
-  background-color: ${({ theme }) => `${theme.COLOR.offWhite}10`};
-  color: ${({ theme }) => `${theme.COLOR.gray1}`};
+  background-color: ${({ bgColor, theme }) => bgColor || `${theme.COLOR.offWhite}10`};
+  color: ${({ contentColor, theme }) => contentColor || theme.COLOR.gray1};
   ${({ theme }) => theme.TYPO.caption}
 `;
 

@@ -1,12 +1,12 @@
 import { isEmpty } from 'lodash-es';
+import { useState } from 'react';
 import { useQuery } from 'react-query';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
 import Api from '../../api/api';
-import Search from '../../components/Search';
-import StarLayer from '../../components/StarLayer';
-import { PATH_MAIN } from '../../constants/path';
-import LogoIcon from '../../icons/LogoIcon';
+import Footer from '../../components/Footer';
+import theme from '../../style/theme';
+import SearchBarHeader from './components/SearchBarHeader';
 
 const api = new Api();
 
@@ -30,55 +30,50 @@ interface PageInfo {
   totalPages: number;
 }
 
+interface IPapersData {
+  papers: Paper[];
+  pageInfo: PageInfo;
+}
+
 const SearchList = () => {
   const [searchParams] = useSearchParams();
+  const [pageInfo, setPageInfo] = useState<PageInfo>();
+  const [papers, setPapers] = useState<Paper[]>();
   const params = Object.fromEntries([...searchParams]);
-  const navigate = useNavigate();
 
-  const { data } = useQuery(['papers', params], () => api.getSearch(params), {
+  const { isLoading } = useQuery(['papers', params], () => api.getSearch(params).then((res) => res.data), {
     enabled: !isEmpty(params),
+    onSuccess: (data: IPapersData) => {
+      console.log(data);
+      setPageInfo(data.pageInfo);
+      setPapers(data.papers);
+    },
   });
 
-  const handleIconClick = () => {
-    navigate({
-      pathname: PATH_MAIN,
-    });
-  };
+  if (isLoading) return <div>로딩즁..</div>;
 
   return (
-    <Header>
-      <StarLayer />
-      <IconContainer onClick={handleIconClick}>
-        <LogoIcon />
-      </IconContainer>
-      <SaerchContainer>
-        <Search initialKeyword={params.keyword} />
-      </SaerchContainer>
-    </Header>
+    <Container>
+      <SearchBarHeader keyword={params.keyword} />
+      <Results></Results>
+      <Footer bgColor={theme.COLOR.primary3} contentColor={theme.COLOR.offWhite} />
+    </Container>
   );
 };
 
-const Header = styled.header`
-  padding: 0;
-  position: relative;
-  text-align: center;
-  width: 100%;
-  height: 70px;
-  background-color: ${({ theme }) => theme.COLOR.primary3};
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: ${({ theme }) => theme.COLOR.offWhite};
 `;
 
-const IconContainer = styled.div`
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  left: 16px;
-  z-index: 4;
-  cursor: pointer;
+const Results = styled.main`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  flex: 1;
+  overflow-y: auto;
 `;
 
-const SaerchContainer = styled.div`
-  position: absolute;
-  width: 100%;
-  margin: 10px auto;
-`;
 export default SearchList;
