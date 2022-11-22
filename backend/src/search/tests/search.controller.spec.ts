@@ -21,7 +21,10 @@ describe('SearchController', () => {
           return acc;
         }, {});
       });
-      return Promise.resolve<{ data: CrossRefResponse }>({ data: { message: { items } } });
+
+      return Promise.resolve<{ data: CrossRefResponse }>({
+        data: { message: { 'total-results': mockData.message['total-results'], items } },
+      });
     });
     const module: TestingModule = await Test.createTestingModule({
       controllers: [SearchController],
@@ -40,7 +43,7 @@ describe('SearchController', () => {
     expect(controller).toBeDefined();
   });
 
-  it('(GET) /search/auto-complete?keyword=coffee', async () => {
+  it('getAutoCompletePapers - keyword=coffee 일 때 PaperInfo[]를 return', async () => {
     const keyword = 'coffee';
     const items = await controller.getAutoCompletePapers(keyword);
     expect(items.length).toBe(5);
@@ -49,10 +52,11 @@ describe('SearchController', () => {
     });
   });
 
-  it('(GET) /search?keyword=coffee', async () => {
+  it(`getAutoCompletePapers - keyword='' 일 때 PaperInfoExtended[]를 return`, async () => {
     const keyword = 'coffee';
-    const items = await controller.getPapers(keyword, 0);
-    expect(items.length).toBe(10);
+    const { papers: items, pageInfo } = await controller.getPapers(keyword);
+    expect(items.length).toBe(20);
+    expect(pageInfo.totalItems).toBe(28810);
     items.forEach((item) => {
       expect(item).toBeInstanceOf(PaperInfoExtended);
     });
