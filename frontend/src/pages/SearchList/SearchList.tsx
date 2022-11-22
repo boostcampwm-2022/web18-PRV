@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import SearchApi from '../../api/searchApi';
+import Api from '../../api/api';
 
-const searchApi = new SearchApi();
+const api = new Api();
 
 const SearchList = () => {
   const [data, setData] = useState();
@@ -13,7 +13,7 @@ const SearchList = () => {
     if (!searchParams) return;
 
     const params = Object.fromEntries([...searchParams]);
-    searchApi.getSearch(params).then(({ data }) => setData(data));
+    api.getSearch(params).then(({ data }) => setData(data));
   }, [searchParams]);
 
   return <div>{data}</div>;

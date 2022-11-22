@@ -1,13 +1,15 @@
-import { ChangeEvent, KeyboardEvent, useCallback, useEffect, useMemo, useState } from 'react';
+import { ChangeEvent, KeyboardEvent, useCallback, useMemo, useState } from 'react';
 import { createSearchParams, useNavigate } from 'react-router-dom';
+import { useQueryClient, useQuery } from 'react-query';
 import styled from 'styled-components';
-import SearchApi from '../api/searchApi';
+import Api from '../api/api';
 import { PATH_SEARCH_LIST } from '../constants/path';
 import MaginifyingGlassIcon from '../icons/MagnifyingGlassIcon';
 import { getLocalStorage, setLocalStorage } from '../utils/localStorage';
 import AutoCompletedList from './AutoCompletedList';
 import MoonLoader from './MoonLoader';
 import RecentKeywordsList from './RecentKeywordsList';
+import useDebounceValue from '../customHooks/useDebouncedValue';
 
 enum DROPDOWN_TYPE {
   AUTO_COMPLETE = 'AUTO_COMPLETE',
@@ -22,15 +24,29 @@ export interface IAutoCompletedItem {
   title: string;
 }
 
-const searchApi = new SearchApi();
+const api = new Api();
 
 const Search = () => {
   const [keyword, setKeyword] = useState<string>('');
   const [recentKeywords, setRecentKeywords] = useState<string[]>([]);
   const [isFocused, setIsFocused] = useState<boolean>(false);
   const [hoverdIndex, setHoveredIndex] = useState<number>(-1);
-  const [autoCompletedItems, setAutoCompletedItems] = useState<IAutoCompletedItem[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const debouncedValue = useDebounceValue(keyword, 150);
+  const queryClient = useQueryClient();
+
+  const { isLoading, data: autoCompletedItems } = useQuery<IAutoCompletedItem[]>(
+    ['getAutoComplete', debouncedValue],
+    async () => {
+      await queryClient.cancelQueries('getAutoComplete');
+      return api
+        .getAutoComplete({ keyword: debouncedValue })
+        .then((res) => res.data)
+        .catch((e) => console.error(e));
+    },
+    {
+      enabled: !!(debouncedValue && debouncedValue.length >= 2),
+    },
+  );
 
   const navigate = useNavigate();
 
@@ -41,11 +57,11 @@ const Search = () => {
     if (isLoading) {
       return DROPDOWN_TYPE.LOADING;
     }
-    if (keyword.length > 2) {
+    if (debouncedValue.length >= 2) {
       return DROPDOWN_TYPE.AUTO_COMPLETE;
     }
     return DROPDOWN_TYPE.RECENT_KEYWORDS;
-  }, [isFocused, isLoading, keyword]);
+  }, [isFocused, isLoading, debouncedValue]);
 
   // keyword 검색
   const goToSearchList = useCallback(
@@ -104,7 +120,7 @@ const Search = () => {
     switch (dropdownType) {
       case DROPDOWN_TYPE.AUTO_COMPLETE:
         // Todo : 상세정보 api 호출
-        console.log('상세정보', autoCompletedItems[hoverdIndex].doi);
+        console.log('상세정보', autoCompletedItems?.[hoverdIndex].doi);
         break;
       case DROPDOWN_TYPE.RECENT_KEYWORDS:
         handleSearchButtonClick(recentKeywords[hoverdIndex]);
@@ -114,7 +130,10 @@ const Search = () => {
 
   // 방향키, enter키 입력 이벤트 핸들러
   const handleInputKeyDown = (e: KeyboardEvent) => {
-    const length = dropdownType === DROPDOWN_TYPE.AUTO_COMPLETE ? autoCompletedItems.length : recentKeywords.length;
+    const length = dropdownType === DROPDOWN_TYPE.AUTO_COMPLETE ? autoCompletedItems?.length : recentKeywords.length;
+
+    if (length === undefined) return;
+
     switch (e.code) {
       case 'ArrowDown':
         setHoveredIndex((prev) => (prev + 1) % length);
@@ -150,32 +169,6 @@ const Search = () => {
       [DROPDOWN_TYPE.HIDDEN]: <></>,
     }[type];
   };
-
-  useEffect(() => {
-    if (keyword.length < 2) return;
-    setIsLoading(true);
-    const timer = setTimeout(() => {
-      searchApi
-        .getAutoComplete({ keyword })
-        .then(({ data }) => {
-          const { papers, keyword: _keyword } = data;
-          if (_keyword.trim() === keyword.trim()) {
-            setIsLoading(false);
-            setAutoCompletedItems(papers);
-          }
-        })
-        .catch((err) => {
-          switch (err.response.status) {
-            case 400:
-              console.debug('bad request');
-              break;
-            default:
-              console.debug(err);
-          }
-        });
-    }, 150);
-    return () => clearTimeout(timer);
-  }, [keyword]);
 
   return (
     <Container>
