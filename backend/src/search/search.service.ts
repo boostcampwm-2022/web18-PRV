@@ -14,7 +14,6 @@ export class SearchService {
     const totalItems = crossRefdata.data.message['total-results'];
     return { items, totalItems };
   }
-
   async getCrossRefData(keyword: string, rows: number, page: number, isDoiExist: boolean) {
     const crossRefdata = await this.httpService.axiosRef.get<CrossRefResponse>(
       CROSSREF_API_URL(
@@ -28,7 +27,6 @@ export class SearchService {
     const totalItems = crossRefdata.data.message['total-results'];
     return { items, totalItems };
   }
-
   async crawlAllCrossRefData(keyword: string, totalItems: number, rows: number) {
     if (totalItems >= 10000) totalItems = 10000;
     await Promise.all(
@@ -104,16 +102,15 @@ export class SearchService {
         return { hits: { hits: [] as SearchHit<PaperInfo>[], total: 0 } };
       });
   }
-  async getAllElasticData() {
-    return await this.esService.search({ index: process.env.ELASTIC_INDEX });
-  }
   async getCacheFromCrossRef(url: string) {
-    const crossRefdata = await this.httpService.axiosRef.get<CrossRefResponse>(url);
-    const items = crossRefdata.data.message.items;
-    const papers = this.parseCrossRefData(items);
-    papers.map((paper) => {
-      this.putElasticSearch(paper);
-    });
+    try {
+      const crossRefdata = await this.httpService.axiosRef.get<CrossRefResponse>(url);
+      const items = crossRefdata.data.message.items;
+      const papers = this.parseCrossRefData(items);
+      papers.map((paper) => {
+        this.putElasticSearch(paper);
+      });
+    } catch (error) {}
   }
   //match: title , author (상위5개의 fuzzi점수를 비교해서 큰쪽을 가져가는걸로)
 }
