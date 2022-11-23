@@ -5,6 +5,7 @@ import { HttpModule } from '@nestjs/axios';
 import { ElasticsearchModule } from '@nestjs/elasticsearch';
 import { HttpConnection } from '@elastic/elasticsearch';
 import { ScheduleModule } from '@nestjs/schedule';
+import { RankingService } from 'src/ranking/ranking.service';
 @Module({
   imports: [
     HttpModule,
@@ -25,6 +26,6 @@ import { ScheduleModule } from '@nestjs/schedule';
     ScheduleModule.forRoot(),
   ],
   controllers: [SearchController],
-  providers: [SearchService],
+  providers: [SearchService, RankingService],
 })
 export class SearchModule {}

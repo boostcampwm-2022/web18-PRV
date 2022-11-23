@@ -14,7 +14,7 @@ export class SearchService {
     const totalItems = crossRefdata.data.message['total-results'];
     return { items, totalItems };
   }
-  async getCrossRefData(keyword: string, rows: number, page: number, isDoiExist: boolean) {
+  async getCrossRefData(keyword: string, rows: number, page: number) {
     const crossRefdata = await this.httpService.axiosRef.get<CrossRefResponse>(
       CROSSREF_API_URL(
         keyword,
@@ -112,6 +112,4 @@ export class SearchService {
       });
     } catch (error) {}
   }
-  //match: title , author (상위5개의 fuzzi점수를 비교해서 큰쪽을 가져가는걸로)
 }
-//title, author
