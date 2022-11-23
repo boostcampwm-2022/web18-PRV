@@ -35,7 +35,7 @@ const SearchResults = ({ pageInfo, papers, keyword, page, changePage }: SearchRe
                 <Paper key={paper.doi} data={paper} keyword={keyword} />
               ))}
             </Papers>
-            <PageNation>
+            <Pagination>
               {page > 10 && <Button onClick={goToPrevPages}>이전</Button>}
               {Array.from(
                 {
@@ -55,7 +55,7 @@ const SearchResults = ({ pageInfo, papers, keyword, page, changePage }: SearchRe
                 },
               )}
               {pageInfo.totalPages > Math.ceil(page / 10) * 10 && <Button onClick={goToNextPages}>다음</Button>}
-            </PageNation>
+            </Pagination>
           </Section>
         </>
       ) : (
@@ -95,7 +95,7 @@ const NoResult = styled.div`
   padding-top: 100px;
 `;
 
-const PageNation = styled.div`
+const Pagination = styled.div`
   ${({ theme }) => theme.TYPO.body1};
   margin: 20px auto 0 auto;
 `;

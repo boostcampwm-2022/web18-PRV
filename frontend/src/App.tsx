@@ -1,4 +1,5 @@
 import { QueryClient, QueryClientProvider } from 'react-query';
+import { ReactQueryDevtools } from 'react-query/devtools';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { ThemeProvider } from 'styled-components';
 import { Reset } from 'styled-reset';
@@ -30,7 +31,7 @@ function App() {
             <Route path={PATH_MAIN} element={<Main />} />
             <Route path={PATH_SEARCH_LIST} element={<SearchList />} />
           </Routes>
-          {/* <ReactQueryDevtools initialIsOpen={true} /> */}
+          <ReactQueryDevtools initialIsOpen={true} />
         </QueryClientProvider>
       </ThemeProvider>
     </BrowserRouter>

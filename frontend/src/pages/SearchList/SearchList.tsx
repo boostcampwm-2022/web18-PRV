@@ -59,7 +59,7 @@ const SearchList = () => {
 
   return (
     <Container>
-      <SearchBarHeader keyword={params.keyword} />
+      <SearchBarHeader keyword={params.keyword || ''} />
       {isLoading ? (
         <MoonWrapper>
           <MoonLoader />
@@ -68,7 +68,7 @@ const SearchList = () => {
         <SearchResults
           pageInfo={data.pageInfo}
           papers={data.papers}
-          keyword={params.keyword}
+          keyword={params.keyword || ''}
           page={Number(params.page)}
           changePage={changePage}
         />
