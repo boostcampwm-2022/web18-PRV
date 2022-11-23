@@ -9,6 +9,7 @@ services:
     links:
       - redis
       - mongo
+      - elastic
     ports:
       - 4000:4000
     networks:
@@ -33,6 +34,18 @@ services:
     image: ${NCP_CONTAINER_REGISTRY}/prv-frontend
     ports:
       - 3000:80
+
+  elastic:
+    image: elasticsearch:8.5.1
+    ports:
+      - 9200:9200
+      - 9300:9300
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=true
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+    networks:
+      - viewpoint
 
 networks:
   viewpoint:
