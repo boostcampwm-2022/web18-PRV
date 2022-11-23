@@ -15,7 +15,7 @@ export class SearchService {
     return { items, totalItems };
   }
 
-  async getCrossRefData(keyword: string, rows: number, page: number, isDoiExist: boolean) {
+  async getCrossRefData(keyword: string, rows: number, page: number) {
     const crossRefdata = await this.httpService.axiosRef.get<CrossRefResponse>(
       CROSSREF_API_URL(
         keyword,
@@ -34,7 +34,7 @@ export class SearchService {
       Array(Math.ceil(totalItems / rows))
         .fill(0)
         .map((_, i) => {
-          return this.getCrossRefData(keyword, rows, i + 1, false);
+          return this.getCrossRefData(keyword, rows, i + 1);
         }),
     );
     console.log(totalItems);
