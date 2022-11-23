@@ -1,6 +1,6 @@
 import { Controller, Get, Query, UsePipes, ValidationPipe } from '@nestjs/common';
 import { SearchService } from './search.service';
-import { PositiveIntegerValidationPipe, SearchValidationPipe } from './pipe/search.pipe';
+import { KeywordValidationPipe } from './pipe/search.pipe';
 import { SearchDto } from './pipe/search.dto';
 import { SearchTotalHits } from '@elastic/elasticsearch/lib/api/types';
 import { BatchService } from './batch.service';
@@ -9,7 +9,7 @@ import { BatchService } from './batch.service';
 export class SearchController {
   constructor(private readonly searchService: SearchService, private readonly batchService: BatchService) {}
   @Get('auto-complete')
-  async getAutoCompletePapers(@Query('keyword', SearchValidationPipe) keyword: string) {
+  async getAutoCompletePapers(@Query('keyword', KeywordValidationPipe) keyword: string) {
     this.batchService.pushKeyword(keyword);
 
     const elastic = await this.searchService.getElasticSearch(keyword);
@@ -30,10 +30,10 @@ export class SearchController {
   }
 
   @Get()
-  @UsePipes(ValidationPipe)
-  async getPapers(@Query() query: SearchDto) {
-    const { keyword, rows, page, hasDoi } = query;
-    const { items, totalItems } = await this.searchService.getCrossRefData(keyword, rows, page, hasDoi);
+  @UsePipes(new ValidationPipe({ transform: true }))
+  async getPapers(@Query('keyword', KeywordValidationPipe) keyword: string, @Query() query: SearchDto) {
+    const { rows, page } = query;
+    const { items, totalItems } = await this.searchService.getCrossRefData(keyword, rows, page);
     const papers = this.searchService.parseCrossRefData(items);
     return {
       papers,
