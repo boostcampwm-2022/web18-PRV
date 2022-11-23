@@ -31,8 +31,8 @@ const SearchResults = ({ pageInfo, papers, keyword, page, changePage }: SearchRe
           <Hr />
           <Section>
             <Papers>
-              {papers.map((paper, i) => (
-                <Paper key={i} data={paper} keyword={keyword} />
+              {papers.map((paper) => (
+                <Paper key={paper.doi} data={paper} keyword={keyword} />
               ))}
             </Papers>
             <PageNation>
