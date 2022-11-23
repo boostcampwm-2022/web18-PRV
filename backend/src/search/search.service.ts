@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
-import { CrossRefResponse, CrossRefItem, PaperInfoExtended } from './entities/crossRef.entity';
+import { CrossRefResponse, CrossRefItem, PaperInfoExtended, PaperInfo } from './entities/crossRef.entity';
 import { CROSSREF_API_URL } from '../util';
 import { ElasticsearchService } from '@nestjs/elasticsearch';
+import { SearchHit } from '@elastic/elasticsearch/lib/api/types';
 
 @Injectable()
 export class SearchService {
@@ -69,7 +70,7 @@ export class SearchService {
   }
   async putElasticSearch(paper: PaperInfoExtended) {
     return await this.esService.index({
-      index: 'keyword-search',
+      index: process.env.ELASTIC_INDEX,
       id: paper.doi,
       document: {
         ...paper,
@@ -77,34 +78,38 @@ export class SearchService {
     });
   }
   async getElasticSearch(keyword: string, size = 5) {
-    console.log(keyword);
-    return await this.esService.search({
-      index: 'keyword-search',
-      size,
-      query: {
-        bool: {
-          should: [
-            {
-              match_bool_prefix: {
-                title: {
-                  query: keyword,
-                },
+    const query = {
+      bool: {
+        should: [
+          {
+            match_bool_prefix: {
+              title: {
+                query: keyword,
               },
             },
-            {
-              match_bool_prefix: {
-                author: {
-                  query: keyword,
-                },
+          },
+          {
+            match_bool_prefix: {
+              author: {
+                query: keyword,
               },
             },
-          ],
-        },
+          },
+        ],
       },
-    });
+    };
+    return await this.esService
+      .search<PaperInfo>({
+        index: process.env.ELASTIC_INDEX,
+        size,
+        query,
+      })
+      .catch(() => {
+        return { hits: { hits: [] as SearchHit<PaperInfo>[], total: 0 } };
+      });
   }
   async getAllElasticData() {
-    return await this.esService.search({ index: 'keyword-search' });
+    return await this.esService.search({ index: process.env.ELASTIC_INDEX });
   }
   //match: title , author (상위5개의 fuzzi점수를 비교해서 큰쪽을 가져가는걸로)
 }
