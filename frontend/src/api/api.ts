@@ -1,9 +1,9 @@
 import axios, { AxiosInstance } from 'axios';
 
 export interface IGetSearch {
-  keyword?: string;
-  page?: string;
-  isDoiExist?: string;
+  keyword: string;
+  page: string;
+  rows?: string;
 }
 
 export interface IGetAutoComplete {
@@ -23,7 +23,9 @@ export default class Api {
   }
 
   getSearch(params: IGetSearch) {
-    return this.instance.get('/search', { params });
+    return this.instance.get('/search', {
+      params,
+    });
   }
 
   getAutoComplete(params: IGetAutoComplete) {

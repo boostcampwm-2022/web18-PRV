@@ -1,15 +1,15 @@
-import { ChangeEvent, KeyboardEvent, useCallback, useMemo, useState } from 'react';
-import { createSearchParams, useNavigate } from 'react-router-dom';
+import { ChangeEvent, KeyboardEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useQuery } from 'react-query';
+import { createSearchParams, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import Api from '../api/api';
 import { PATH_SEARCH_LIST } from '../constants/path';
+import useDebounceValue from '../customHooks/useDebouncedValue';
 import MaginifyingGlassIcon from '../icons/MagnifyingGlassIcon';
 import { getLocalStorage, setLocalStorage } from '../utils/localStorage';
 import AutoCompletedList from './AutoCompletedList';
 import MoonLoader from './MoonLoader';
 import RecentKeywordsList from './RecentKeywordsList';
-import useDebounceValue from '../customHooks/useDebouncedValue';
 
 enum DROPDOWN_TYPE {
   AUTO_COMPLETE = 'AUTO_COMPLETE',
@@ -24,13 +24,19 @@ export interface IAutoCompletedItem {
   title: string;
 }
 
+interface SearchProps {
+  initialKeyword?: string;
+}
+
 const api = new Api();
 
-const Search = () => {
-  const [keyword, setKeyword] = useState<string>('');
+const Search = ({ initialKeyword = '' }: SearchProps) => {
+  const [keyword, setKeyword] = useState<string>(initialKeyword);
   const [recentKeywords, setRecentKeywords] = useState<string[]>([]);
   const [isFocused, setIsFocused] = useState<boolean>(false);
   const [hoverdIndex, setHoveredIndex] = useState<number>(-1);
+  const inputRef = useRef<HTMLInputElement>(null);
+
   const debouncedValue = useDebounceValue(keyword, 150);
 
   const { isLoading, data: autoCompletedItems } = useQuery<IAutoCompletedItem[]>(
@@ -60,7 +66,7 @@ const Search = () => {
   // keyword 검색
   const goToSearchList = useCallback(
     (keyword: string) => {
-      const params = { keyword, page: '1', isDoiExist: 'false' };
+      const params = { keyword, page: '1', rows: '20' };
       navigate({
         pathname: PATH_SEARCH_LIST,
         search: createSearchParams(params).toString(),
@@ -102,6 +108,7 @@ const Search = () => {
     recentSet.add(keyword);
     setLocalStorage('recentKeywords', Array.from(recentSet).slice(-5));
     goToSearchList(keyword);
+    inputRef?.current?.blur();
   };
 
   const handleEnterKeyDown = () => {
@@ -164,11 +171,16 @@ const Search = () => {
     }[type];
   };
 
+  useEffect(() => {
+    setKeyword(initialKeyword);
+  }, [initialKeyword]);
+
   return (
     <Container>
       <SearchBox>
         <SearchBar>
           <SearchInput
+            ref={inputRef}
             placeholder="저자, 제목, 키워드"
             value={keyword}
             onChange={handleInputChange}
@@ -191,7 +203,7 @@ const Container = styled.div`
   flex: 1;
   overflow-y: auto;
   z-index: 3;
-  margin-top: 20px;
+  padding-bottom: 15px;
 `;
 
 const SearchBox = styled.div`
@@ -203,6 +215,9 @@ const SearchBox = styled.div`
   background-color: ${({ theme }) => theme.COLOR.offWhite};
   border-radius: 25px;
   overflow-y: auto;
+  margin: auto;
+  -webkit-box-shadow: 0px 4px 11px -1px rgba(0, 0, 0, 0.15);
+  box-shadow: 0px 4px 11px -1px rgba(0, 0, 0, 0.15);
 `;
 
 const SearchBar = styled.div`
