@@ -1,5 +1,10 @@
-import { useEffect, useState } from 'react';
+import { AxiosError } from 'axios';
+import { useState } from 'react';
+import { useQuery } from 'react-query';
+import { createSearchParams, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+import Api from '../../../api/api';
+import { PATH_SEARCH_LIST } from '../../../constants/path';
 import DropdownIcon from '../../../icons/DropdownIcon';
 import DropDownReverseIcon from '../../../icons/DropdownReverseIcon';
 import RankingSlide from './RankingSlide';
@@ -9,57 +14,57 @@ interface IRankingData {
   count: number;
 }
 
+const api = new Api();
+
 const KeywordRanking = () => {
   const [isRankingListOpen, setisRankingListOpen] = useState(false);
-  const [rankingData, setRankingData] = useState<IRankingData[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string>();
-  const handleButtonClick = () => {
+  const navigate = useNavigate();
+  const {
+    isLoading,
+    isError,
+    data: rankingData,
+  } = useQuery<IRankingData[], AxiosError>('getKeywordRanking', () => api.getKeywordRanking().then((res) => res.data), {
+    retry: 3,
+  });
+
+  const goToSearchList = (keyword: string) => {
+    const params = { keyword, page: '1', rows: '20' };
+    navigate({
+      pathname: PATH_SEARCH_LIST,
+      search: createSearchParams(params).toString(),
+    });
+  };
+
+  const handleRankingClick = () => {
     setisRankingListOpen((prev) => !prev);
   };
 
-  useEffect(() => {
-    const fetchKeywordRanking = async () => {
-      try {
-        const response = await fetch('http://49.50.172.204:4000/keyword-ranking');
-        if (!response.ok) {
-          throw Error(`Response: ${response.statusText}`);
-        }
-        const data: IRankingData[] = await response.json();
-        setRankingData(data);
-        setIsLoading(true);
-      } catch (err) {
-        let message = 'Unknown Error';
-        if (err instanceof Error) message = err.message;
-        setError(message);
-      }
-    };
-
-    fetchKeywordRanking();
-  }, []);
+  const handleKeywordClick = (keyword: string) => {
+    goToSearchList(keyword);
+  };
 
   return (
     <RankingContainer>
-      {error ? (
-        <div>{error}</div>
+      {isError ? (
+        <ErrorMessage>오류 발생으로 인기검색어 사용이 불가합니다.</ErrorMessage>
       ) : (
         <RankingBar>
           <HeaderContainer>
             <span>인기 검색어</span>
             <HeaderDivideLine />
-            <RankingContent onClick={handleButtonClick}>
-              {isLoading && (rankingData.length ? <RankingSlide rankingData={rankingData} /> : '데이터가 없습니다.')}
+            <RankingContent onClick={handleRankingClick}>
+              {!isLoading && (rankingData?.length ? <RankingSlide rankingData={rankingData} /> : '데이터가 없습니다.')}
             </RankingContent>
-            <DropdownReverseButton type="button" onClick={handleButtonClick}>
+            <DropdownReverseButton type="button" onClick={handleRankingClick}>
               {isRankingListOpen ? <DropDownReverseIcon /> : <DropdownIcon />}
             </DropdownReverseButton>
           </HeaderContainer>
           {isRankingListOpen && (
             <>
               <DivideLine />
-              <RankingKeywordContainer onClick={handleButtonClick}>
-                {rankingData.slice(0, 10).map((data, index) => (
-                  <KeywordContainer key={`${index}${data.keyword}`}>
+              <RankingKeywordContainer>
+                {rankingData?.slice(0, 10).map((data, index) => (
+                  <KeywordContainer key={`${index}${data.keyword}`} onClick={() => handleKeywordClick(data.keyword)}>
                     <KeywordIndex>{index + 1}</KeywordIndex>
                     <Keyword>{data.keyword}</Keyword>
                   </KeywordContainer>
@@ -69,7 +74,7 @@ const KeywordRanking = () => {
           )}
         </RankingBar>
       )}
-      {isRankingListOpen && <Dimmer onClick={handleButtonClick} />}
+      {isRankingListOpen && <Dimmer onClick={handleRankingClick} />}
     </RankingContainer>
   );
 };
@@ -78,6 +83,14 @@ const RankingContainer = styled.div`
   position: relative;
   width: 500px;
   height: 70px;
+`;
+
+const ErrorMessage = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 30px;
+  padding: 5px 20px;
 `;
 
 const RankingBar = styled.div`
