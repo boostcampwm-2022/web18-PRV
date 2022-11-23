@@ -201,6 +201,7 @@ const Container = styled.div`
   flex: 1;
   overflow-y: auto;
   z-index: 3;
+  padding-bottom: 15px;
 `;
 
 const SearchBox = styled.div`
@@ -213,6 +214,8 @@ const SearchBox = styled.div`
   border-radius: 25px;
   overflow-y: auto;
   margin: auto;
+  -webkit-box-shadow: 0px 4px 11px -1px rgba(0, 0, 0, 0.15);
+  box-shadow: 0px 4px 11px -1px rgba(0, 0, 0, 0.15);
 `;
 
 const SearchBar = styled.div`
