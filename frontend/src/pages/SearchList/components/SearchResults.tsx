@@ -37,14 +37,23 @@ const SearchResults = ({ pageInfo, papers, keyword, page, changePage }: SearchRe
             </Papers>
             <PageNation>
               {page > 10 && <Button onClick={goToPrevPages}>이전</Button>}
-              {Array.from({ length: Math.min(10, pageInfo.totalPages - page + 1) }, (_, i) => {
-                const calculatedPage = (Math.ceil(page / 10) - 1) * 10 + i + 1;
-                return (
-                  <Page key={i} isCurrentPage={page === calculatedPage} onClick={() => handlePageClick(calculatedPage)}>
-                    {calculatedPage}
-                  </Page>
-                );
-              })}
+              {Array.from(
+                {
+                  length: Math.min(10, pageInfo.totalPages - (Math.ceil(page / 10) - 1) * 10),
+                },
+                (_, i) => {
+                  const calculatedPage = (Math.ceil(page / 10) - 1) * 10 + i + 1;
+                  return (
+                    <Page
+                      key={i}
+                      isCurrentPage={page === calculatedPage}
+                      onClick={() => handlePageClick(calculatedPage)}
+                    >
+                      {calculatedPage}
+                    </Page>
+                  );
+                },
+              )}
               {pageInfo.totalPages > Math.ceil(page / 10) * 10 && <Button onClick={goToNextPages}>다음</Button>}
             </PageNation>
           </Section>
