@@ -15,8 +15,4 @@ describe('SearchController', () => {
 
     controller = module.get<SearchController>(SearchController);
   });
-
-  it('should be defined', () => {
-    expect(controller).toBeDefined();
-  });
 });

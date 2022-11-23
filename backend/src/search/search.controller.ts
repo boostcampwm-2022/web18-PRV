@@ -13,6 +13,7 @@ export class SearchController {
     this.batchService.pushKeyword(keyword);
 
     const elastic = await this.searchService.getElasticSearch(keyword);
+    console.log(elastic.hits.hits);
     const elasticDataCount = (elastic.hits.total as SearchTotalHits).value;
     if (elasticDataCount > 0) {
       return elastic.hits.hits.map((paper) => paper._source);
