@@ -22,11 +22,18 @@ const AutoCompletedList = ({
 
   // keyword 강조
   const highlightKeyword = (text: string) => {
-    const rawKeyword = keyword.trim().toLowerCase();
-    return rawKeyword !== '' && text.toLowerCase().includes(rawKeyword)
+    const rawKeywordList = keyword.trim().toLowerCase().split(/\s/gi);
+
+    return rawKeywordList.length > 0 && rawKeywordList.some((rawKeyword) => text.toLowerCase().includes(rawKeyword))
       ? text
-          .split(new RegExp(`(${rawKeyword})`, 'gi'))
-          .map((part, i) => (part.trim().toLowerCase() === rawKeyword ? <Emphasize key={i}>{part}</Emphasize> : part))
+          .split(new RegExp(`(${rawKeywordList.join('|')})`, 'gi'))
+          .map((part, i) =>
+            rawKeywordList.some((keywordPart) => part.trim().toLowerCase() === keywordPart) ? (
+              <Emphasize key={i}>{part}</Emphasize>
+            ) : (
+              part
+            ),
+          )
       : text;
   };
 
