@@ -43,32 +43,32 @@ const COLOR: ColorConfig = {
 
 const TYPO: TypoConfig = {
   H4: `
-		font-weight: 400;
+		font-weight: 300;
 		font-size: 36px;
 	`,
   H5: `
-		font-weight: 400;
-		font-size: 20px;
+		font-weight: 700;
+		font-size: 18px;
   `,
   title: `
-		font-weight: 600;
+		font-weight: 400;
 		font-size: 16px;
   `,
   subtitle: `
-		font-weight: 400;
+		font-weight: 300;
 		font-size: 16px;
 	`,
   body_h: `
 		font-weight: 700;
 		font-size: 14px;`,
   body1: `
-		font-weight: 400;
+		font-weight: 300;
 		font-size: 14px;`,
   body2: `
-		font-weight: 400;
+		font-weight: 300;
 		font-size: 12px;`,
   caption: `
-		font-weight: 400;
+		font-weight: 300;
 		font-size: 10px;`,
 };
 
