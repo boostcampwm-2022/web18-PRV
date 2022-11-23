@@ -17,7 +17,7 @@ interface IRankingData {
 const api = new Api();
 
 const KeywordRanking = () => {
-  const [isRankingListOpen, setisRankingListOpen] = useState(false);
+  const [isRankingListOpen, setIsRankingListOpen] = useState(false);
   const navigate = useNavigate();
   const {
     isLoading,
@@ -36,7 +36,7 @@ const KeywordRanking = () => {
   };
 
   const handleRankingClick = () => {
-    setisRankingListOpen((prev) => !prev);
+    setIsRankingListOpen((prev) => !prev);
   };
 
   const handleKeywordClick = (keyword: string) => {
