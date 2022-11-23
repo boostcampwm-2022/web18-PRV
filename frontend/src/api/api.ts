@@ -1,9 +1,8 @@
 import axios, { AxiosInstance } from 'axios';
 
 export interface IGetSearch {
-  keyword?: string;
-  page?: string;
-  hasDoi?: string;
+  keyword: string;
+  page: string;
   rows?: string;
 }
 

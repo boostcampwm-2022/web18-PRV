@@ -64,7 +64,7 @@ const Search = ({ initialKeyword = '' }: SearchProps) => {
   // keyword 검색
   const goToSearchList = useCallback(
     (keyword: string) => {
-      const params = { keyword, page: '1', hasDoi: 'true', rows: '20' };
+      const params = { keyword, page: '1', rows: '20' };
       navigate({
         pathname: PATH_SEARCH_LIST,
         search: createSearchParams(params).toString(),
