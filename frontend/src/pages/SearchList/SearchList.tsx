@@ -1,10 +1,12 @@
 import { AxiosError } from 'axios';
 import { isEmpty } from 'lodash-es';
+import { useMemo } from 'react';
 import { useQuery } from 'react-query';
 import { useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
-import Api from '../../api/api';
+import Api, { IGetSearch } from '../../api/api';
 import Footer from '../../components/Footer';
+import MoonLoader from '../../components/MoonLoader';
 import theme from '../../style/theme';
 import SearchBarHeader from './components/SearchBarHeader';
 import SearchResults from './components/SearchResults';
@@ -30,8 +32,17 @@ interface IPapersData {
 }
 
 const SearchList = () => {
-  const [searchParams] = useSearchParams();
-  const params = Object.fromEntries([...searchParams]);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const params = useMemo<IGetSearch>(() => {
+    const paramNames = ['page', 'keyword', 'rows'];
+    return paramNames.reduce(
+      (prev, curr) => (searchParams.get(curr) ? { ...prev, [curr]: searchParams.get(curr) } : prev),
+      {
+        page: '1',
+        keyword: '',
+      },
+    );
+  }, [searchParams]);
 
   const { data, isLoading } = useQuery<IPapersData, AxiosError>(
     ['papers', params],
@@ -41,12 +52,29 @@ const SearchList = () => {
     },
   );
 
-  if (isLoading) return <div>로딩즁..</div>;
+  const changePage = (page: number) => {
+    const updated = { ...params, page: page.toString() };
+    setSearchParams(updated);
+  };
 
   return (
     <Container>
       <SearchBarHeader keyword={params.keyword} />
-      {data && <SearchResults pageInfo={data.pageInfo} papers={data.papers} keyword={params.keyword} />}
+      {isLoading ? (
+        <MoonWrapper>
+          <MoonLoader />
+        </MoonWrapper>
+      ) : data ? (
+        <SearchResults
+          pageInfo={data.pageInfo}
+          papers={data.papers}
+          keyword={params.keyword}
+          page={Number(params.page)}
+          changePage={changePage}
+        />
+      ) : (
+        <></>
+      )}
       <Footer bgColor={theme.COLOR.primary3} contentColor={theme.COLOR.offWhite} />
     </Container>
   );
@@ -57,6 +85,13 @@ const Container = styled.div`
   flex-direction: column;
   height: 100%;
   background-color: ${({ theme }) => theme.COLOR.offWhite};
+`;
+
+const MoonWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  flex: 1;
 `;
 
 export default SearchList;

@@ -1,4 +1,4 @@
-import { ChangeEvent, KeyboardEvent, useCallback, useMemo, useState } from 'react';
+import { ChangeEvent, KeyboardEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useQuery } from 'react-query';
 import { createSearchParams, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -35,6 +35,8 @@ const Search = ({ initialKeyword = '' }: SearchProps) => {
   const [recentKeywords, setRecentKeywords] = useState<string[]>([]);
   const [isFocused, setIsFocused] = useState<boolean>(false);
   const [hoverdIndex, setHoveredIndex] = useState<number>(-1);
+  const inputRef = useRef<HTMLInputElement>(null);
+
   const debouncedValue = useDebounceValue(keyword, 150);
 
   const { isLoading, data: autoCompletedItems } = useQuery<IAutoCompletedItem[]>(
@@ -64,7 +66,7 @@ const Search = ({ initialKeyword = '' }: SearchProps) => {
   // keyword 검색
   const goToSearchList = useCallback(
     (keyword: string) => {
-      const params = { keyword, page: '1', hasDoi: 'true', rows: '20' };
+      const params = { keyword, page: '1', rows: '20' };
       navigate({
         pathname: PATH_SEARCH_LIST,
         search: createSearchParams(params).toString(),
@@ -106,6 +108,7 @@ const Search = ({ initialKeyword = '' }: SearchProps) => {
     recentSet.add(keyword);
     setLocalStorage('recentKeywords', Array.from(recentSet).slice(-5));
     goToSearchList(keyword);
+    inputRef?.current?.blur();
   };
 
   const handleEnterKeyDown = () => {
@@ -168,11 +171,16 @@ const Search = ({ initialKeyword = '' }: SearchProps) => {
     }[type];
   };
 
+  useEffect(() => {
+    setKeyword(initialKeyword);
+  }, [initialKeyword]);
+
   return (
     <Container>
       <SearchBox>
         <SearchBar>
           <SearchInput
+            ref={inputRef}
             placeholder="저자, 제목, 키워드"
             value={keyword}
             onChange={handleInputChange}
