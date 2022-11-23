@@ -10,13 +10,15 @@ import { HttpConnection } from '@elastic/elasticsearch';
     HttpModule,
     ElasticsearchModule.registerAsync({
       useFactory: () => ({
-        node: process.env.ELASTICSEARCH_INDEX,
+        node: process.env.ELASTIC_HOST,
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/json',
         },
-        user: process.env.ELASTIC_USER,
-        password: process.env.ELASTIC_PASSWORD,
+        auth: {
+          username: process.env.ELASTIC_USER,
+          password: process.env.ELASTIC_PASSWORD,
+        },
         Connection: HttpConnection,
       }),
     }),
@@ -25,5 +27,3 @@ import { HttpConnection } from '@elastic/elasticsearch';
   providers: [SearchService, BatchService],
 })
 export class SearchModule {}
-// -e "xpack.security.enabled=false"
-// https://stackoverflow.com/questions/47035056/how-to-disable-security-username-password-on-elasticsearch-docker-container
