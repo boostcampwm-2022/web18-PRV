@@ -1,7 +1,9 @@
 import styled from 'styled-components';
+import usePagination from '../../../customHooks/usePagination';
 import { IPageInfo, IPaper } from '../SearchList';
 import Paper from './Paper';
 
+const PAGINATION_RANGE = 10;
 interface SearchResultsProps {
   pageInfo: IPageInfo;
   papers: IPaper[];
@@ -11,16 +13,10 @@ interface SearchResultsProps {
 }
 
 const SearchResults = ({ pageInfo, papers, keyword, page, changePage }: SearchResultsProps) => {
+  const { prevLastPage, nextFirstPage, currentPages } = usePagination(page, pageInfo.totalPages, PAGINATION_RANGE);
+
   const handlePageClick = (page: number) => {
     changePage(page);
-  };
-
-  const goToPrevPages = () => {
-    changePage((Math.ceil(page / 10) - 1) * 10);
-  };
-
-  const goToNextPages = () => {
-    changePage(Math.ceil(page / 10) * 10 + 1);
   };
 
   return (
@@ -36,25 +32,15 @@ const SearchResults = ({ pageInfo, papers, keyword, page, changePage }: SearchRe
               ))}
             </Papers>
             <Pagination>
-              {page > 10 && <Button onClick={goToPrevPages}>이전</Button>}
-              {Array.from(
-                {
-                  length: Math.min(10, pageInfo.totalPages - (Math.ceil(page / 10) - 1) * 10),
-                },
-                (_, i) => {
-                  const calculatedPage = (Math.ceil(page / 10) - 1) * 10 + i + 1;
-                  return (
-                    <Page
-                      key={i}
-                      isCurrentPage={page === calculatedPage}
-                      onClick={() => handlePageClick(calculatedPage)}
-                    >
-                      {calculatedPage}
-                    </Page>
-                  );
-                },
+              {page > PAGINATION_RANGE && <Button onClick={() => changePage(prevLastPage)}>이전</Button>}
+              {currentPages.map((value) => (
+                <Page key={value} isCurrentPage={page === value} onClick={() => handlePageClick(value)}>
+                  {value}
+                </Page>
+              ))}
+              {pageInfo.totalPages > Math.ceil(page / PAGINATION_RANGE) * PAGINATION_RANGE && (
+                <Button onClick={() => changePage(nextFirstPage)}>다음</Button>
               )}
-              {pageInfo.totalPages > Math.ceil(page / 10) * 10 && <Button onClick={goToNextPages}>다음</Button>}
             </Pagination>
           </Section>
         </>
@@ -64,6 +50,7 @@ const SearchResults = ({ pageInfo, papers, keyword, page, changePage }: SearchRe
     </>
   );
 };
+
 const H1 = styled.h1`
   color: ${({ theme }) => theme.COLOR.gray4};
   margin: 16px 30px;
