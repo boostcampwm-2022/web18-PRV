@@ -25,12 +25,14 @@ export class SearchService {
         .fill(0)
         .map((v, i) => {
           CROSSREF_CACHE_QUEUE.push(
-            CROSSREF_API_URL(
-              keyword,
-              rows,
-              ['title', 'author', 'created', 'is-referenced-by-count', 'references-count', 'DOI'],
-              i + 1,
-            ),
+            CROSSREF_API_URL(keyword, rows, i + 1, [
+              'title',
+              'author',
+              'created',
+              'is-referenced-by-count',
+              'references-count',
+              'DOI',
+            ]),
           );
         }),
     );
