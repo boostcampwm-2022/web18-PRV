@@ -27,7 +27,7 @@ const SearchResults = ({ pageInfo, papers, keyword, page, changePage }: SearchRe
     <>
       {papers.length > 0 ? (
         <>
-          <H1>Articles ({pageInfo.totalItems || 0})</H1>
+          <H1>Articles ({pageInfo.totalItems.toLocaleString() || 0})</H1>
           <Hr />
           <Section>
             <Papers>
