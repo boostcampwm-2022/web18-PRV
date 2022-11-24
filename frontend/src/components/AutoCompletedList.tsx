@@ -9,6 +9,8 @@ interface AutoCompletedListProps {
   setHoveredIndex: Dispatch<SetStateAction<number>>;
 }
 
+const MAX_TITLE_LENGTH = 150;
+
 const AutoCompletedList = ({
   autoCompletedItems = [],
   keyword,
@@ -61,7 +63,11 @@ const AutoCompletedList = ({
             onMouseOver={() => setHoveredIndex(i)}
             onMouseDown={() => handleAutoCompletedDown(i)}
           >
-            <Title>{highlightKeyword(item.title)}</Title>
+            <Title>
+              {highlightKeyword(
+                item.title.length > MAX_TITLE_LENGTH ? `${item.title.slice(0, MAX_TITLE_LENGTH)}...` : item.title,
+              )}
+            </Title>
             {item.authors && (
               <Author>
                 authors : {highlightKeyword(getRepresentativeAuthor(item.authors))}
