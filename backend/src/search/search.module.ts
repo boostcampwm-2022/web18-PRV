@@ -1,10 +1,11 @@
 import { Module } from '@nestjs/common';
 import { SearchController } from './search.controller';
 import { SearchService } from './search.service';
-import { BatchService } from './batch.service';
 import { HttpModule } from '@nestjs/axios';
 import { ElasticsearchModule } from '@nestjs/elasticsearch';
 import { HttpConnection } from '@elastic/elasticsearch';
+import { ScheduleModule } from '@nestjs/schedule';
+import { RankingService } from 'src/ranking/ranking.service';
 @Module({
   imports: [
     HttpModule,
@@ -22,8 +23,9 @@ import { HttpConnection } from '@elastic/elasticsearch';
         Connection: HttpConnection,
       }),
     }),
+    ScheduleModule.forRoot(),
   ],
   controllers: [SearchController],
-  providers: [SearchService, BatchService],
+  providers: [SearchService, RankingService],
 })
 export class SearchModule {}

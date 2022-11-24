@@ -2,3 +2,4 @@ export const CROSSREF_API_URL = (keyword: string, rows = 5, selects: string[] = 
   `https://api.crossref.org/works?query=${keyword}&rows=${rows}&select=${selects.join(',')}&offset=${
     rows * (page - 1)
   }`;
+export const CROSSREF_CACHE_QUEUE = [];
