@@ -1,7 +1,7 @@
 import { Injectable, RequestTimeoutException } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { CrossRefResponse, CrossRefItem, PaperInfoExtended, PaperInfo } from './entities/crossRef.entity';
-import { CROSSREF_API_URL } from '../util';
+import { CROSSREF_API_URL, CROSSREF_CACHE_QUEUE } from '../util';
 import { ElasticsearchService } from '@nestjs/elasticsearch';
 import { SearchHit } from '@elastic/elasticsearch/lib/api/types';
 
@@ -18,27 +18,22 @@ export class SearchService {
     const totalItems = crossRefdata.data.message['total-results'];
     return { items, totalItems };
   }
-
   async crawlAllCrossRefData(keyword: string, totalItems: number, rows: number) {
-    const pages = await Promise.allSettled(
+    if (totalItems >= 10000) totalItems = 10000;
+    await Promise.all(
       Array(Math.ceil(totalItems / rows))
         .fill(0)
-        .map((_, i) => {
-          return this.getCrossRefData(keyword, rows, i + 1);
+        .map((v, i) => {
+          CROSSREF_CACHE_QUEUE.push(
+            CROSSREF_API_URL(
+              keyword,
+              rows,
+              ['title', 'author', 'created', 'is-referenced-by-count', 'references-count', 'DOI'],
+              i + 1,
+            ),
+          );
         }),
     );
-    console.log(totalItems);
-    console.log(pages.length);
-    pages.forEach((page) => {
-      if (page.status === 'fulfilled') {
-        const papers = this.parseCrossRefData(page.value.items);
-        papers.forEach((paper) => {
-          this.putElasticSearch(paper);
-        });
-      } else {
-        console.log(page.reason);
-      }
-    });
   }
   parseCrossRefData<T extends PaperInfo>(items: CrossRefItem[]) {
     return items
@@ -53,7 +48,7 @@ export class SearchService {
         paperInfo.doi = item.DOI;
         paperInfo.publishedAt = item.created?.['date-time'];
         paperInfo.citations = item['is-referenced-by-count'];
-        paperInfo.references = item['reference-count'];
+        paperInfo.references = item['references-count'];
         return paperInfo as T;
       })
       .filter((info) => info.title);
@@ -98,9 +93,14 @@ export class SearchService {
         return { hits: { hits: [] as SearchHit<PaperInfo>[], total: 0 } };
       });
   }
-  async getAllElasticData() {
-    return await this.esService.search({ index: process.env.ELASTIC_INDEX });
+  async getCacheFromCrossRef(url: string) {
+    try {
+      const crossRefdata = await this.httpService.axiosRef.get<CrossRefResponse>(url);
+      const items = crossRefdata.data.message.items;
+      const papers = this.parseCrossRefData(items);
+      papers.map((paper) => {
+        this.putElasticSearch(paper);
+      });
+    } catch (error) {}
   }
-  //match: title , author (상위5개의 fuzzi점수를 비교해서 큰쪽을 가져가는걸로)
 }
-//title, author
