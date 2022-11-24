@@ -66,7 +66,7 @@ export class SearchService {
         paperInfo.references = item['reference-count'];
         return paperInfo;
       })
-      .filter((info) => info.title || info.authors?.length > 0);
+      .filter((info) => info.title && info.authors?.length >= 0);
   }
   async putElasticSearch(paper: PaperInfoExtended) {
     return await this.esService.index({
