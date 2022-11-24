@@ -1,4 +1,4 @@
-import { Controller, ForbiddenException, Get, Query, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Controller, Get, NotFoundException, Query, UsePipes, ValidationPipe } from '@nestjs/common';
 import { SearchService } from './search.service';
 import { KeywordValidationPipe } from './pipe/search.pipe';
 import { SearchDto } from './pipe/search.dto';
@@ -40,7 +40,7 @@ export class SearchController {
 
     const totalPages = Math.ceil(totalItems / rows);
     if (page > totalPages) {
-      throw new ForbiddenException(`page(${page})는 ${totalPages} 보다 클 수 없습니다.`);
+      throw new NotFoundException(`page(${page})는 ${totalPages} 보다 클 수 없습니다.`);
     }
 
     const papers = this.searchService.parseCrossRefData<PaperInfoExtended>(items);
