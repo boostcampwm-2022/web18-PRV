@@ -14,6 +14,7 @@ export class SearchService {
     const totalItems = crossRefdata.data.message['total-results'];
     return { items, totalItems };
   }
+
   async getCrossRefData(keyword: string, rows: number, page: number) {
     const crossRefdata = await this.httpService.axiosRef.get<CrossRefResponse>(
       CROSSREF_API_URL(

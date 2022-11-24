@@ -23,7 +23,9 @@ const Main = () => {
         <KeywordRanking />
         <Search />
       </MainContainer>
-      <Footer />
+      <Positioner>
+        <Footer />
+      </Positioner>
     </Container>
   );
 };
@@ -60,6 +62,12 @@ const ContentContainer = styled.div`
   align-items: center;
   gap: 10px;
   ${({ theme }) => theme.TYPO.body2};
+`;
+
+const Positioner = styled.div`
+  position: absolute;
+  bottom: 0;
+  width: 100%;
 `;
 
 export default Main;

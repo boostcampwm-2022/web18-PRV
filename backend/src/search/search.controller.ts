@@ -1,6 +1,7 @@
 import { Controller, Get, Query, UsePipes, ValidationPipe } from '@nestjs/common';
 import { SearchService } from './search.service';
-import { SearchValidationPipe } from './pipe/search.pipe';
+
+import { KeywordValidationPipe } from './pipe/search.pipe';
 import { SearchDto } from './pipe/search.dto';
 import { SearchTotalHits } from '@elastic/elasticsearch/lib/api/types';
 import { CROSSREF_CACHE_QUEUE } from 'src/util';
@@ -11,7 +12,7 @@ import { RankingService } from 'src/ranking/ranking.service';
 export class SearchController {
   constructor(private readonly searchService: SearchService, private readonly rankingService: RankingService) {}
   @Get('auto-complete')
-  async getAutoCompletePapers(@Query('keyword', SearchValidationPipe) keyword: string) {
+  async getAutoCompletePapers(@Query('keyword', KeywordValidationPipe) keyword: string) {
     const elastic = await this.searchService.getElasticSearch(keyword);
     const elasticDataCount = (elastic.hits.total as SearchTotalHits).value;
     if (elasticDataCount > 0) {
@@ -24,9 +25,9 @@ export class SearchController {
   }
 
   @Get()
-  @UsePipes(ValidationPipe)
-  async getPapers(@Query() query: SearchDto) {
-    const { keyword, rows, page } = query;
+  @UsePipes(new ValidationPipe({ transform: true }))
+  async getPapers(@Query('keyword', KeywordValidationPipe) keyword: string, @Query() query: SearchDto) {
+    const { rows, page } = query;
     const { items, totalItems } = await this.searchService.getCrossRefData(keyword, rows, page);
     const papers = this.searchService.parseCrossRefData(items);
     this.rankingService.insertRedis(keyword);

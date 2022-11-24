@@ -3,12 +3,12 @@ import { createGlobalStyle } from 'styled-components';
 const GlobalStyle = createGlobalStyle`
   *, *::before, *::after {
     box-sizing: border-box;
-    font-family: 'Times New Roman', sans-serif;
+    font-family: 'Merriweather', serif;
   }
 
   #root {
     height: 100vh;
-    font-family: 'Times New Roman', sans-serif;
+    font-family: 'Merriweather', serif;
   }
 
   button, input{    
