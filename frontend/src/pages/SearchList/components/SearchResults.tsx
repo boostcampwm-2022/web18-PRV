@@ -1,5 +1,6 @@
 import styled from 'styled-components';
 import { IPageInfo, IPaper } from '../SearchList';
+import Pagination from './Pagination';
 import Paper from './Paper';
 
 interface SearchResultsProps {
@@ -11,18 +12,6 @@ interface SearchResultsProps {
 }
 
 const SearchResults = ({ pageInfo, papers, keyword, page, changePage }: SearchResultsProps) => {
-  const handlePageClick = (page: number) => {
-    changePage(page);
-  };
-
-  const goToPrevPages = () => {
-    changePage((Math.ceil(page / 10) - 1) * 10);
-  };
-
-  const goToNextPages = () => {
-    changePage(Math.ceil(page / 10) * 10 + 1);
-  };
-
   return (
     <>
       {papers.length > 0 ? (
@@ -35,27 +24,14 @@ const SearchResults = ({ pageInfo, papers, keyword, page, changePage }: SearchRe
                 <Paper key={paper.doi} data={paper} keyword={keyword} />
               ))}
             </Papers>
-            <Pagination>
-              {page > 10 && <Button onClick={goToPrevPages}>이전</Button>}
-              {Array.from(
-                {
-                  length: Math.min(10, pageInfo.totalPages - (Math.ceil(page / 10) - 1) * 10),
-                },
-                (_, i) => {
-                  const calculatedPage = (Math.ceil(page / 10) - 1) * 10 + i + 1;
-                  return (
-                    <Page
-                      key={i}
-                      isCurrentPage={page === calculatedPage}
-                      onClick={() => handlePageClick(calculatedPage)}
-                    >
-                      {calculatedPage}
-                    </Page>
-                  );
-                },
-              )}
-              {pageInfo.totalPages > Math.ceil(page / 10) * 10 && <Button onClick={goToNextPages}>다음</Button>}
-            </Pagination>
+            <Pagination
+              prevText="이전"
+              nextText="다음"
+              activePage={page}
+              onChange={changePage}
+              totalPages={pageInfo.totalPages}
+              range={10}
+            />
           </Section>
         </>
       ) : (
@@ -64,6 +40,7 @@ const SearchResults = ({ pageInfo, papers, keyword, page, changePage }: SearchRe
     </>
   );
 };
+
 const H1 = styled.h1`
   color: ${({ theme }) => theme.COLOR.gray4};
   margin: 16px 30px;
@@ -93,30 +70,6 @@ const NoResult = styled.div`
   flex: 1;
   text-align: center;
   padding-top: 100px;
-`;
-
-const Pagination = styled.div`
-  ${({ theme }) => theme.TYPO.body1};
-  margin: 20px auto 0 auto;
-`;
-
-const Button = styled.button`
-  background-color: transparent;
-  margin: 0 10px;
-  color: ${({ theme }) => theme.COLOR.gray3};
-  cursor: pointer;
-  :hover {
-    color: ${({ theme }) => theme.COLOR.black};
-  }
-`;
-
-const Page = styled.span<{ isCurrentPage: boolean }>`
-  cursor: pointer;
-  margin: 0 5px;
-  font-weight: ${({ isCurrentPage }) => (isCurrentPage ? 700 : 'auto')};
-  :hover {
-    text-decoration: underline;
-  }
 `;
 
 export default SearchResults;
