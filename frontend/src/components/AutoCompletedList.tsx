@@ -1,5 +1,6 @@
 import { Dispatch, SetStateAction, useEffect } from 'react';
 import styled from 'styled-components';
+import { MAX_TITLE_LENGTH } from '../constants/main';
 import { IAutoCompletedItem } from './Search';
 
 interface AutoCompletedListProps {
@@ -8,8 +9,6 @@ interface AutoCompletedListProps {
   hoverdIndex: number;
   setHoveredIndex: Dispatch<SetStateAction<number>>;
 }
-
-const MAX_TITLE_LENGTH = 150;
 
 const AutoCompletedList = ({
   autoCompletedItems = [],
