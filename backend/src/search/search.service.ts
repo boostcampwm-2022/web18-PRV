@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, RequestTimeoutException } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { CrossRefResponse, CrossRefItem, PaperInfoExtended, PaperInfo } from './entities/crossRef.entity';
 import { CROSSREF_API_URL } from '../util';
@@ -8,22 +8,12 @@ import { SearchHit } from '@elastic/elasticsearch/lib/api/types';
 @Injectable()
 export class SearchService {
   constructor(private readonly httpService: HttpService, private readonly esService: ElasticsearchService) {}
-  async getCrossRefAutoCompleteData(keyword: string) {
-    const crossRefdata = await this.httpService.axiosRef.get<CrossRefResponse>(CROSSREF_API_URL(keyword));
-    const items = crossRefdata.data.message.items;
-    const totalItems = crossRefdata.data.message['total-results'];
-    return { items, totalItems };
-  }
-
-  async getCrossRefData(keyword: string, rows: number, page: number) {
-    const crossRefdata = await this.httpService.axiosRef.get<CrossRefResponse>(
-      CROSSREF_API_URL(
-        keyword,
-        rows,
-        ['title', 'author', 'created', 'is-referenced-by-count', 'references-count', 'DOI'],
-        page,
-      ),
-    );
+  async getCrossRefData(keyword: string, rows: number, page: number, selects?: string[]) {
+    const crossRefdata = await this.httpService.axiosRef
+      .get<CrossRefResponse>(CROSSREF_API_URL(keyword, rows, page, selects))
+      .catch((err) => {
+        throw new RequestTimeoutException(err.message);
+      });
     const items = crossRefdata.data.message.items;
     const totalItems = crossRefdata.data.message['total-results'];
     return { items, totalItems };
@@ -50,7 +40,7 @@ export class SearchService {
       }
     });
   }
-  parseCrossRefData(items: CrossRefItem[]) {
+  parseCrossRefData<T extends PaperInfo>(items: CrossRefItem[]) {
     return items
       .map((item) => {
         const paperInfo = new PaperInfoExtended();
@@ -64,9 +54,9 @@ export class SearchService {
         paperInfo.publishedAt = item.created?.['date-time'];
         paperInfo.citations = item['is-referenced-by-count'];
         paperInfo.references = item['reference-count'];
-        return paperInfo;
+        return paperInfo as T;
       })
-      .filter((info) => info.title && info.authors?.length >= 0);
+      .filter((info) => info.title);
   }
   async putElasticSearch(paper: PaperInfoExtended) {
     return await this.esService.index({

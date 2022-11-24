@@ -1,9 +1,10 @@
-import { Controller, Get, Query, RequestTimeoutException, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Controller, ForbiddenException, Get, Query, UsePipes, ValidationPipe } from '@nestjs/common';
 import { SearchService } from './search.service';
 import { KeywordValidationPipe } from './pipe/search.pipe';
 import { SearchDto } from './pipe/search.dto';
 import { SearchTotalHits } from '@elastic/elasticsearch/lib/api/types';
 import { BatchService } from './batch.service';
+import { PaperInfoExtended } from './entities/crossRef.entity';
 
 @Controller('search')
 export class SearchController {
@@ -19,9 +20,8 @@ export class SearchController {
       return elastic.hits.hits.map((paper) => paper._source);
     }
 
-    const { items } = await this.searchService.getCrossRefAutoCompleteData(keyword).catch((err) => {
-      throw new RequestTimeoutException(err.message);
-    });
+    const selects = ['title', 'author', 'DOI'];
+    const { items } = await this.searchService.getCrossRefData(keyword, 5, 1, selects);
     const papers = this.searchService.parseCrossRefData(items);
     papers.map((paper) => {
       this.searchService.putElasticSearch(paper);
@@ -35,15 +35,20 @@ export class SearchController {
   @UsePipes(new ValidationPipe({ transform: true }))
   async getPapers(@Query('keyword', KeywordValidationPipe) keyword: string, @Query() query: SearchDto) {
     const { rows, page } = query;
-    const { items, totalItems } = await this.searchService.getCrossRefData(keyword, rows, page).catch((err) => {
-      throw new RequestTimeoutException(err.message);
-    });
-    const papers = this.searchService.parseCrossRefData(items);
+    const selects = ['title', 'author', 'created', 'is-referenced-by-count', 'references-count', 'DOI'];
+    const { items, totalItems } = await this.searchService.getCrossRefData(keyword, rows, page, selects);
+
+    const totalPages = Math.ceil(totalItems / rows);
+    if (page > totalPages) {
+      throw new ForbiddenException(`page(${page})는 ${totalPages} 보다 클 수 없습니다.`);
+    }
+
+    const papers = this.searchService.parseCrossRefData<PaperInfoExtended>(items);
     return {
       papers,
       pageInfo: {
         totalItems,
-        totalPages: Math.ceil(totalItems / rows),
+        totalPages,
       },
     };
   }
