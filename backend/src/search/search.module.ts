@@ -7,7 +7,12 @@ import { ElasticsearchModule } from '@nestjs/elasticsearch';
 import { HttpConnection } from '@elastic/elasticsearch';
 @Module({
   imports: [
-    HttpModule,
+    HttpModule.register({
+      timeout: 20000,
+      headers: {
+        'User-Agent': `Axios/1.1.3(mailto:${process.env.MAIL_TO})`,
+      },
+    }),
     ElasticsearchModule.registerAsync({
       useFactory: () => ({
         node: process.env.ELASTIC_HOST,

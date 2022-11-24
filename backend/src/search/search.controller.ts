@@ -1,4 +1,4 @@
-import { Controller, Get, Query, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Controller, Get, Query, RequestTimeoutException, UsePipes, ValidationPipe } from '@nestjs/common';
 import { SearchService } from './search.service';
 import { KeywordValidationPipe } from './pipe/search.pipe';
 import { SearchDto } from './pipe/search.dto';
@@ -19,7 +19,9 @@ export class SearchController {
       return elastic.hits.hits.map((paper) => paper._source);
     }
 
-    const { items } = await this.searchService.getCrossRefAutoCompleteData(keyword);
+    const { items } = await this.searchService.getCrossRefAutoCompleteData(keyword).catch((err) => {
+      throw new RequestTimeoutException(err.message);
+    });
     const papers = this.searchService.parseCrossRefData(items);
     papers.map((paper) => {
       this.searchService.putElasticSearch(paper);
@@ -33,7 +35,9 @@ export class SearchController {
   @UsePipes(new ValidationPipe({ transform: true }))
   async getPapers(@Query('keyword', KeywordValidationPipe) keyword: string, @Query() query: SearchDto) {
     const { rows, page } = query;
-    const { items, totalItems } = await this.searchService.getCrossRefData(keyword, rows, page);
+    const { items, totalItems } = await this.searchService.getCrossRefData(keyword, rows, page).catch((err) => {
+      throw new RequestTimeoutException(err.message);
+    });
     const papers = this.searchService.parseCrossRefData(items);
     return {
       papers,
