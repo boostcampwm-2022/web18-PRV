@@ -9,7 +9,6 @@ import { CROSSREF_CACHE_QUEUE } from 'src/util';
 import { Interval } from '@nestjs/schedule';
 import { RankingService } from 'src/ranking/ranking.service';
 
-
 @Controller('search')
 export class SearchController {
   constructor(private readonly searchService: SearchService, private readonly rankingService: RankingService) {}
@@ -22,7 +21,7 @@ export class SearchController {
     }
 
     const selects = ['title', 'author', 'DOI'];
-    const { items } = await this.searchService.getCrossRefData(keyword, 5, 1, selects);
+    const { items, totalItems } = await this.searchService.getCrossRefData(keyword, 5, 1, selects);
     const papers = this.searchService.parseCrossRefData(items);
     this.searchService.crawlAllCrossRefData(keyword, totalItems, 1000);
     return papers;
