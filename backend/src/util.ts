@@ -2,4 +2,22 @@ export const CROSSREF_API_URL = (keyword: string, rows = 5, selects: string[] = 
   `https://api.crossref.org/works?query=${keyword}&rows=${rows}&select=${selects.join(',')}&offset=${
     rows * (page - 1)
   }`;
-export const CROSSREF_CACHE_QUEUE = [];
+class Queue {
+  data: Set<string>;
+  constructor() {
+    this.data = new Set();
+  }
+  pop() {
+    const firstValue = this.data[Symbol.iterator]().next().value;
+    this.data.delete(firstValue);
+    return firstValue;
+  }
+  push(value: string) {
+    if (!this.data.has(value)) this.data.add(value);
+  }
+  isEmpty() {
+    if (this.data.size == 0) return true;
+    else return false;
+  }
+}
+export const CROSSREF_CACHE_QUEUE = new Queue();

@@ -42,10 +42,11 @@ export class SearchController {
   @Interval('notifications', 1000)
   handleInterval() {
     //ToDo 진짜 queue로 변경해야함 리스트에서 shift를 쓰면 최악의 경우 O(n)발생 우선 pop으로 지정
-    if (CROSSREF_CACHE_QUEUE.length == 0) return;
+    if (CROSSREF_CACHE_QUEUE.isEmpty()) return;
     else {
       const url = CROSSREF_CACHE_QUEUE.pop();
       this.searchService.getCacheFromCrossRef(url);
     }
+    console.log(new Array(...CROSSREF_CACHE_QUEUE.data));
   }
 }
