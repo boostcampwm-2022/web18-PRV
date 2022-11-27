@@ -3,6 +3,7 @@ import { RedisModule } from '@liaoliaots/nestjs-redis';
 import { RankingController } from './ranking.controller';
 import { RankingService } from './ranking.service';
 import { ConfigModule } from '@nestjs/config';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { ConfigModule } from '@nestjs/config';
         password: process.env.REDIS_PASSWORD,
       },
     }),
+    ScheduleModule.forRoot(),
   ],
   controllers: [RankingController],
   providers: [RankingService],
