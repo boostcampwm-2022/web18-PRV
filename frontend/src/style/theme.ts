@@ -15,7 +15,7 @@ type ColorName =
   | 'black'
   | 'error';
 
-type TypoName = 'H4' | 'H5' | 'title' | 'subtitle' | 'body_h' | 'body1' | 'body2' | 'caption';
+type TypoName = 'H4' | 'H5' | 'title' | 'subtitle' | 'body_h' | 'body1' | 'body2_h' | 'body2' | 'caption';
 
 export type ColorConfig = {
   [key in ColorName]: string;
@@ -64,6 +64,9 @@ const TYPO: TypoConfig = {
   body1: `
 		font-weight: 300;
 		font-size: 14px;`,
+  body2_h: `
+    font-weight: 400;
+    font-size: 12px;`,
   body2: `
 		font-weight: 300;
 		font-size: 12px;`,

@@ -10,6 +10,10 @@ export interface IGetAutoComplete {
   keyword: string;
 }
 
+export interface IGetPaperDetail {
+  doi: string;
+}
+
 export default class Api {
   private readonly baseURL = 'http://49.50.172.204:4000/';
   private readonly instance: AxiosInstance;
@@ -30,5 +34,9 @@ export default class Api {
 
   getAutoComplete(params: IGetAutoComplete) {
     return this.instance.get('/search/auto-complete', { params });
+  }
+
+  getPaperDetail(params: IGetPaperDetail) {
+    return this.instance.get(`/search/paper`, { params });
   }
 }
