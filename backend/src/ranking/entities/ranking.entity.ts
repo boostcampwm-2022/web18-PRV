@@ -4,5 +4,5 @@ export class Ranking {
   keyword: string;
 
   @ApiProperty()
-  count: number;
+  changeRanking: number;
 }
