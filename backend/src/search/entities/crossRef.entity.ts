@@ -8,12 +8,39 @@ export class PaperInfoExtended extends PaperInfo {
   citations?: number;
   references?: number;
 }
+export class PaperInfoDetail extends PaperInfoExtended {
+  referenceList?: ReferenceInfo[];
+}
+export interface ReferenceInfo {
+  issn?: string;
+  'standards-body'?: string;
+  issue?: string;
+  key?: string;
+  'series-title'?: string;
+  'isbn-type'?: string;
+  'doi-asserted-by'?: string;
+  'first-page'?: string;
+  isbn?: string;
+  doi?: string;
+  component?: string;
+  'article-title'?: string;
+  'volume-title'?: string;
+  volume?: string;
+  author?: string;
+  'standard-designator'?: string;
+  year?: string;
+  unstructured?: string;
+  edition?: string;
+  'journal-title'?: string;
+  'issn-type'?: string;
+}
 export interface CrossRefResponse {
   message: {
     'total-results': number;
     items: CrossRefItem[];
   };
 }
+
 export interface CrossRefItem {
   title?: string[];
   author?: {
@@ -27,4 +54,8 @@ export interface CrossRefItem {
   };
   'is-referenced-by-count'?: number;
   'reference-count'?: number;
+  reference?: ReferenceInfo[];
+}
+export interface CrossRefPaperResponse {
+  message: CrossRefItem;
 }

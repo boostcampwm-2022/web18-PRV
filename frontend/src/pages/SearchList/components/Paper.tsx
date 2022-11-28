@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import { MAX_TITLE_LENGTH } from '../../../constants/main';
 import { IPaper } from '../SearchList';
 
 interface PaperProps {
@@ -30,7 +31,11 @@ const Paper = ({ data, keyword }: PaperProps) => {
 
   return (
     <Container>
-      {title && <Title>{highlightKeyword(title)}</Title>}
+      {title && (
+        <Title>
+          {highlightKeyword(title.length > MAX_TITLE_LENGTH ? `${title.slice(0, MAX_TITLE_LENGTH)}...` : title)}
+        </Title>
+      )}
       {authors && (
         <Content>
           <div>

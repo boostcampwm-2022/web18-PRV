@@ -1,10 +1,7 @@
 import { Controller, Get, NotFoundException, Query, UsePipes, ValidationPipe } from '@nestjs/common';
 import { SearchService } from './search.service';
-
-import { KeywordValidationPipe } from './pipe/search.pipe';
-import { SearchDto } from './pipe/search.dto';
+import { AutoCompleteDto, GetPaperDto, SearchDto } from './entities/search.dto';
 import { SearchTotalHits } from '@elastic/elasticsearch/lib/api/types';
-import { PaperInfoExtended } from './entities/crossRef.entity';
 import { CROSSREF_CACHE_QUEUE } from 'src/util';
 import { Interval } from '@nestjs/schedule';
 import { RankingService } from 'src/ranking/ranking.service';
@@ -13,33 +10,31 @@ import { RankingService } from 'src/ranking/ranking.service';
 export class SearchController {
   constructor(private readonly searchService: SearchService, private readonly rankingService: RankingService) {}
   @Get('auto-complete')
-  async getAutoCompletePapers(@Query('keyword', KeywordValidationPipe) keyword: string) {
+  async getAutoCompletePapers(@Query() query: AutoCompleteDto) {
+    const { keyword } = query;
     const elastic = await this.searchService.getElasticSearch(keyword);
     const elasticDataCount = (elastic.hits.total as SearchTotalHits).value;
     if (elasticDataCount > 0) {
       return elastic.hits.hits.map((paper) => paper._source);
     }
-
     const selects = ['title', 'author', 'DOI'];
     const { items, totalItems } = await this.searchService.getCrossRefData(keyword, 5, 1, selects);
-    const papers = this.searchService.parseCrossRefData(items);
+    const papers = this.searchService.parseCrossRefData(items, this.searchService.parsePaperInfo);
     this.searchService.crawlAllCrossRefData(keyword, totalItems, 1000);
     return papers;
   }
 
   @Get()
   @UsePipes(new ValidationPipe({ transform: true }))
-  async getPapers(@Query('keyword', KeywordValidationPipe) keyword: string, @Query() query: SearchDto) {
-    const { rows, page } = query;
+  async getPapers(@Query() query: SearchDto) {
+    const { keyword, rows, page } = query;
     const selects = ['title', 'author', 'created', 'is-referenced-by-count', 'references-count', 'DOI'];
     const { items, totalItems } = await this.searchService.getCrossRefData(keyword, rows, page, selects);
-
     const totalPages = Math.ceil(totalItems / rows);
     if (page > totalPages) {
       throw new NotFoundException(`page(${page})는 ${totalPages} 보다 클 수 없습니다.`);
     }
-
-    const papers = this.searchService.parseCrossRefData<PaperInfoExtended>(items);
+    const papers = this.searchService.parseCrossRefData(items, this.searchService.parsePaperInfoExtended);
     this.rankingService.insertRedis(keyword);
 
     return {
@@ -58,5 +53,11 @@ export class SearchController {
       const url = CROSSREF_CACHE_QUEUE.pop();
       this.searchService.getCacheFromCrossRef(url);
     }
+  }
+  @Get('paper')
+  @UsePipes(new ValidationPipe())
+  async getPaper(@Query() query: GetPaperDto) {
+    const { doi } = query;
+    return await this.searchService.getPaper(doi);
   }
 }

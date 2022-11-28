@@ -1,5 +1,6 @@
 import { Dispatch, SetStateAction, useEffect } from 'react';
 import styled from 'styled-components';
+import { MAX_TITLE_LENGTH } from '../constants/main';
 import { IAutoCompletedItem } from './Search';
 
 interface AutoCompletedListProps {
@@ -61,7 +62,11 @@ const AutoCompletedList = ({
             onMouseOver={() => setHoveredIndex(i)}
             onMouseDown={() => handleAutoCompletedDown(i)}
           >
-            <Title>{highlightKeyword(item.title)}</Title>
+            <Title>
+              {highlightKeyword(
+                item.title.length > MAX_TITLE_LENGTH ? `${item.title.slice(0, MAX_TITLE_LENGTH)}...` : item.title,
+              )}
+            </Title>
             {item.authors && (
               <Author>
                 authors : {highlightKeyword(getRepresentativeAuthor(item.authors))}
