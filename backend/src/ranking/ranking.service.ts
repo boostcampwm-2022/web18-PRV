@@ -13,10 +13,10 @@ export class RankingService {
     const result: Ranking[] = [];
     await Promise.all(
       topTen.map(async (v, i) => {
-        const tmp: Ranking = { keyword: '', count: 0 };
+        const tmp: Ranking = { keyword: '', changeRanking: 0 };
         tmp.keyword = v;
         const prevrank = await this.redis.zscore(process.env.REDIS_PREVRANKING, v);
-        prevrank ? (tmp.count = Number(prevrank) - i) : (tmp.count = null);
+        prevrank ? (tmp.changeRanking = Number(prevrank) - i) : (tmp.changeRanking = null);
         result.push(tmp);
       }),
     );
