@@ -1,14 +1,14 @@
-export class PaperInfo {
+export interface PaperInfo {
   title?: string;
   authors?: string[];
   doi?: string;
 }
-export class PaperInfoExtended extends PaperInfo {
+export interface PaperInfoExtended extends PaperInfo {
   publishedAt?: string;
   citations?: number;
   references?: number;
 }
-export class PaperInfoDetail extends PaperInfoExtended {
+export interface PaperInfoDetail extends PaperInfoExtended {
   referenceList?: ReferenceInfo[];
 }
 export interface ReferenceInfo {
