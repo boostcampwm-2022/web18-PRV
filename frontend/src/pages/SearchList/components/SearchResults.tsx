@@ -1,6 +1,6 @@
 import styled from 'styled-components';
+import Pagination from '../../../components/Pagination';
 import { IPageInfo, IPaper } from '../SearchList';
-import Pagination from './Pagination';
 import Paper from './Paper';
 
 interface SearchResultsProps {
@@ -24,14 +24,7 @@ const SearchResults = ({ pageInfo, papers, keyword, page, changePage }: SearchRe
                 <Paper key={paper.doi} data={paper} keyword={keyword} />
               ))}
             </Papers>
-            <Pagination
-              prevText="이전"
-              nextText="다음"
-              activePage={page}
-              onChange={changePage}
-              totalPages={pageInfo.totalPages}
-              range={10}
-            />
+            <Pagination activePage={page} onChange={changePage} totalPages={pageInfo.totalPages} range={10} />
           </Section>
         </>
       ) : (

@@ -2,15 +2,13 @@ import { useMemo } from 'react';
 import styled from 'styled-components';
 
 interface PaginationProps {
-  prevText: string;
-  nextText: string;
   activePage: number;
   totalPages: number;
   range: number;
   onChange: (page: number) => void;
 }
 
-const Pagination = ({ prevText, nextText, activePage, totalPages, range, onChange }: PaginationProps) => {
+const Pagination = ({ activePage, totalPages, range, onChange }: PaginationProps) => {
   const pageItems = useMemo(
     () =>
       Array.from(
@@ -23,23 +21,28 @@ const Pagination = ({ prevText, nextText, activePage, totalPages, range, onChang
   const isPrevButtonExist = activePage > range;
   const isNextButtonExist = totalPages > Math.ceil(activePage / range) * range;
 
+  // 이전 범위의 마지막 페이지로 이동
   const goToPrevRangeLastPage = () => {
     onChange((Math.ceil(activePage / range) - 1) * range);
   };
 
+  // 이후 범위의 첫 페이지로 이동
   const goToNextRangeFirstPage = () => {
     onChange(Math.ceil(activePage / range) * range + 1);
   };
 
   return (
     <Container>
-      {isPrevButtonExist && <Button onClick={goToPrevRangeLastPage}>{prevText}</Button>}
-      {pageItems.map((page) => (
-        <Page key={page} isCurrentPage={activePage === page} onClick={() => onChange(page)}>
-          {page}
-        </Page>
-      ))}
-      {isNextButtonExist && <Button onClick={goToNextRangeFirstPage}>{nextText}</Button>}
+      {isPrevButtonExist && <Button onClick={goToPrevRangeLastPage}>이전</Button>}
+      {pageItems.map((page) => {
+        const currentPage = activePage === page;
+        return (
+          <PaginationItem key={page} isSelected={currentPage} onClick={() => onChange(page)}>
+            {page}
+          </PaginationItem>
+        );
+      })}
+      {isNextButtonExist && <Button onClick={goToNextRangeFirstPage}>다음</Button>}
     </Container>
   );
 };
@@ -59,10 +62,10 @@ const Button = styled.button`
   }
 `;
 
-const Page = styled.span<{ isCurrentPage: boolean }>`
+const PaginationItem = styled.span<{ isSelected: boolean }>`
   cursor: pointer;
   margin: 0 5px;
-  font-weight: ${({ isCurrentPage }) => (isCurrentPage ? 700 : 'auto')};
+  font-weight: ${({ isSelected }) => (isSelected ? 700 : 'auto')};
   :hover {
     text-decoration: underline;
   }
