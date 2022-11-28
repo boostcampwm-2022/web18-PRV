@@ -2,7 +2,7 @@ import { Controller, Get, Query, UsePipes, ValidationPipe } from '@nestjs/common
 import { SearchService } from './search.service';
 
 import { KeywordValidationPipe } from './pipe/search.pipe';
-import { SearchDto } from './pipe/search.dto';
+import { GetPaperDto, SearchDto } from './pipe/search.dto';
 import { SearchTotalHits } from '@elastic/elasticsearch/lib/api/types';
 import { CROSSREF_CACHE_QUEUE } from 'src/util';
 import { Interval } from '@nestjs/schedule';
@@ -19,7 +19,7 @@ export class SearchController {
       return elastic.hits.hits.map((paper) => paper._source);
     }
     const { items, totalItems } = await this.searchService.getCrossRefAutoCompleteData(keyword);
-    const papers = this.searchService.parseCrossRefData(items);
+    const papers = this.searchService.parseCrossRefData(items, this.searchService.parsePaperInfo);
     this.searchService.crawlAllCrossRefData(keyword, totalItems, 1000);
     return papers;
   }
@@ -29,7 +29,7 @@ export class SearchController {
   async getPapers(@Query('keyword', KeywordValidationPipe) keyword: string, @Query() query: SearchDto) {
     const { rows, page } = query;
     const { items, totalItems } = await this.searchService.getCrossRefData(keyword, rows, page);
-    const papers = this.searchService.parseCrossRefData(items);
+    const papers = this.searchService.parseCrossRefData(items, this.searchService.parsePaperInfoExtended);
     this.rankingService.insertRedis(keyword);
     return {
       papers,
@@ -47,5 +47,11 @@ export class SearchController {
       const url = CROSSREF_CACHE_QUEUE.pop();
       this.searchService.getCacheFromCrossRef(url);
     }
+  }
+  @Get('paper')
+  @UsePipes(new ValidationPipe())
+  async getPaper(@Query() query: GetPaperDto) {
+    const { doi } = query;
+    return await this.searchService.getPaper(doi);
   }
 }
