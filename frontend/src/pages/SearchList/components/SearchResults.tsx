@@ -1,5 +1,7 @@
+import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import Pagination from '../../../components/Pagination';
+import { createDetailQuery } from '../../../constants/path';
 import { IPageInfo, IPaper } from '../SearchList';
 import Paper from './Paper';
 
@@ -21,7 +23,9 @@ const SearchResults = ({ pageInfo, papers, keyword, page, changePage }: SearchRe
           <Section>
             <Papers>
               {papers.map((paper) => (
-                <Paper key={paper.doi} data={paper} keyword={keyword} />
+                <Link key={paper.doi} to={createDetailQuery(paper.doi)}>
+                  <Paper data={paper} keyword={keyword} />
+                </Link>
               ))}
             </Papers>
             <Pagination activePage={page} onChange={changePage} totalPages={pageInfo.totalPages} range={10} />
