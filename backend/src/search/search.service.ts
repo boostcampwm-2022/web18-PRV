@@ -1,7 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
-import { CrossRefResponse, CrossRefItem, PaperInfoExtended, PaperInfo } from './entities/crossRef.entity';
-import { CROSSREF_API_URL, CROSSREF_CACHE_QUEUE } from '../util';
+import {
+  CrossRefResponse,
+  CrossRefItem,
+  PaperInfoExtended,
+  PaperInfo,
+  CrossRefPaperResponse,
+  PaperInfoDetail,
+} from './entities/crossRef.entity';
+import { CROSSREF_API_PAPER_URL, CROSSREF_API_URL, CROSSREF_CACHE_QUEUE } from '../util';
 import { ElasticsearchService } from '@nestjs/elasticsearch';
 import { SearchHit } from '@elastic/elasticsearch/lib/api/types';
 
@@ -45,23 +52,59 @@ export class SearchService {
         }),
     );
   }
-  parseCrossRefData(items: CrossRefItem[]) {
-    return items
-      .map((item) => {
-        const paperInfo = new PaperInfoExtended();
-        paperInfo.title = item.title?.[0];
-        paperInfo.authors = item.author?.reduce((acc, cur) => {
-          const authorName = `${cur.name ? cur.name : cur.given ? cur.given + ' ' : ''}${cur.family || ''}`;
-          authorName && acc.push(authorName);
-          return acc;
-        }, []);
-        paperInfo.doi = item.DOI;
-        paperInfo.publishedAt = item.created?.['date-time'];
-        paperInfo.citations = item['is-referenced-by-count'];
-        paperInfo.references = item['references-count'];
-        return paperInfo;
-      })
-      .filter((info) => info.title || info.authors?.length > 0);
+  parseCrossRefData<T extends PaperInfo>(items: CrossRefItem[], parser: (item: CrossRefItem) => T) {
+    return items.map(parser).filter((info) => info.title || info.authors?.length > 0);
+  }
+  parsePaperInfo = (item: CrossRefItem) => {
+    const paperInfo = {
+      title: item.title?.[0],
+      authors: item.author?.reduce((acc, cur) => {
+        const authorName = `${cur.name ? cur.name : cur.given ? cur.given + ' ' : ''}${cur.family || ''}`;
+        authorName && acc.push(authorName);
+        return acc;
+      }, []),
+      doi: item.DOI,
+    } as PaperInfo;
+
+    return paperInfo;
+  };
+  parsePaperInfoExtended = (item: CrossRefItem) => {
+    const paperInfo = {
+      ...this.parsePaperInfo(item),
+      publishedAt: item.created?.['date-time'],
+      citations: item['is-referenced-by-count'],
+      references: item['references-count'],
+    } as PaperInfoExtended;
+
+    return paperInfo;
+  };
+  parsePaperInfoDetail = (item: CrossRefItem) => {
+    const referenceList = item['reference'].map((reference) => {
+      return {
+        title:
+          reference['article-title'] ||
+          reference['journal-title'] ||
+          reference['series-title'] ||
+          reference['volume-title'],
+        doi: reference['doi'],
+        // TODO: 현재 원하는 정보를 얻기 위해서는 해당 reference에 대한 정보를 crossref에 다시 요청해야함
+        author: reference['author'],
+        publishedAt: reference['year'],
+        citations: 0,
+        references: 0,
+      };
+    });
+    const paperInfo = {
+      ...this.parsePaperInfoExtended(item),
+      referenceList,
+    } as PaperInfoDetail;
+
+    return paperInfo;
+  };
+
+  async getPaper(doi: string) {
+    const item = await this.httpService.axiosRef.get<CrossRefPaperResponse>(CROSSREF_API_PAPER_URL(doi));
+    return this.parsePaperInfoDetail(item.data.message);
   }
   async putElasticSearch(paper: PaperInfoExtended) {
     return await this.esService.index({
@@ -107,7 +150,7 @@ export class SearchService {
     try {
       const crossRefdata = await this.httpService.axiosRef.get<CrossRefResponse>(url);
       const items = crossRefdata.data.message.items;
-      const papers = this.parseCrossRefData(items);
+      const papers = this.parseCrossRefData(items, this.parsePaperInfoExtended);
       papers.map((paper) => {
         this.putElasticSearch(paper);
       });
