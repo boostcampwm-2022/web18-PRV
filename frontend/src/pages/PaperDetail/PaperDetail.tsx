@@ -1,14 +1,15 @@
 import { AxiosError } from 'axios';
 import { useQuery } from 'react-query';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
 import Api from '../../api/api';
 import MoonLoader from '../../components/MoonLoader';
-import ChevronIcon from '../../icons/ChevronIcon';
+import PreviousButtonIcon from '../../icons/PreviousButtonIcon';
 import LogoIcon from '../../icons/LogoIcon';
 import { IPaper } from '../SearchList/SearchList';
 import PaperInfo from './components/PaperInfo';
 import ReferenceGragh from './components/ReferenceGragh';
+import { PATH_MAIN } from '../../constants/path';
 
 export interface IPaperDetail extends IPaper {
   referenceList: [
@@ -26,6 +27,7 @@ export interface IPaperDetail extends IPaper {
 const api = new Api();
 
 const PaperDatail = () => {
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const doi = searchParams.get('doi') || '';
   const { data, isLoading } = useQuery<IPaperDetail, AxiosError>(
@@ -33,6 +35,14 @@ const PaperDatail = () => {
     () => api.getPaperDetail({ doi }).then((res) => res.data),
     { enabled: !!doi.length },
   );
+
+  const handlePreviousButtonClick = () => {
+    navigate(-1);
+  };
+
+  const handleLogoClick = () => {
+    navigate(PATH_MAIN);
+  };
 
   return (
     <Container>
@@ -43,8 +53,12 @@ const PaperDatail = () => {
       ) : (
         <>
           <Header>
-            <ChevronIcon />
-            <LogoIcon height={'25pt'} width={'25pt'} />
+            <NavigateButton onClick={handlePreviousButtonClick}>
+              <PreviousButtonIcon />
+            </NavigateButton>
+            <NavigateButton onClick={handleLogoClick}>
+              <LogoIcon height={'25pt'} width={'25pt'} />
+            </NavigateButton>
           </Header>
           <Main>
             {data && (
@@ -63,6 +77,7 @@ const PaperDatail = () => {
 const Container = styled.div`
   display: flex;
   height: 100%;
+  background-color: ${({ theme }) => theme.COLOR.primary4};
 `;
 
 const MoonWrapper = styled.div`
@@ -81,6 +96,11 @@ const Header = styled.header`
   left: 0;
   width: 100%;
   padding: 10px;
+`;
+
+const NavigateButton = styled.button`
+  background-color: transparent;
+  cursor: pointer;
 `;
 
 const Main = styled.main`
