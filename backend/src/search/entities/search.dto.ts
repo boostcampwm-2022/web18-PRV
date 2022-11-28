@@ -1,7 +1,12 @@
 import { Transform } from 'class-transformer';
-import { IsOptional, IsPositive, IsString } from 'class-validator';
+import { IsOptional, IsPositive, IsString, Length } from 'class-validator';
 
 export class SearchDto {
+  @Transform((params) => encodeURI(params.value).trim())
+  @IsString()
+  @Length(2)
+  keyword: string;
+
   @IsOptional()
   @Transform((params) => parseInt(params.value))
   @IsPositive()
@@ -12,7 +17,11 @@ export class SearchDto {
   @IsPositive()
   page = 1;
 }
-
+export class AutoCompleteDto {
+  @IsString()
+  @Length(2)
+  keyword: string;
+}
 export class GetPaperDto {
   @IsString()
   doi: string;
