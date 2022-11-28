@@ -74,11 +74,13 @@ export class SearchService {
     const referenceList =
       item['reference']?.map((reference) => {
         return {
+          key: reference['DOI'] || reference.key || reference.unstructured,
           title:
             reference['article-title'] ||
             reference['journal-title'] ||
             reference['series-title'] ||
-            reference['volume-title'],
+            reference['volume-title'] ||
+            reference.unstructured,
           doi: reference['DOI'],
           // TODO: 현재 원하는 정보를 얻기 위해서는 해당 reference에 대한 정보를 crossref에 다시 요청해야함
           author: reference['author'],
