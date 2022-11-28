@@ -79,7 +79,7 @@ export class SearchService {
             reference['journal-title'] ||
             reference['series-title'] ||
             reference['volume-title'],
-          doi: reference['doi'],
+          doi: reference['DOI'],
           // TODO: 현재 원하는 정보를 얻기 위해서는 해당 reference에 대한 정보를 crossref에 다시 요청해야함
           author: reference['author'],
           publishedAt: reference['year'],

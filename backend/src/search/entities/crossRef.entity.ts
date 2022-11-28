@@ -21,7 +21,7 @@ export interface ReferenceInfo {
   'doi-asserted-by'?: string;
   'first-page'?: string;
   isbn?: string;
-  doi?: string;
+  DOI?: string;
   component?: string;
   'article-title'?: string;
   'volume-title'?: string;
