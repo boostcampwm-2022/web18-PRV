@@ -27,12 +27,16 @@ const PaperInfo = ({ data }: IProps) => {
       <References>
         <h3>References ({data.references})</h3>
         <ReferenceContainer>
-          {data.referenceList.map((reference) => (
-            <ReferenceItem key={reference.title}>
-              <span>{reference.title}</span>
-              <span>{reference.author}</span>
-            </ReferenceItem>
-          ))}
+          {data.referenceList.map(
+            (reference, index) =>
+              // TODO: 임시로 key에 index 사용 중. 서버에서 key로 사용할 데이터 전송 예정.
+              reference.title && (
+                <ReferenceItem key={index}>
+                  <span>{reference.title}</span>
+                  <span>{reference.author}</span>
+                </ReferenceItem>
+              ),
+          )}
         </ReferenceContainer>
       </References>
     </Container>
@@ -78,6 +82,9 @@ const InfoItem = styled.div`
   }
   a {
     ${({ theme }) => theme.TYPO.body2};
+    :hover {
+      text-decoration: underline;
+    }
   }
   span {
     ${({ theme }) => theme.TYPO.body2};
