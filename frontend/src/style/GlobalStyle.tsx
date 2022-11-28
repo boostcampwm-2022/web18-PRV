@@ -20,6 +20,11 @@ const GlobalStyle = createGlobalStyle`
   li{
     list-style: none;
   }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
 `;
 
 export default GlobalStyle;
