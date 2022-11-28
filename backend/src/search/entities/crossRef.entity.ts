@@ -1,14 +1,26 @@
+import { ApiProperty } from '@nestjs/swagger';
 export class PaperInfo {
+  @ApiProperty()
   title?: string;
+
+  @ApiProperty()
   authors?: string[];
+
+  @ApiProperty()
   doi?: string;
 }
 export class PaperInfoExtended extends PaperInfo {
+  @ApiProperty()
   publishedAt?: string;
+
+  @ApiProperty()
   citations?: number;
+
+  @ApiProperty()
   references?: number;
 }
 export class PaperInfoDetail extends PaperInfoExtended {
+  @ApiProperty()
   referenceList?: ReferenceInfo[];
 }
 export interface ReferenceInfo {
