@@ -1,7 +1,7 @@
 import { SearchController } from '../search.controller';
 import { SearchService } from '../search.service';
 import { HttpService } from '@nestjs/axios';
-import { PaperInfo, PaperInfoExtended } from '../entities/crossRef.entity';
+import { PaperInfo, PaperInfoDetail, PaperInfoExtended } from '../entities/crossRef.entity';
 import { Test, TestingModule } from '@nestjs/testing';
 import { ElasticsearchService } from '@nestjs/elasticsearch';
 import { mockElasticService, mockHttpService, mockRankingService } from './search.service.mock';
@@ -40,24 +40,24 @@ describe('SearchController', () => {
     app.useGlobalPipes(new ValidationPipe());
     await app.init();
   });
+  afterEach(() => app.close());
 
   describe('/search/auto-complete', () => {
     it('getAutoCompletePapers - keyword=coffee 일 때 PaperInfo[]를 return', async () => {
+      // Case 1. elasticsearch에 data가 없을 경우
       const keyword = 'coffee';
-      const items = await controller.getAutoCompletePapers({ keyword });
-      expect(items.length).toBe(5);
-      expect(() => {
-        items.forEach((item) => {
-          const c = class T implements PaperInfo {};
-          Object.entries(item).forEach(([key, value]) => {
-            try {
-              c[key] = value;
-            } catch (err) {
-              throw err;
-            }
-          });
-        });
-      }).not.toThrow();
+      const itemsByCrossRef = await controller.getAutoCompletePapers({ keyword });
+      expect(itemsByCrossRef.length).toBe(5);
+      itemsByCrossRef.forEach((item) => {
+        expect(item instanceof PaperInfo).toBe(true);
+      });
+
+      // Case 2. elasticsearch에 data가 있는 경우
+      const itemsByElasticsearch = await controller.getAutoCompletePapers({ keyword });
+      expect(itemsByElasticsearch.length).toBe(5);
+      itemsByElasticsearch.forEach((item) => {
+        expect(item instanceof PaperInfo).toBe(true);
+      });
     });
     it('keyword 미포함시 error - GET /search/auto-complete?keyword=', () => {
       const url = (keyword: string) => `/search/auto-complete?keyword=${keyword}`;
@@ -70,18 +70,9 @@ describe('SearchController', () => {
       const { papers: items, pageInfo } = await controller.getPapers({ keyword, rows: 20, page: 1 });
       expect(items.length).toBe(20);
       expect(pageInfo.totalItems).toBe(28810);
-      expect(() => {
-        items.forEach((item) => {
-          const c = class T implements PaperInfoExtended {};
-          Object.entries(item).forEach(([key, value]) => {
-            try {
-              c[key] = value;
-            } catch (err) {
-              throw err;
-            }
-          });
-        });
-      }).not.toThrow();
+      items.forEach((item) => {
+        expect(item).toBeInstanceOf(PaperInfoExtended);
+      });
     });
     it('keyword 미포함시 error - GET /search?keyword=', () => {
       const url = (keyword: string) => `/search?keyword=${keyword}`;
@@ -109,6 +100,11 @@ describe('SearchController', () => {
       const paper = await controller.getPaper({ doi });
       expect(paper.references).toBe(5);
       expect(paper.referenceList.length).toBe(5);
+      expect(paper).toBeInstanceOf(PaperInfoDetail);
+    });
+    it('doi가 입력되지 않을 경우 error - GET /search/paper?doi=', () => {
+      const url = (keyword: string) => `/search/paper?doi=${keyword}`;
+      request(app.getHttpServer()).get(url('')).expect(400);
     });
   });
 });

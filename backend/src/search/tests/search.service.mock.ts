@@ -1,7 +1,7 @@
 import mockCrossRefData from './crossref.mock';
 import mockSearchData from './searchdata.mock';
 import { HttpService } from '@nestjs/axios';
-import { CrossRefPaperResponse, CrossRefResponse } from '../entities/crossRef.entity';
+import { CrossRefPaperResponse, CrossRefResponse, PaperInfo } from '../entities/crossRef.entity';
 
 export function mockHttpService() {
   const httpService = new HttpService();
@@ -37,6 +37,13 @@ export function mockElasticService() {
     return true;
   });
   const search = jest.fn();
+  search.mockResolvedValueOnce({
+    hits: {
+      total: {
+        value: 0,
+      },
+    },
+  });
   search.mockResolvedValue({
     hits: {
       total: {
@@ -45,7 +52,7 @@ export function mockElasticService() {
       hits: mockSearchData
         .map((data) => {
           return {
-            _source: data,
+            _source: new PaperInfo(data),
           };
         })
         .slice(0, 5),

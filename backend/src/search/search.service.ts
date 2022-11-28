@@ -45,10 +45,10 @@ export class SearchService {
     );
   }
   parseCrossRefData<T extends PaperInfo>(items: CrossRefItem[], parser: (item: CrossRefItem) => T) {
-    return items.map(parser).filter((info) => info.title || info.authors?.length > 0);
+    return items.map(parser).filter((info) => info.title);
   }
   parsePaperInfo = (item: CrossRefItem) => {
-    const paperInfo = {
+    const data = {
       title: item.title?.[0],
       authors: item.author?.reduce((acc, cur) => {
         const authorName = `${cur.name ? cur.name : cur.given ? cur.given + ' ' : ''}${cur.family || ''}`;
@@ -56,19 +56,19 @@ export class SearchService {
         return acc;
       }, []),
       doi: item.DOI,
-    } as PaperInfo;
+    };
 
-    return paperInfo;
+    return new PaperInfo(data);
   };
   parsePaperInfoExtended = (item: CrossRefItem) => {
-    const paperInfo = {
+    const data = {
       ...this.parsePaperInfo(item),
       publishedAt: item.created?.['date-time'],
       citations: item['is-referenced-by-count'],
       references: item['references-count'],
-    } as PaperInfoExtended;
+    };
 
-    return paperInfo;
+    return new PaperInfoExtended(data);
   };
   parsePaperInfoDetail = (item: CrossRefItem) => {
     const referenceList =
@@ -89,12 +89,12 @@ export class SearchService {
           references: 0,
         };
       }) || [];
-    const paperInfo = {
+    const data = {
       ...this.parsePaperInfoExtended(item),
       referenceList,
-    } as PaperInfoDetail;
+    };
 
-    return paperInfo;
+    return new PaperInfoDetail(data);
   };
 
   async getPaper(doi: string) {

@@ -1,15 +1,33 @@
-export interface PaperInfo {
+export class PaperInfo {
   title?: string;
   authors?: string[];
   doi?: string;
+
+  constructor(body: PaperInfo) {
+    this.title = body.title;
+    this.authors = body.authors;
+    this.doi = body.doi;
+  }
 }
-export interface PaperInfoExtended extends PaperInfo {
+export class PaperInfoExtended extends PaperInfo {
   publishedAt?: string;
   citations?: number;
   references?: number;
+
+  constructor(body: PaperInfoExtended) {
+    super(body);
+    this.publishedAt = body.publishedAt;
+    this.citations = body.citations;
+    this.references = body.references;
+  }
 }
-export interface PaperInfoDetail extends PaperInfoExtended {
+export class PaperInfoDetail extends PaperInfoExtended {
   referenceList?: ReferenceInfo[];
+
+  constructor(body: PaperInfoDetail) {
+    super(body);
+    this.referenceList = body.referenceList;
+  }
 }
 export interface ReferenceInfo {
   issn?: string;
