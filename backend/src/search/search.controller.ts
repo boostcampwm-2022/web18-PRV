@@ -46,8 +46,11 @@ export class SearchController {
     if (CROSSREF_CACHE_QUEUE.isEmpty()) return;
     else {
       const [url, count] = CROSSREF_CACHE_QUEUE.pop();
-      console.log('큐에 담긴 목록 : ', new Array(...CROSSREF_CACHE_QUEUE.data).length);
+      const urlObject = new URL(url);
+      const queryString = urlObject.searchParams;
+      console.log('큐에 담긴 목록 : ', new Array(...CROSSREF_CACHE_QUEUE.data));
       const cursor = await this.searchService.getCacheFromCrossRef(url);
+      if (cursor) this.searchService.crawlAllCrossRefData(queryString.get('query'), cursor);
     }
   }
   @Get('paper')
