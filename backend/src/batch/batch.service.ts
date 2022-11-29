@@ -1,3 +1,4 @@
+import { GetGetResult } from '@elastic/elasticsearch/lib/api/types';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
@@ -113,7 +114,7 @@ export class BatchService {
         }
       })
       .filter(Boolean);
-    console.log('filtered: ', bulk.length);
+    this.searchService.bulkInsert(bulk);
     this.redis.rpush('urlQueueLength', await queue.size());
     this.redis.rpush('urlQueueTime', Date.now());
   }
@@ -126,30 +127,45 @@ export class BatchService {
     console.log('paperQueue size', await queue.size());
     if (!batched) return;
     const items = batched.map((value) => this.parseQueueItem(value));
-    const responses = await Promise.allSettled(items.map((item) => this.fetch<CrossRefPaperResponse>(item.url)));
+    const dois = items.map((item) => {
+      const url = new URL(item.url);
+      const doi = url.pathname.split('/').slice(2).join('/');
+      return doi;
+    });
+    const { docs } = await this.searchService.multiGet(dois);
+    const filteredItems = docs
+      .map((doc, i) => {
+        if ((doc as GetGetResult).found) return;
+        return items[i];
+      })
+      .filter(Boolean);
+    console.log('skipped:', items.length - filteredItems.length);
+
+    const responses = await Promise.allSettled(
+      filteredItems.map((item) => this.fetch<CrossRefPaperResponse>(item.url)),
+    );
     const bulk = responses
       .map((res, i) => {
-        const referenceDepth = items[i].depth;
-        const url = new URL(items[i].url);
+        const referenceDepth = filteredItems[i].depth;
+        const url = new URL(filteredItems[i].url);
         const doi = url.pathname.split('/').slice(2).join('/');
-        // TODO: 우리 db에 해당 doi가 존재한다면 굳이 또?
         if (res.status === 'fulfilled') {
           const item = res.value.data.message;
           if (this.shouldParsePaper(item, referenceDepth)) {
             return this.searchService.parsePaperInfoDetail(item);
           }
         } else {
-          if (items[i].retries + 1 > MAX_RETRY) {
+          if (filteredItems[i].retries + 1 > MAX_RETRY) {
             failedQueue.push(items[i].url);
           }
-          this.pushToPaperQueue(doi, items[i].retries + 1);
+          this.pushToPaperQueue(doi, filteredItems[i].retries + 1);
           return;
         }
       })
       .filter(Boolean);
+    this.searchService.bulkInsert(bulk);
     this.redis.rpush('paperQueueLength', await queue.size());
     this.redis.rpush('paperQueueTime', Date.now());
-    // TODO: bulk insert
   }
 
   getValidatedPapers(items: CrossRefItem[], depth: number) {
