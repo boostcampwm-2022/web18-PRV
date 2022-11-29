@@ -57,7 +57,7 @@ const PaperDatail = () => {
               <PreviousButtonIcon />
             </NavigateButton>
             <NavigateButton onClick={handleLogoClick}>
-              <LogoIcon height={'25pt'} width={'25pt'} />
+              <LogoIcon height="30" width="30" />
             </NavigateButton>
           </Header>
           <Main>

@@ -69,8 +69,8 @@ const LogoIcon = ({ height, width }: IProps) => {
 };
 
 LogoIcon.defaultProps = {
-  width: '30pt',
-  height: '30pt',
+  width: '40',
+  height: '40',
 };
 
 export default LogoIcon;
