@@ -8,7 +8,7 @@ import {
   CrossRefPaperResponse,
   PaperInfoDetail,
 } from './entities/crossRef.entity';
-import { CROSSREF_API_PAPER_URL, CROSSREF_API_URL, CROSSREF_CACHE_QUEUE } from '../util';
+import { CROSSREF_API_PAPER_URL, CROSSREF_API_URL, CROSSREF_CACHE_QUEUE, CROSSREF_CRALWING_URL } from '../util';
 import { ElasticsearchService } from '@nestjs/elasticsearch';
 import { SearchHit } from '@elastic/elasticsearch/lib/api/types';
 
@@ -35,22 +35,32 @@ export class SearchService {
     const totalItems = crossRefdata.data.message['total-results'];
     return { items, totalItems };
   }
-  async crawlAllCrossRefData(keyword: string, totalItems: number, rows: number) {
-    if (totalItems >= 10000) totalItems = 10000;
-    await Promise.all(
-      Array(Math.ceil(totalItems / rows))
-        .fill(0)
-        .map((v, i) => {
-          CROSSREF_CACHE_QUEUE.push(
-            CROSSREF_API_URL(
-              keyword,
-              rows,
-              ['title', 'author', 'created', 'is-referenced-by-count', 'references-count', 'DOI'],
-              i + 1,
-            ),
-          );
-        }),
+  async crawlAllCrossRefData(keyword: string, cursor: string) {
+    const url = CROSSREF_CRALWING_URL(
+      keyword,
+      1000,
+      ['title', 'author', 'created', 'is-referenced-by-count', 'references-count', 'DOI'],
+      cursor,
     );
+    CROSSREF_CACHE_QUEUE.push([url, 'new']);
+    // const crossRefdata = await this.httpService.axiosRef.get<CrossRefResponse>(url);
+    // const items = crossRefdata.data.message.items;
+    // const nextCursor = crossRefdata.data.message['next-cursor'];
+    // const papers = this.parseCrossRefData(items, this.parsePaperInfoExtended);
+    // papers.map((paper) => {
+    //   this.putElasticSearch(paper);
+    // });
+    // const cursorUrl = CROSSREF_CRALWING_URL(
+    //   keyword,
+    //   1000,
+    //   ['title', 'author', 'created', 'is-referenced-by-count', 'references-count', 'DOI'],
+    //   nextCursor,
+    // );
+    // Array(Math.ceil(crossRefdata.data.message['total-results'] / 1000))
+    //   .fill(0)
+    //   .map((v, i) => {
+    //     CROSSREF_CACHE_QUEUE.push([cursorUrl, `${i}`]);
+    //   });
   }
   parseCrossRefData<T extends PaperInfo>(items: CrossRefItem[], parser: (item: CrossRefItem) => T) {
     return items.map(parser).filter((info) => info.title || info.authors?.length > 0);
@@ -117,26 +127,17 @@ export class SearchService {
   }
   async getElasticSearch(keyword: string, size = 5) {
     const query = {
-      bool: {
-        should: [
-          {
-            match_bool_prefix: {
-              title: {
-                query: keyword,
-              },
-            },
-          },
-          {
-            match_bool_prefix: {
-              author: {
-                query: keyword,
-              },
-            },
-          },
-        ],
+      // bool: {
+      //   should: [
+      //     { prefix: { title: keyword } },
+      //     { fuzzy: { title: { value: keyword, fuzziness: 2, prefix_length: 0 } } },
+      //   ],
+      // },
+      match_phrase_prefix: {
+        title: keyword,
       },
     };
-    return await this.esService
+    const result = await this.esService
       .search<PaperInfo>({
         index: process.env.ELASTIC_INDEX,
         size,
@@ -145,15 +146,23 @@ export class SearchService {
       .catch(() => {
         return { hits: { hits: [] as SearchHit<PaperInfo>[], total: 0 } };
       });
+    // console.log(result.hits.hits);
+    return result;
   }
   async getCacheFromCrossRef(url: string) {
     try {
       const crossRefdata = await this.httpService.axiosRef.get<CrossRefResponse>(url);
       const items = crossRefdata.data.message.items;
+      const nextCursor = crossRefdata.data.message['next-cursor'];
       const papers = this.parseCrossRefData(items, this.parsePaperInfoExtended);
+      console.log(items.length);
       papers.map((paper) => {
         this.putElasticSearch(paper);
       });
-    } catch (error) {}
+      if (items.length == 0) return null;
+      return nextCursor;
+    } catch (error) {
+      console.log(error);
+    }
   }
 }

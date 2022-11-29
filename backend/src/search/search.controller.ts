@@ -17,9 +17,8 @@ export class SearchController {
     if (elasticDataCount > 0) {
       return elastic.hits.hits.map((paper) => paper._source);
     }
-    const { items, totalItems } = await this.searchService.getCrossRefAutoCompleteData(keyword);
+    const { items } = await this.searchService.getCrossRefAutoCompleteData(keyword);
     const papers = this.searchService.parseCrossRefData(items, this.searchService.parsePaperInfo);
-    this.searchService.crawlAllCrossRefData(keyword, totalItems, 1000);
     return papers;
   }
 
@@ -30,6 +29,8 @@ export class SearchController {
     const { items, totalItems } = await this.searchService.getCrossRefData(keyword, rows, page);
     const papers = this.searchService.parseCrossRefData(items, this.searchService.parsePaperInfoExtended);
     this.rankingService.insertRedis(keyword);
+    //검색한 이후에 캐싱 진행으로 변경
+    this.searchService.crawlAllCrossRefData(keyword, '*');
     return {
       papers,
       pageInfo: {
@@ -39,14 +40,15 @@ export class SearchController {
     };
   }
   @Interval('notifications', 1000)
-  handleInterval() {
-    //ToDo 진짜 queue로 변경해야함 리스트에서 shift를 쓰면 최악의 경우 O(n)발생 우선 pop으로 지정
+  async handleInterval() {
+    //n 개를 한번에 확인해서 n번을 call 하는 방식 or 바로바로 실행해보고 items개수를 확인 해보는 방식
+    // console.log(new Array(...CROSSREF_CACHE_QUEUE.data));
     if (CROSSREF_CACHE_QUEUE.isEmpty()) return;
     else {
-      const url = CROSSREF_CACHE_QUEUE.pop();
-      this.searchService.getCacheFromCrossRef(url);
+      const [url, count] = CROSSREF_CACHE_QUEUE.pop();
+      console.log('큐에 담긴 목록 : ', new Array(...CROSSREF_CACHE_QUEUE.data).length);
+      const cursor = await this.searchService.getCacheFromCrossRef(url);
     }
-    console.log(new Array(...CROSSREF_CACHE_QUEUE.data));
   }
   @Get('paper')
   @UsePipes(new ValidationPipe())

@@ -11,7 +11,7 @@ export interface IGetAutoComplete {
 }
 
 export default class Api {
-  private readonly baseURL = 'http://49.50.172.204:4000/';
+  private readonly baseURL = 'http://localhost:4000/';
   private readonly instance: AxiosInstance;
 
   constructor() {
