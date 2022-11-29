@@ -6,6 +6,8 @@ import { ElasticsearchModule } from '@nestjs/elasticsearch';
 import { HttpConnection } from '@elastic/elasticsearch';
 import { ScheduleModule } from '@nestjs/schedule';
 import { RankingService } from 'src/ranking/ranking.service';
+import { MongooseModule } from '@nestjs/mongoose';
+import { RankingSchema, SearchRanking } from 'src/model/mongo.schema';
 @Module({
   imports: [
     HttpModule.register({
@@ -29,6 +31,7 @@ import { RankingService } from 'src/ranking/ranking.service';
       }),
     }),
     ScheduleModule.forRoot(),
+    MongooseModule.forFeature([{ name: SearchRanking.name, schema: RankingSchema }]),
   ],
   controllers: [SearchController],
   providers: [SearchService, RankingService],
