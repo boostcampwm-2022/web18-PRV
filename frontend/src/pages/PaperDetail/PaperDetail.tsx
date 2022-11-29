@@ -60,14 +60,12 @@ const PaperDatail = () => {
               <LogoIcon height="30" width="30" />
             </NavigateButton>
           </Header>
-          <Main>
-            {data && (
-              <>
-                <PaperInfo data={data} />
-                <ReferenceGragh />
-              </>
-            )}
-          </Main>
+          {data && (
+            <Main>
+              <PaperInfo data={data} />
+              <ReferenceGragh />
+            </Main>
+          )}
         </>
       )}
     </Container>

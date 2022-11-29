@@ -15,11 +15,13 @@ const PaperInfo = ({ data }: IProps) => {
         <InfoContainer>
           <InfoItem>
             <h3>Authors</h3>
-            <span>{data?.authors.join(', ')}</span>
+            <span>{data?.authors?.join(', ')}</span>
           </InfoItem>
           <InfoItem>
             <h3>DOI</h3>
-            <a href={DOI_BASE_URL + data?.doi}>{data?.doi}</a>
+            <a href={DOI_BASE_URL + data?.doi} target="_blank" rel="noopener noreferrer">
+              {data?.doi}
+            </a>
           </InfoItem>
         </InfoContainer>
         <DivideLine />
