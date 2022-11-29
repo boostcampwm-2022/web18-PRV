@@ -33,7 +33,9 @@ const Pagination = ({ activePage, totalPages, range, onChange }: PaginationProps
 
   return (
     <Container>
-      {isPrevButtonExist && <Button onClick={goToPrevRangeLastPage}>이전</Button>}
+      <Button onClick={goToPrevRangeLastPage} disabled={!isPrevButtonExist}>
+        이전
+      </Button>
       {pageItems.map((page) => {
         const currentPage = activePage === page;
         return (
@@ -42,7 +44,9 @@ const Pagination = ({ activePage, totalPages, range, onChange }: PaginationProps
           </PaginationItem>
         );
       })}
-      {isNextButtonExist && <Button onClick={goToNextRangeFirstPage}>다음</Button>}
+      <Button onClick={goToNextRangeFirstPage} disabled={!isNextButtonExist}>
+        다음
+      </Button>
     </Container>
   );
 };
@@ -52,7 +56,8 @@ const Container = styled.div`
   margin: 20px auto 0 auto;
 `;
 
-const Button = styled.button`
+const Button = styled.button<{ disabled: boolean }>`
+  display: ${({ disabled }) => (disabled ? 'none' : 'initial')};
   background-color: transparent;
   margin: 0 10px;
   color: ${({ theme }) => theme.COLOR.gray3};
