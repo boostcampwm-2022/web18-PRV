@@ -1,4 +1,4 @@
-import { Controller, Get, Query, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Controller, Get, NotFoundException, Query, UsePipes, ValidationPipe } from '@nestjs/common';
 import { SearchService } from './search.service';
 import { AutoCompleteDto, GetPaperDto, SearchDto } from './entities/search.dto';
 import { SearchTotalHits } from '@elastic/elasticsearch/lib/api/types';
@@ -17,7 +17,8 @@ export class SearchController {
     if (elasticDataCount > 0) {
       return elastic.hits.hits.map((paper) => paper._source);
     }
-    const { items, totalItems } = await this.searchService.getCrossRefAutoCompleteData(keyword);
+    const selects = ['title', 'author', 'DOI'];
+    const { items, totalItems } = await this.searchService.getCrossRefData(keyword, 5, 1, selects);
     const papers = this.searchService.parseCrossRefData(items, this.searchService.parsePaperInfo);
     this.searchService.crawlAllCrossRefData(keyword, totalItems, 1000);
     return papers;
@@ -27,14 +28,20 @@ export class SearchController {
   @UsePipes(new ValidationPipe({ transform: true }))
   async getPapers(@Query() query: SearchDto) {
     const { keyword, rows, page } = query;
-    const { items, totalItems } = await this.searchService.getCrossRefData(keyword, rows, page);
+    const selects = ['title', 'author', 'created', 'is-referenced-by-count', 'references-count', 'DOI'];
+    const { items, totalItems } = await this.searchService.getCrossRefData(keyword, rows, page, selects);
+    const totalPages = Math.ceil(totalItems / rows);
+    if (page > totalPages) {
+      throw new NotFoundException(`page(${page})는 ${totalPages} 보다 클 수 없습니다.`);
+    }
     const papers = this.searchService.parseCrossRefData(items, this.searchService.parsePaperInfoExtended);
     this.rankingService.insertRedis(keyword);
+
     return {
       papers,
       pageInfo: {
         totalItems,
-        totalPages: Math.ceil(totalItems / rows),
+        totalPages,
       },
     };
   }

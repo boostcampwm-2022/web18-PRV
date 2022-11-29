@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, RequestTimeoutException } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import {
   CrossRefResponse,
@@ -15,22 +15,12 @@ import { SearchHit } from '@elastic/elasticsearch/lib/api/types';
 @Injectable()
 export class SearchService {
   constructor(private readonly httpService: HttpService, private readonly esService: ElasticsearchService) {}
-  async getCrossRefAutoCompleteData(keyword: string) {
-    const crossRefdata = await this.httpService.axiosRef.get<CrossRefResponse>(CROSSREF_API_URL(keyword));
-    const items = crossRefdata.data.message.items;
-    const totalItems = crossRefdata.data.message['total-results'];
-    return { items, totalItems };
-  }
-
-  async getCrossRefData(keyword: string, rows: number, page: number) {
-    const crossRefdata = await this.httpService.axiosRef.get<CrossRefResponse>(
-      CROSSREF_API_URL(
-        keyword,
-        rows,
-        ['title', 'author', 'created', 'is-referenced-by-count', 'references-count', 'DOI'],
-        page,
-      ),
-    );
+  async getCrossRefData(keyword: string, rows: number, page: number, selects?: string[]) {
+    const crossRefdata = await this.httpService.axiosRef
+      .get<CrossRefResponse>(CROSSREF_API_URL(keyword, rows, page, selects))
+      .catch((err) => {
+        throw new RequestTimeoutException(err.message);
+      });
     const items = crossRefdata.data.message.items;
     const totalItems = crossRefdata.data.message['total-results'];
     return { items, totalItems };
@@ -42,21 +32,23 @@ export class SearchService {
         .fill(0)
         .map((v, i) => {
           CROSSREF_CACHE_QUEUE.push(
-            CROSSREF_API_URL(
-              keyword,
-              rows,
-              ['title', 'author', 'created', 'is-referenced-by-count', 'references-count', 'DOI'],
-              i + 1,
-            ),
+            CROSSREF_API_URL(keyword, rows, i + 1, [
+              'title',
+              'author',
+              'created',
+              'is-referenced-by-count',
+              'references-count',
+              'DOI',
+            ]),
           );
         }),
     );
   }
   parseCrossRefData<T extends PaperInfo>(items: CrossRefItem[], parser: (item: CrossRefItem) => T) {
-    return items.map(parser).filter((info) => info.title || info.authors?.length > 0);
+    return items.map(parser).filter((info) => info.title);
   }
   parsePaperInfo = (item: CrossRefItem) => {
-    const paperInfo = {
+    const data = {
       title: item.title?.[0],
       authors: item.author?.reduce((acc, cur) => {
         const authorName = `${cur.name ? cur.name : cur.given ? cur.given + ' ' : ''}${cur.family || ''}`;
@@ -64,42 +56,45 @@ export class SearchService {
         return acc;
       }, []),
       doi: item.DOI,
-    } as PaperInfo;
+    };
 
-    return paperInfo;
+    return new PaperInfo(data);
   };
   parsePaperInfoExtended = (item: CrossRefItem) => {
-    const paperInfo = {
+    const data = {
       ...this.parsePaperInfo(item),
       publishedAt: item.created?.['date-time'],
       citations: item['is-referenced-by-count'],
       references: item['references-count'],
-    } as PaperInfoExtended;
+    };
 
-    return paperInfo;
+    return new PaperInfoExtended(data);
   };
   parsePaperInfoDetail = (item: CrossRefItem) => {
-    const referenceList = item['reference'].map((reference) => {
-      return {
-        title:
-          reference['article-title'] ||
-          reference['journal-title'] ||
-          reference['series-title'] ||
-          reference['volume-title'],
-        doi: reference['doi'],
-        // TODO: 현재 원하는 정보를 얻기 위해서는 해당 reference에 대한 정보를 crossref에 다시 요청해야함
-        author: reference['author'],
-        publishedAt: reference['year'],
-        citations: 0,
-        references: 0,
-      };
-    });
-    const paperInfo = {
+    const referenceList =
+      item['reference']?.map((reference) => {
+        return {
+          key: reference['DOI'] || reference.key || reference.unstructured,
+          title:
+            reference['article-title'] ||
+            reference['journal-title'] ||
+            reference['series-title'] ||
+            reference['volume-title'] ||
+            reference.unstructured,
+          doi: reference['DOI'],
+          // TODO: 현재 원하는 정보를 얻기 위해서는 해당 reference에 대한 정보를 crossref에 다시 요청해야함
+          author: reference['author'],
+          publishedAt: reference['year'],
+          citations: 0,
+          references: 0,
+        };
+      }) || [];
+    const data = {
       ...this.parsePaperInfoExtended(item),
       referenceList,
-    } as PaperInfoDetail;
+    };
 
-    return paperInfo;
+    return new PaperInfoDetail(data);
   };
 
   async getPaper(doi: string) {
