@@ -37,27 +37,28 @@ export function mockElasticService() {
     return true;
   });
   const search = jest.fn();
-  search.mockResolvedValueOnce({
-    hits: {
-      total: {
-        value: 0,
+  search
+    .mockResolvedValueOnce({
+      hits: {
+        total: {
+          value: 0,
+        },
       },
-    },
-  });
-  search.mockResolvedValue({
-    hits: {
-      total: {
-        value: 222,
+    })
+    .mockResolvedValue({
+      hits: {
+        total: {
+          value: 222,
+        },
+        hits: mockSearchData
+          .map((data) => {
+            return {
+              _source: new PaperInfo(data),
+            };
+          })
+          .slice(0, 5),
       },
-      hits: mockSearchData
-        .map((data) => {
-          return {
-            _source: new PaperInfo(data),
-          };
-        })
-        .slice(0, 5),
-    },
-  });
+    });
   const elasticService = { index, search };
   return elasticService;
 }

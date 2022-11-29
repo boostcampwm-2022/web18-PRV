@@ -11,7 +11,12 @@ import * as request from 'supertest';
 
 describe('SearchController', () => {
   let controller: SearchController;
+  let service: SearchService;
   let app: INestApplication;
+
+  let spyGetElasticSearch: jest.SpyInstance;
+  let spyGetCrossRefData: jest.SpyInstance;
+  const keyword = 'coffee';
 
   beforeEach(async () => {
     const httpService = mockHttpService();
@@ -36,6 +41,10 @@ describe('SearchController', () => {
       ],
     }).compile();
     controller = module.get(SearchController);
+    service = module.get(SearchService);
+    spyGetElasticSearch = jest.spyOn(service, 'getElasticSearch');
+    spyGetCrossRefData = jest.spyOn(service, 'getCrossRefData');
+
     app = module.createNestApplication();
     app.useGlobalPipes(new ValidationPipe());
     await app.init();
@@ -45,7 +54,6 @@ describe('SearchController', () => {
   describe('/search/auto-complete', () => {
     it('getAutoCompletePapers - keyword=coffee 일 때 PaperInfo[]를 return', async () => {
       // Case 1. elasticsearch에 data가 없을 경우
-      const keyword = 'coffee';
       const itemsByCrossRef = await controller.getAutoCompletePapers({ keyword });
       expect(itemsByCrossRef.length).toBe(5);
       itemsByCrossRef.forEach((item) => {
@@ -58,10 +66,15 @@ describe('SearchController', () => {
       itemsByElasticsearch.forEach((item) => {
         expect(item instanceof PaperInfo).toBe(true);
       });
+
+      expect(spyGetElasticSearch).toBeCalledTimes(2);
+      expect(spyGetCrossRefData).toBeCalledTimes(1);
     });
     it('keyword 미포함시 error - GET /search/auto-complete?keyword=', () => {
       const url = (keyword: string) => `/search/auto-complete?keyword=${keyword}`;
-      return request(app.getHttpServer()).get(url('')).expect(400);
+      request(app.getHttpServer()).get(url('')).expect(400);
+      expect(spyGetElasticSearch).toBeCalledTimes(0);
+      expect(spyGetCrossRefData).toBeCalledTimes(0);
     });
   });
   describe('/search', () => {
@@ -73,10 +86,15 @@ describe('SearchController', () => {
       items.forEach((item) => {
         expect(item).toBeInstanceOf(PaperInfoExtended);
       });
+      // TODO: elasticsearch로 검색?
+      expect(spyGetElasticSearch).toBeCalledTimes(0);
+      expect(spyGetCrossRefData).toBeCalledTimes(1);
     });
     it('keyword 미포함시 error - GET /search?keyword=', () => {
       const url = (keyword: string) => `/search?keyword=${keyword}`;
-      return request(app.getHttpServer()).get(url('')).expect(400);
+      request(app.getHttpServer()).get(url('')).expect(400);
+      expect(spyGetElasticSearch).toBeCalledTimes(0);
+      expect(spyGetCrossRefData).toBeCalledTimes(0);
     });
     it('rows<=0 이거나, rows 값이 integer가 아닐 경우 error - GET /search?keyword=coffee&rows=<rows>', () => {
       const url = (keyword: string | number) => `/search?keyword=${keyword}`;
@@ -84,6 +102,8 @@ describe('SearchController', () => {
       rowsNotAvailables.forEach((value) => {
         request(app.getHttpServer()).get(url(value)).expect(400);
       });
+      expect(spyGetElasticSearch).toBeCalledTimes(0);
+      expect(spyGetCrossRefData).toBeCalledTimes(0);
     });
     it('page<=0 이거나, page 값이 integer가 아닐 경우 error - GET /search?keyword=coffee&page=<page>', () => {
       const url = (keyword: string | number) => `/search?keyword=${keyword}`;
@@ -91,6 +111,8 @@ describe('SearchController', () => {
       pageNotAvailables.forEach((value) => {
         request(app.getHttpServer()).get(url(value)).expect(400);
       });
+      expect(spyGetElasticSearch).toBeCalledTimes(0);
+      expect(spyGetCrossRefData).toBeCalledTimes(0);
     });
   });
 
