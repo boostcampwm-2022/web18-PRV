@@ -1,15 +1,45 @@
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 export class PaperInfo {
-  title?: string;
+  @ApiProperty()
+  title: string;
+
+  @ApiPropertyOptional()
   authors?: string[];
+
+  @ApiProperty()
   doi?: string;
+
+  constructor(body: PaperInfo) {
+    this.title = body.title;
+    this.authors = body.authors;
+    this.doi = body.doi;
+  }
 }
 export class PaperInfoExtended extends PaperInfo {
+  @ApiPropertyOptional()
   publishedAt?: string;
+
+  @ApiPropertyOptional()
   citations?: number;
+
+  @ApiPropertyOptional()
   references?: number;
+
+  constructor(body: PaperInfoExtended) {
+    super(body);
+    this.publishedAt = body.publishedAt;
+    this.citations = body.citations;
+    this.references = body.references;
+  }
 }
 export class PaperInfoDetail extends PaperInfoExtended {
+  @ApiPropertyOptional()
   referenceList?: ReferenceInfo[];
+
+  constructor(body: PaperInfoDetail) {
+    super(body);
+    this.referenceList = body.referenceList;
+  }
 }
 export interface ReferenceInfo {
   issn?: string;
@@ -58,5 +88,5 @@ export interface CrossRefItem {
   reference?: ReferenceInfo[];
 }
 export interface CrossRefPaperResponse {
-  message: CrossRefItem & { 'next-cursor'?: string; 'total-results': number };
+  message: CrossRefItem & { 'next-cursor'?: string; 'total-results'?: number };
 }

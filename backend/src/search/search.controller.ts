@@ -1,4 +1,4 @@
-import { Controller, Get, Query, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Controller, Get, NotFoundException, Query, UsePipes, ValidationPipe } from '@nestjs/common';
 import { SearchService } from './search.service';
 import { AutoCompleteDto, GetPaperDto, SearchDto } from './entities/search.dto';
 import { SearchTotalHits } from '@elastic/elasticsearch/lib/api/types';
@@ -6,6 +6,8 @@ import { CROSSREF_CACHE_QUEUE } from 'src/util';
 import { Interval } from '@nestjs/schedule';
 import { RankingService } from 'src/ranking/ranking.service';
 import { BatchService } from 'src/batch/batch.service';
+import { ApiResponse, ApiRequestTimeoutResponse, ApiBadRequestResponse } from '@nestjs/swagger';
+import { PaperInfo, PaperInfoDetail, PaperInfoExtended } from './entities/crossRef.entity';
 
 @Controller('search')
 export class SearchController {
@@ -14,7 +16,12 @@ export class SearchController {
     private readonly rankingService: RankingService,
     private readonly batchService: BatchService,
   ) {}
+
+  @ApiResponse({ status: 200, description: '자동검색 성공', type: PaperInfo, isArray: true })
+  @ApiRequestTimeoutResponse({ description: '검색 timeout' })
+  @ApiBadRequestResponse({ status: 400, description: '유효하지 않은 키워드' })
   @Get('auto-complete')
+  @UsePipes(new ValidationPipe({ transform: true }))
   async getAutoCompletePapers(@Query() query: AutoCompleteDto) {
     const { keyword } = query;
     this.batchService.setKeyword(keyword);
@@ -23,24 +30,34 @@ export class SearchController {
     if (elasticDataCount > 0) {
       return elastic.hits.hits.map((paper) => paper._source);
     }
-    const { items, totalItems } = await this.searchService.getCrossRefAutoCompleteData(keyword);
+    const selects = ['title', 'author', 'DOI'];
+    const { items, totalItems } = await this.searchService.getCrossRefData(keyword, 5, 1, selects);
     const papers = this.searchService.parseCrossRefData(items, this.searchService.parsePaperInfo);
     // this.searchService.crawlAllCrossRefData(keyword, totalItems, 1000);
     return papers;
   }
 
+  @ApiResponse({ status: 200, description: '검색 결과', type: PaperInfoExtended, isArray: true })
+  @ApiRequestTimeoutResponse({ description: '검색 timeout' })
+  @ApiBadRequestResponse({ status: 400, description: '유효하지 않은 keyword | rows | page' })
   @Get()
   @UsePipes(new ValidationPipe({ transform: true }))
   async getPapers(@Query() query: SearchDto) {
     const { keyword, rows, page } = query;
-    const { items, totalItems } = await this.searchService.getCrossRefData(keyword, rows, page);
+    const selects = ['title', 'author', 'created', 'is-referenced-by-count', 'references-count', 'DOI'];
+    const { items, totalItems } = await this.searchService.getCrossRefData(keyword, rows, page, selects);
+    const totalPages = Math.ceil(totalItems / rows);
+    if (page > totalPages) {
+      throw new NotFoundException(`page(${page})는 ${totalPages} 보다 클 수 없습니다.`);
+    }
     const papers = this.searchService.parseCrossRefData(items, this.searchService.parsePaperInfoExtended);
     this.rankingService.insertRedis(keyword);
+
     return {
       papers,
       pageInfo: {
         totalItems,
-        totalPages: Math.ceil(totalItems / rows),
+        totalPages,
       },
     };
   }
@@ -54,6 +71,10 @@ export class SearchController {
     }
     console.log(new Array(...CROSSREF_CACHE_QUEUE.data));
   }
+
+  @ApiResponse({ status: 200, description: '논문 상세정보 검색 결과', type: PaperInfoDetail })
+  @ApiRequestTimeoutResponse({ description: '검색 timeout' })
+  @ApiBadRequestResponse({ description: '유효하지 않은 doi' })
   @Get('paper')
   @UsePipes(new ValidationPipe())
   async getPaper(@Query() query: GetPaperDto) {
