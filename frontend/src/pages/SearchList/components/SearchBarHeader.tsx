@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import Search from '../../../components/Search';
+import Search from '../../../components/search/Search';
 import StarLayer from '../../../components/StarLayer';
 import { PATH_MAIN } from '../../../constants/path';
 import LogoIcon from '../../../icons/LogoIcon';

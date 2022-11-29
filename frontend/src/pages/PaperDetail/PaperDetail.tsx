@@ -10,6 +10,7 @@ import { IPaper } from '../SearchList/SearchList';
 import PaperInfo from './components/PaperInfo';
 import ReferenceGragh from './components/ReferenceGragh';
 import { PATH_MAIN } from '../../constants/path';
+import IconButton from '../../components/IconButton';
 
 export interface IPaperDetail extends IPaper {
   referenceList: [
@@ -53,12 +54,8 @@ const PaperDatail = () => {
       ) : (
         <>
           <Header>
-            <NavigateButton onClick={handlePreviousButtonClick}>
-              <PreviousButtonIcon />
-            </NavigateButton>
-            <NavigateButton onClick={handleLogoClick}>
-              <LogoIcon height="30" width="30" />
-            </NavigateButton>
+            <IconButton icon={<PreviousButtonIcon />} onClick={handlePreviousButtonClick} />
+            <IconButton icon={<LogoIcon height="30" width="30" />} onClick={handleLogoClick} />
           </Header>
           {data && (
             <Main>
@@ -94,11 +91,6 @@ const Header = styled.header`
   left: 0;
   width: 100%;
   padding: 10px;
-`;
-
-const NavigateButton = styled.button`
-  background-color: transparent;
-  cursor: pointer;
 `;
 
 const Main = styled.main`
