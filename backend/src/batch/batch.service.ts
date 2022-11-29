@@ -14,9 +14,10 @@ import { CROSSREF_API_PAPER_URL, CROSSREF_API_URL_CURSOR, MAX_ROWS } from 'src/u
 import { RedisQueue } from './batch.queue';
 
 const MAX_RETRY = 3;
+const MAX_DEPTH = 1;
 const URL_BATCH_SIZE = 10;
 const PAPER_BATCH_SIZE = 40;
-const TIME_INTERVAL = 2 * 1000;
+const TIME_INTERVAL = 3 * 1000;
 
 @Injectable()
 export class BatchService {
@@ -37,7 +38,7 @@ export class BatchService {
   }
 
   async keywordExist(keyword: string) {
-    return (await this.redis.ttl(keyword)) !== -2;
+    return (await this.redis.ttl(keyword)) >= 0;
   }
   async setKeyword(keyword: string) {
     if (await this.keywordExist(keyword)) return false;
@@ -49,17 +50,22 @@ export class BatchService {
 
   parseQueueItem(value: string) {
     const splits = value.split(':');
-    return { retries: parseInt(splits[0]), url: splits.slice(1).join(':') };
+    return {
+      retries: parseInt(splits[0]),
+      depth: parseInt(splits[1]),
+      pages: parseInt(splits[2]),
+      url: splits.slice(3).join(':'),
+    };
   }
 
-  pushToUrlQueue(keyword: string, retries = 0, cursor = '*') {
+  pushToUrlQueue(keyword: string, retries = 0, depth = 0, page = -1, cursor = '*') {
     const url = CROSSREF_API_URL_CURSOR(keyword, cursor);
-    this.urlQueue.push(`${retries}:${url}`, cursor === '*');
+    this.urlQueue.push(`${retries}:${depth}:${page}:${url}`, cursor === '*');
   }
 
-  pushToPaperQueue(doi: string, retries = 0) {
+  pushToPaperQueue(doi: string, retries = 0, depth = 0, page = 0) {
     const url = CROSSREF_API_PAPER_URL(doi);
-    this.paperQueue.push(`${retries}:${url}`);
+    this.paperQueue.push(`${retries}:${depth}:${page}:${url}`);
   }
 
   fetch<T = CrossRefResponse>(url: string) {
@@ -71,11 +77,15 @@ export class BatchService {
     const queue = this.urlQueue;
     const failedQueue = this.urlFailedQueue;
     const batched = await queue.pop(batchSize);
+    console.log('urlQueue size', await queue.size());
     if (!batched) return;
     const items = batched.map((value) => this.parseQueueItem(value));
     const responses = await Promise.allSettled(items.map((item) => this.fetch(item.url)));
     const bulk = responses
       .flatMap((res, i) => {
+        const referenceDepth = items[i].depth;
+        const retries = items[i].retries;
+        const pageLeft = items[i].pages;
         const url = new URL(items[i].url);
         const params = new URLSearchParams(url.search);
         const keyword = params.get('query');
@@ -83,23 +93,29 @@ export class BatchService {
         if (res.status === 'fulfilled') {
           if (presentCursor === '*') {
             const cursor = res.value.data.message['next-cursor'];
-            const maxPage = Math.ceil(res.value.data.message['total-results'] / MAX_ROWS);
-            Array.from({ length: maxPage - 1 }, () => {
-              this.pushToUrlQueue(keyword, 0, cursor);
-            });
+            const maxPage = Math.floor(res.value.data.message['total-results'] / MAX_ROWS);
+            this.pushToUrlQueue(keyword, 0, referenceDepth + 1, maxPage, cursor);
+          } else if (pageLeft > 0) {
+            this.pushToUrlQueue(keyword, 0, referenceDepth, pageLeft - 1, presentCursor);
           }
-          return this.getValidatedPapers(res.value.data.message.items);
+          return this.getValidatedPapers(res.value.data.message.items, referenceDepth);
         } else {
           if (items[i].retries + 1 > MAX_RETRY) {
             failedQueue.push(items[i].url);
             return;
           }
+          console.log('error', items[i].url);
           items[i].retries++;
-          this.pushToUrlQueue(params.get('query'), items[i].retries + 1);
+          const query = params.get('query');
+          const cursor = params.get('cursor') || '*';
+          this.pushToUrlQueue(query, retries + 1, referenceDepth, pageLeft - 1, cursor); // 실패해도,, cursor가 움직였다.
           return;
         }
       })
       .filter(Boolean);
+    console.log('filtered: ', bulk.length);
+    this.redis.rpush('urlQueueLength', await queue.size());
+    this.redis.rpush('urlQueueTime', Date.now());
   }
 
   @Interval(TIME_INTERVAL)
@@ -107,16 +123,19 @@ export class BatchService {
     const queue = this.paperQueue;
     const failedQueue = this.paperFailedQueue;
     const batched = await queue.pop(batchSize);
+    console.log('paperQueue size', await queue.size());
     if (!batched) return;
     const items = batched.map((value) => this.parseQueueItem(value));
     const responses = await Promise.allSettled(items.map((item) => this.fetch<CrossRefPaperResponse>(item.url)));
     const bulk = responses
       .map((res, i) => {
+        const referenceDepth = items[i].depth;
         const url = new URL(items[i].url);
         const doi = url.pathname.split('/').slice(2).join('/');
+        // TODO: 우리 db에 해당 doi가 존재한다면 굳이 또?
         if (res.status === 'fulfilled') {
           const item = res.value.data.message;
-          if (this.shouldParsePaper(item)) {
+          if (this.shouldParsePaper(item, referenceDepth)) {
             return this.searchService.parsePaperInfoDetail(item);
           }
         } else {
@@ -128,58 +147,43 @@ export class BatchService {
         }
       })
       .filter(Boolean);
+    this.redis.rpush('paperQueueLength', await queue.size());
+    this.redis.rpush('paperQueueTime', Date.now());
     // TODO: bulk insert
   }
 
-  getValidatedPapers(items: CrossRefItem[]) {
+  getValidatedPapers(items: CrossRefItem[], depth: number) {
     return items
       .flatMap((item) => {
-        if (this.shouldParsePaper(item)) {
+        if (this.shouldParsePaper(item, depth)) {
           return this.searchService.parsePaperInfoDetail(item);
         }
       })
       .filter(Boolean);
   }
 
-  shouldParsePaper(item: CrossRefItem) {
-    if (this.paperHasInformation(item)) {
+  shouldParsePaper(item: CrossRefItem, depth: number) {
+    const hasHope = this.paperHasInformation(item);
+    if (hasHope && depth < MAX_DEPTH) {
+      if (item.DOI) {
+        this.pushToPaperQueue(item.DOI, 0, depth + 1);
+      }
       item.reference?.forEach((ref) => {
-        // 적절한 information이 없고, doi도 없는 reference는 무시된다.
-        if (!this.referenceHasInformation(ref) && ref.DOI) {
-          this.pushToPaperQueue(ref.DOI, 0);
+        // doi가 있는 reference에 대해 paperQueue에 집어넣는다.
+        if (this.referenceHasInformation(ref)) {
+          this.pushToPaperQueue(ref.DOI, 0, depth + 1);
         }
       });
-      return true;
     }
-    if (item.DOI) {
-      this.pushToPaperQueue(item.DOI);
-    }
-    return false;
+    return hasHope;
   }
 
   paperHasInformation(paper: CrossRefItem) {
+    // DOI와 제목이 있는 논문만 db에 저장한다.
     return paper.DOI && paper.title;
   }
 
   referenceHasInformation(reference: ReferenceInfo) {
-    return reference['article-title'];
-  }
-  redisStatistics() {
-    const keys = ['urlQueueLength', 'urlFailedLength', 'paperQueueLength', 'paperFailedLength'];
-    return Promise.all(
-      keys.map(async (key) => {
-        return { [key]: await this.redis.lrange(key, 0, -1) };
-      }),
-    );
+    return reference['DOI'];
   }
 }
-
-/**
- * 최초에 db에 입력된 데이터의 개수가 너무 적을 때에는, 사용자가 검색한 키워드에 의해 전체 db의 성향이 바뀐다고 볼 수 있다.
- * 따라서 최초에 입력한 키워드에 모든 검색결과가 맞춰지고, 이는 검색의 질이 떨어진다는 느낌을 가져온다.
- * 사용자가 검색할 때마다 시스템이 진화하도록 설계할 수 있을 것이다.
- * Crossref에 있는 모든 논문을 다 가져오는 것은, 컴퓨터 자원 문제로 인해 불가능하다.
- * doi 하나당 32byte라하면, 1GB에 3천만개정도의 key를 집어넣을 수 있다.
- * 지금은 무한 depth로 들어가는데, 이 depth를 조정하는 방법이 있을 수 있다.
- * retry:depth:url 형태 -> 원본에서 depth 1까지만 해도 무리갈 것 같다.
- */
