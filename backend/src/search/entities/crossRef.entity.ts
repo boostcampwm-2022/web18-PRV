@@ -1,6 +1,12 @@
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 export class PaperInfo {
-  title?: string;
+  @ApiProperty()
+  title: string;
+
+  @ApiPropertyOptional()
   authors?: string[];
+
+  @ApiProperty()
   doi?: string;
 
   constructor(body: PaperInfo) {
@@ -10,8 +16,13 @@ export class PaperInfo {
   }
 }
 export class PaperInfoExtended extends PaperInfo {
+  @ApiPropertyOptional()
   publishedAt?: string;
+
+  @ApiPropertyOptional()
   citations?: number;
+
+  @ApiPropertyOptional()
   references?: number;
 
   constructor(body: PaperInfoExtended) {
@@ -22,6 +33,7 @@ export class PaperInfoExtended extends PaperInfo {
   }
 }
 export class PaperInfoDetail extends PaperInfoExtended {
+  @ApiPropertyOptional()
   referenceList?: ReferenceInfo[];
 
   constructor(body: PaperInfoDetail) {
