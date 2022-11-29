@@ -5,13 +5,19 @@ import { SearchTotalHits } from '@elastic/elasticsearch/lib/api/types';
 import { CROSSREF_CACHE_QUEUE } from 'src/util';
 import { Interval } from '@nestjs/schedule';
 import { RankingService } from 'src/ranking/ranking.service';
+import { BatchService } from 'src/batch/batch.service';
 
 @Controller('search')
 export class SearchController {
-  constructor(private readonly searchService: SearchService, private readonly rankingService: RankingService) {}
+  constructor(
+    private readonly searchService: SearchService,
+    private readonly rankingService: RankingService,
+    private readonly batchService: BatchService,
+  ) {}
   @Get('auto-complete')
   async getAutoCompletePapers(@Query() query: AutoCompleteDto) {
     const { keyword } = query;
+    this.batchService.setKeyword(keyword);
     const elastic = await this.searchService.getElasticSearch(keyword);
     const elasticDataCount = (elastic.hits.total as SearchTotalHits).value;
     if (elasticDataCount > 0) {
@@ -19,7 +25,7 @@ export class SearchController {
     }
     const { items, totalItems } = await this.searchService.getCrossRefAutoCompleteData(keyword);
     const papers = this.searchService.parseCrossRefData(items, this.searchService.parsePaperInfo);
-    this.searchService.crawlAllCrossRefData(keyword, totalItems, 1000);
+    // this.searchService.crawlAllCrossRefData(keyword, totalItems, 1000);
     return papers;
   }
 

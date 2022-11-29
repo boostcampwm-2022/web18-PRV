@@ -21,7 +21,7 @@ export interface ReferenceInfo {
   'doi-asserted-by'?: string;
   'first-page'?: string;
   isbn?: string;
-  doi?: string;
+  DOI?: string;
   component?: string;
   'article-title'?: string;
   'volume-title'?: string;
@@ -36,6 +36,7 @@ export interface ReferenceInfo {
 }
 export interface CrossRefResponse {
   message: {
+    'next-cursor'?: string;
     'total-results': number;
     items: CrossRefItem[];
   };
@@ -57,5 +58,5 @@ export interface CrossRefItem {
   reference?: ReferenceInfo[];
 }
 export interface CrossRefPaperResponse {
-  message: CrossRefItem;
+  message: CrossRefItem & { 'next-cursor'?: string; 'total-results': number };
 }
