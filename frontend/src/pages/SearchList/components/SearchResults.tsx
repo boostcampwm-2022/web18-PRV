@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import Pagination from '../../../components/Pagination';
-import { createDetailQuery } from '../../../constants/path';
+import { createDetailQuery } from '../../../utils/createQuery';
 import { IPageInfo, IPaper } from '../SearchList';
 import Paper from './Paper';
 

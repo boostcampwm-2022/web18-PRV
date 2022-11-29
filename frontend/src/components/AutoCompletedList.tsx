@@ -8,6 +8,7 @@ interface AutoCompletedListProps {
   keyword: string;
   hoverdIndex: number;
   setHoveredIndex: Dispatch<SetStateAction<number>>;
+  handleMouseDown: (doi: string) => void;
 }
 
 const AutoCompletedList = ({
@@ -15,10 +16,11 @@ const AutoCompletedList = ({
   keyword,
   hoverdIndex,
   setHoveredIndex,
+  handleMouseDown,
 }: AutoCompletedListProps) => {
   const handleAutoCompletedDown = (index: number) => {
-    // Todo : 상세정보 api 호출
-    console.log('상세정보', autoCompletedItems[index].doi);
+    const doi = autoCompletedItems[index].doi;
+    handleMouseDown(doi);
   };
 
   // keyword 강조

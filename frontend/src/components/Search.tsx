@@ -6,6 +6,7 @@ import Api from '../api/api';
 import { PATH_SEARCH_LIST } from '../constants/path';
 import useDebounceValue from '../customHooks/useDebouncedValue';
 import MaginifyingGlassIcon from '../icons/MagnifyingGlassIcon';
+import { createDetailQuery } from '../utils/createQuery';
 import { getLocalStorage, setLocalStorage } from '../utils/localStorage';
 import AutoCompletedList from './AutoCompletedList';
 import MoonLoader from './MoonLoader';
@@ -83,6 +84,11 @@ const Search = ({ initialKeyword = '' }: SearchProps) => {
     return result;
   }, []);
 
+  // 논문 상세정보 페이지로 이동
+  const goToDetailPage = (doi: string) => {
+    navigate(createDetailQuery(doi));
+  };
+
   const handleInputChange = (e: ChangeEvent) => {
     const target = e.target as HTMLInputElement;
     setKeyword(target.value);
@@ -120,8 +126,7 @@ const Search = ({ initialKeyword = '' }: SearchProps) => {
     // hover된 항목으로 검색
     switch (dropdownType) {
       case DROPDOWN_TYPE.AUTO_COMPLETE:
-        // Todo : 상세정보 api 호출
-        console.log('상세정보', autoCompletedItems?.[hoverdIndex].doi);
+        autoCompletedItems && goToDetailPage(autoCompletedItems?.[hoverdIndex].doi);
         break;
       case DROPDOWN_TYPE.RECENT_KEYWORDS:
         handleSearchButtonClick(recentKeywords[hoverdIndex]);
@@ -156,6 +161,7 @@ const Search = ({ initialKeyword = '' }: SearchProps) => {
           keyword={keyword}
           hoverdIndex={hoverdIndex}
           setHoveredIndex={setHoveredIndex}
+          handleMouseDown={goToDetailPage}
         />
       ),
       [DROPDOWN_TYPE.RECENT_KEYWORDS]: (

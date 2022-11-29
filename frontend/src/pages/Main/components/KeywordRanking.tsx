@@ -4,9 +4,9 @@ import { useQuery } from 'react-query';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import Api from '../../../api/api';
-import { createSearchQuery } from '../../../constants/path';
 import DropdownIcon from '../../../icons/DropdownIcon';
 import DropDownReverseIcon from '../../../icons/DropdownReverseIcon';
+import { createSearchQuery } from '../../../utils/createQuery';
 import RankingSlide from './RankingSlide';
 
 interface IRankingData {
