@@ -1,6 +1,8 @@
 const BASE_URL = 'https://api.crossref.org/works';
 export const CROSSREF_API_URL = (keyword: string, rows = 5, page = 1, selects: string[] = ['author', 'title', 'DOI']) =>
-  `${BASE_URL}?query=${keyword}&rows=${rows}&select=${selects.join(',')}&offset=${rows * (page - 1)}`;
+  `${BASE_URL}?query=${keyword}&rows=${rows}&select=${selects.join(',')}&offset=${
+    rows * (page - 1)
+  }&sort=is-referenced-by-count`;
 export const CROSSREF_API_PAPER_URL = (doi: string) => `${BASE_URL}/${doi}`;
 class Queue {
   data: Set<string>;
