@@ -73,16 +73,16 @@ describe('SearchController', () => {
     it('keyword 미포함시 error - GET /search/auto-complete?keyword=', () => {
       const url = (keyword: string) => `/search/auto-complete?keyword=${keyword}`;
       request(app.getHttpServer()).get(url('')).expect(400);
-      expect(spyGetElasticSearch).toBeCalledTimes(0);
-      expect(spyGetCrossRefData).toBeCalledTimes(0);
     });
   });
   describe('/search', () => {
+    const DEFAULT_ROWS = 20;
+    const TOTAL_ITEMS = 28810;
     it(`getPapers - keyword='coffee' 일 때 PaperInfoExtended[]를 return`, async () => {
       const keyword = 'coffee';
       const { papers: items, pageInfo } = await controller.getPapers({ keyword, rows: 20, page: 1 });
-      expect(items.length).toBe(20);
-      expect(pageInfo.totalItems).toBe(28810);
+      expect(items.length).toBe(DEFAULT_ROWS);
+      expect(pageInfo.totalItems).toBe(TOTAL_ITEMS);
       items.forEach((item) => {
         expect(item).toBeInstanceOf(PaperInfoExtended);
       });
@@ -93,26 +93,27 @@ describe('SearchController', () => {
     it('keyword 미포함시 error - GET /search?keyword=', () => {
       const url = (keyword: string) => `/search?keyword=${keyword}`;
       request(app.getHttpServer()).get(url('')).expect(400);
-      expect(spyGetElasticSearch).toBeCalledTimes(0);
-      expect(spyGetCrossRefData).toBeCalledTimes(0);
     });
     it('rows<=0 이거나, rows 값이 integer가 아닐 경우 error - GET /search?keyword=coffee&rows=<rows>', () => {
-      const url = (keyword: string | number) => `/search?keyword=${keyword}`;
+      const url = (rows: string | number) => `/search?keyword=${keyword}&rows=${rows}`;
       const rowsNotAvailables = [-1, -0.1, '0', 'value'];
       rowsNotAvailables.forEach((value) => {
         request(app.getHttpServer()).get(url(value)).expect(400);
       });
-      expect(spyGetElasticSearch).toBeCalledTimes(0);
-      expect(spyGetCrossRefData).toBeCalledTimes(0);
     });
     it('page<=0 이거나, page 값이 integer가 아닐 경우 error - GET /search?keyword=coffee&page=<page>', () => {
-      const url = (keyword: string | number) => `/search?keyword=${keyword}`;
+      const url = (page: string | number) => `/search?keyword=${keyword}&page=${page}`;
       const pageNotAvailables = [-1, -0.1, '0', 'value'];
       pageNotAvailables.forEach((value) => {
         request(app.getHttpServer()).get(url(value)).expect(400);
       });
-      expect(spyGetElasticSearch).toBeCalledTimes(0);
-      expect(spyGetCrossRefData).toBeCalledTimes(0);
+    });
+    it('page>max 이면 error - GET /search?keyword=coffee&page=<page>', () => {
+      const url = (page: string | number) => `/search?keyword=${keyword}&page=${page}`;
+      const maxPage = Math.ceil(TOTAL_ITEMS / DEFAULT_ROWS);
+      request(app.getHttpServer())
+        .get(url(maxPage + 1))
+        .expect(404);
     });
   });
 
