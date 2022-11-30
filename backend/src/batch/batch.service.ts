@@ -41,12 +41,15 @@ export class BatchService {
   async batchSearchQueue(batchSize = SEARCH_BATCH_SIZE) {
     const referencesDoiWithDepth = await this.searchBatcher.runBatch(batchSize);
     referencesDoiWithDepth?.forEach((v) => {
-      this.doiBatcher.pushToQueue(0, v.depth, -1, false, v.doi);
+      this.doiBatcher.pushToQueue(0, v.depth + 1, -1, false, v.doi);
     });
   }
 
   @Interval(TIME_INTERVAL)
-  batchDoiQueue(batchSize = DOI_BATCH_SIZE) {
-    this.doiBatcher.runBatch(batchSize);
+  async batchDoiQueue(batchSize = DOI_BATCH_SIZE) {
+    const referencesDoiWithDepth = await this.doiBatcher.runBatch(batchSize);
+    referencesDoiWithDepth?.forEach((v) => {
+      this.doiBatcher.pushToQueue(0, v.depth + 1, -1, false, v.doi);
+    });
   }
 }

@@ -1,6 +1,6 @@
 import { GetGetResult } from '@elastic/elasticsearch/lib/api/types';
 import { Injectable } from '@nestjs/common';
-import { AxiosInstance, AxiosResponse } from 'axios';
+import { AxiosError, AxiosInstance, AxiosResponse } from 'axios';
 import Redis from 'ioredis';
 import {
   CrossRefItem,
@@ -10,7 +10,7 @@ import {
   ReferenceInfo,
 } from 'src/search/entities/crossRef.entity';
 import { SearchService } from 'src/search/search.service';
-import { MAX_DEPTH } from './batch.config';
+import { ALLOW_UPDATE, MAX_DEPTH } from './batch.config';
 import { RedisQueue } from './batch.queue';
 
 export interface QueueItemParsed {
@@ -30,7 +30,7 @@ type CrossRefAble = CrossRefResponse | CrossRefPaperResponse;
 @Injectable()
 export abstract class Batcher {
   queue: RedisQueue;
-  failedQueue: RedisQueue;
+  // failedQueue: RedisQueue;
   constructor(
     private readonly redis: Redis,
     private readonly axios: AxiosInstance,
@@ -38,7 +38,7 @@ export abstract class Batcher {
     readonly name: string,
   ) {
     this.queue = new RedisQueue(redis, name);
-    this.failedQueue = new RedisQueue(redis, name);
+    // this.failedQueue = new RedisQueue(redis, name);
   }
   abstract makeUrl(...params: string[]): string;
   abstract getParamsFromUrl(url: string): UrlParams;
@@ -49,6 +49,7 @@ export abstract class Batcher {
     i?: number,
   ): { papers: PaperInfoDetail[]; referenceDOIs: string[] }; // paper들의 reference들에 대한 doi 목록
   abstract onRejected(item: QueueItemParsed, params: UrlParams, res?: PromiseRejectedResult, i?: number): any;
+  abstract validateBatchItem(item: QueueItemParsed): boolean;
 
   async keywordExist(keyword: string) {
     return (await this.redis.ttl(keyword)) >= 0;
@@ -67,7 +68,8 @@ export abstract class Batcher {
       retries: parseInt(splits[0]),
       depth: parseInt(splits[1]),
       pagesLeft: parseInt(splits[2]),
-      url: splits.slice(3).join(':'),
+      // URL은 대소문자 구분을 할까? https://www.youtube.com/watch?v=o3H3qd77XbI
+      url: splits.slice(3).join(':').toLowerCase(),
     } as QueueItemParsed;
   }
 
@@ -84,15 +86,14 @@ export abstract class Batcher {
     return this.axios.get<T>(url);
   }
 
-  async runBatch<T = CrossRefAble>(batchSize: number) {
+  async runBatch(batchSize: number) {
     const queue = this.queue;
-    const failedQueue = this.failedQueue;
+    // const failedQueue = this.failedQueue;
     const batched = await queue.pop(batchSize);
 
-    await this.batchLog(queue, batched);
+    // await this.batchLog(queue, batched);
     if (!batched) return;
-
-    const items = batched.map((value) => this.parseQueueItem(value));
+    const items = batched.map((item) => this.parseQueueItem(item)).filter((item) => this.validateBatchItem(item));
     const responses = await this.batchRequest(items);
     const { papers, doiWithDepth } = this.responsesParser(items, responses);
     const bulkPapers = await this.makeBulkIndex(papers);
@@ -110,8 +111,12 @@ export abstract class Batcher {
         if (res.status === 'fulfilled') {
           return this.onFulfilled(items[i], params, res.value, i);
         } else {
+          const error = res.reason as AxiosError;
+          // Resource not found.
+          if (error.response?.status === 404) return;
+
+          // timeout of 20000ms exceeded
           this.onRejected(items[i], params, res, i);
-          return;
         }
       })
       .reduce(
@@ -130,6 +135,7 @@ export abstract class Batcher {
   }
 
   async makeBulkIndex(papers: PaperInfoDetail[]): Promise<PaperInfoDetail[]> {
+    if (ALLOW_UPDATE) return papers;
     const dois = papers.map((paper) => {
       return paper.doi;
     });
@@ -141,7 +147,7 @@ export abstract class Batcher {
       })
       .filter(Boolean);
 
-    console.log(`${this.queue.name} skipped papers:`, papers.length - indexes.length);
+    // console.log(`${this.queue.name} skipped papers:`, papers.length - indexes.length);
     return indexes;
   }
   doBulkIndex(papers: PaperInfoDetail[]) {

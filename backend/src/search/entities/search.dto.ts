@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-inferrable-types */
 import { Transform } from 'class-transformer';
-import { IsOptional, IsPositive, IsString, MinLength } from 'class-validator';
+import { IsOptional, IsPositive, IsString, Matches, MinLength } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { DOI_REGEXP } from 'src/batch/batch.config';
 
 export class SearchDto {
   @ApiProperty({
@@ -48,6 +49,7 @@ export class GetPaperDto {
     example: '10.1234/qwer.asdf',
     description: '논문의 DOI',
   })
-  @IsString()
+  @Matches(DOI_REGEXP, { message: 'DOI 형식이 올바르지 않습니다.' })
+  @Transform((params) => params.value.toLowerCase())
   doi: string;
 }

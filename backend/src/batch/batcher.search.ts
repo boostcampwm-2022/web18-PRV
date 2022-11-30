@@ -22,7 +22,9 @@ export class SearchBatcher extends Batcher {
     const cursor = params.get('cursor') || '*';
     return { keyword, cursor };
   }
-
+  validateBatchItem(item: QueueItemParsed): boolean {
+    return true;
+  }
   onFulfilled(item: QueueItemParsed, params: UrlParams, res: AxiosResponse<CrossRefResponse, any>) {
     const { cursor: presentCursor, keyword } = params;
     if (presentCursor === '*') {
@@ -44,10 +46,10 @@ export class SearchBatcher extends Batcher {
   onRejected(item: QueueItemParsed, params: UrlParams) {
     const { keyword, cursor } = params;
     if (item.retries + 1 > MAX_RETRY) {
-      this.failedQueue.push(item.url);
+      // this.failedQueue.push(item.url);
       return;
     }
-    console.log('error', item.url);
+    // console.log('error', item.url);
     item.retries++;
     this.pushToQueue(item.retries + 1, item.depth, item.pagesLeft - 1, false, keyword, cursor);
     return;
