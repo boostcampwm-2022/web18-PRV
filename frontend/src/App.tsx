@@ -12,6 +12,8 @@ import theme from './style/theme';
 import { AxiosError } from 'axios';
 import ErrorBoundary from './error/ErrorBoundary';
 import GlobalErrorFallback from './error/GlobalErrorFallback';
+import { Suspense } from 'react';
+import LoaderWrapper from './components/loader/LoaderWrapper';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -26,7 +28,7 @@ const queryClient = new QueryClient({
         }
         return false;
       },
-      useErrorBoundary: true,
+      suspense: true,
     },
   },
 });
@@ -39,11 +41,13 @@ function App() {
       <ThemeProvider theme={theme}>
         <QueryClientProvider client={queryClient}>
           <ErrorBoundary fallback={GlobalErrorFallback}>
-            <Routes>
-              <Route path={PATH_MAIN} element={<Main />} />
-              <Route path={PATH_SEARCH_LIST} element={<SearchList />} />
-              <Route path={PATH_DETAIL} element={<PaperDatail />} />
-            </Routes>
+            <Suspense fallback={<LoaderWrapper />}>
+              <Routes>
+                <Route path={PATH_MAIN} element={<Main />} />
+                <Route path={PATH_SEARCH_LIST} element={<SearchList />} />
+                <Route path={PATH_DETAIL} element={<PaperDatail />} />
+              </Routes>
+            </Suspense>
           </ErrorBoundary>
           <ReactQueryDevtools initialIsOpen={true} />
         </QueryClientProvider>

@@ -1,8 +1,9 @@
-import { useMemo } from 'react';
+import { Suspense, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { IGetSearch } from '../../api/api';
 import Footer from '../../components/Footer';
+import LoaderWrapper from '../../components/loader/LoaderWrapper';
 import theme from '../../style/theme';
 import SearchBarHeader from './components/SearchBarHeader';
 import SearchResults from './components/SearchResults';
@@ -42,7 +43,9 @@ const SearchList = () => {
   return (
     <Container>
       <SearchBarHeader keyword={params.keyword || ''} />
-      <SearchResults params={params} changePage={changePage} />
+      <Suspense fallback={<LoaderWrapper />}>
+        <SearchResults params={params} changePage={changePage} />
+      </Suspense>
       <Footer bgColor={theme.COLOR.primary3} contentColor={theme.COLOR.offWhite} />
     </Container>
   );

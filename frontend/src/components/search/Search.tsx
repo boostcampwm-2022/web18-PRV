@@ -9,7 +9,7 @@ import MaginifyingGlassIcon from '../../icons/MagnifyingGlassIcon';
 import { createDetailQuery } from '../../utils/createQuery';
 import { getLocalStorage, setLocalStorage } from '../../utils/localStorage';
 import AutoCompletedList from './AutoCompletedList';
-import MoonLoader from '../MoonLoader';
+import MoonLoader from '../loader/MoonLoader';
 import RecentKeywordsList from './RecentKeywordsList';
 import IconButton from '../IconButton';
 
@@ -46,7 +46,7 @@ const Search = ({ initialKeyword = '' }: SearchProps) => {
     () => api.getAutoComplete({ keyword: debouncedValue }).then((res) => res.data),
     {
       enabled: !!(debouncedValue && debouncedValue.length >= 2),
-      useErrorBoundary: false,
+      suspense: false,
     },
   );
 
