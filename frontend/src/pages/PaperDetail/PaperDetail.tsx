@@ -1,4 +1,3 @@
-import { AxiosError } from 'axios';
 import { useQuery } from 'react-query';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
@@ -31,7 +30,7 @@ const PaperDatail = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const doi = searchParams.get('doi') || '';
-  const { data, isLoading } = useQuery<IPaperDetail, AxiosError>(
+  const { data, isLoading } = useQuery<IPaperDetail>(
     ['paperDetail', doi],
     () => api.getPaperDetail({ doi }).then((res) => res.data),
     { enabled: !!doi.length },

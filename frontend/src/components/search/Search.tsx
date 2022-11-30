@@ -46,7 +46,7 @@ const Search = ({ initialKeyword = '' }: SearchProps) => {
     () => api.getAutoComplete({ keyword: debouncedValue }).then((res) => res.data),
     {
       enabled: !!(debouncedValue && debouncedValue.length >= 2),
-      retry: 3,
+      useErrorBoundary: false,
     },
   );
 

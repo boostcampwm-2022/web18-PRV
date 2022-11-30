@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 
 const ReferenceGragh = () => {
-  return <Container />;
+  return <Container></Container>;
 };
 
 const Container = styled.div`

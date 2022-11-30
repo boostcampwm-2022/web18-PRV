@@ -1,34 +1,56 @@
+import { isEmpty } from 'lodash-es';
+import { useQuery } from 'react-query';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
+import Api, { IGetSearch } from '../../../api/api';
+import MoonLoader from '../../../components/MoonLoader';
 import Pagination from '../../../components/Pagination';
 import { createDetailQuery } from '../../../utils/createQuery';
 import { IPageInfo, IPaper } from '../SearchList';
 import Paper from './Paper';
 
 interface SearchResultsProps {
-  pageInfo: IPageInfo;
-  papers: IPaper[];
-  keyword: string;
-  page: number;
+  params: IGetSearch;
   changePage: (page: number) => void;
 }
 
-const SearchResults = ({ pageInfo, papers, keyword, page, changePage }: SearchResultsProps) => {
+interface IPapersData {
+  papers: IPaper[];
+  pageInfo: IPageInfo;
+}
+
+const api = new Api();
+
+const SearchResults = ({ params, changePage }: SearchResultsProps) => {
+  const keyword = params.keyword || '';
+  const page = Number(params.page);
+  const { data, isLoading } = useQuery<IPapersData>(
+    ['papers', params],
+    () => api.getSearch(params).then((res) => res.data),
+    {
+      enabled: !isEmpty(params),
+    },
+  );
+
   return (
     <>
-      {papers.length > 0 ? (
+      {isLoading ? (
+        <MoonWrapper>
+          <MoonLoader />
+        </MoonWrapper>
+      ) : data && data.papers.length > 0 ? (
         <>
-          <H1>Articles ({pageInfo.totalItems.toLocaleString() || 0})</H1>
+          <H1>Articles ({data.pageInfo.totalItems.toLocaleString() || 0})</H1>
           <Hr />
           <Section>
             <Papers>
-              {papers.map((paper) => (
+              {data.papers.map((paper) => (
                 <Link key={paper.doi} to={createDetailQuery(paper.doi)}>
                   <Paper data={paper} keyword={keyword} />
                 </Link>
               ))}
             </Papers>
-            <Pagination activePage={page} onChange={changePage} totalPages={pageInfo.totalPages} range={10} />
+            <Pagination activePage={page} onChange={changePage} totalPages={data.pageInfo.totalPages} range={10} />
           </Section>
         </>
       ) : (
@@ -37,6 +59,13 @@ const SearchResults = ({ pageInfo, papers, keyword, page, changePage }: SearchRe
     </>
   );
 };
+
+const MoonWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  flex: 1;
+`;
 
 const H1 = styled.h1`
   color: ${({ theme }) => theme.COLOR.gray4};
