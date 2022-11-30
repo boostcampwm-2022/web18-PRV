@@ -18,8 +18,12 @@ const api = new Api();
 
 const KeywordRanking = () => {
   const [isRankingListOpen, setIsRankingListOpen] = useState(false);
-  const { data: rankingData } = useQuery<IRankingData[]>('getKeywordRanking', () =>
-    api.getKeywordRanking().then((res) => res.data),
+  const { isLoading, data: rankingData } = useQuery<IRankingData[]>(
+    'getKeywordRanking',
+    () => api.getKeywordRanking().then((res) => res.data),
+    {
+      suspense: false,
+    },
   );
 
   const handleRankingClick = () => {
@@ -33,7 +37,7 @@ const KeywordRanking = () => {
           <span>인기 검색어</span>
           <HeaderDivideLine />
           <RankingContent onClick={handleRankingClick}>
-            {rankingData?.length ? <RankingSlide rankingData={rankingData} /> : '데이터가 없습니다.'}
+            {!isLoading && rankingData?.length ? <RankingSlide rankingData={rankingData} /> : '데이터가 없습니다.'}
           </RankingContent>
           <IconButton
             icon={isRankingListOpen ? <DropDownReverseIcon /> : <DropdownIcon />}

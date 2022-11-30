@@ -1,4 +1,3 @@
-import { Suspense } from 'react';
 import styled from 'styled-components';
 import Footer from '../../components/Footer';
 import Search from '../../components/search/Search';
@@ -24,9 +23,7 @@ const Main = () => {
           <div>{SUBTITLE}</div>
         </ContentContainer>
         <ErrorBoundary fallback={RankingErrorFallback}>
-          <Suspense fallback={<></>}>
-            <KeywordRanking />
-          </Suspense>
+          <KeywordRanking />
         </ErrorBoundary>
         <Search />
       </MainContainer>
