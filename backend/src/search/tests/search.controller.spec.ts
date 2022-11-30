@@ -16,7 +16,6 @@ describe('SearchController', () => {
   let app: INestApplication;
 
   let spyGetElasticSearch: jest.SpyInstance;
-  let spyGetCrossRefData: jest.SpyInstance;
   const keyword = 'coffee';
 
   beforeEach(async () => {
@@ -50,7 +49,7 @@ describe('SearchController', () => {
     controller = module.get(SearchController);
     service = module.get(SearchService);
     spyGetElasticSearch = jest.spyOn(service, 'getElasticSearch');
-    spyGetCrossRefData = jest.spyOn(service, 'getCrossRefData');
+    // spyGetCrossRefData = jest.spyOn(service, 'getCrossRefData');
 
     app = module.createNestApplication();
     app.useGlobalPipes(new ValidationPipe());
@@ -75,7 +74,6 @@ describe('SearchController', () => {
       });
 
       expect(spyGetElasticSearch).toBeCalledTimes(2);
-      expect(spyGetCrossRefData).toBeCalledTimes(1);
     });
     it('keyword 미포함시 error - GET /search/auto-complete?keyword=', () => {
       const url = (keyword: string) => `/search/auto-complete?keyword=${keyword}`;
@@ -93,9 +91,7 @@ describe('SearchController', () => {
       items.forEach((item) => {
         expect(item).toBeInstanceOf(PaperInfoExtended);
       });
-      // TODO: elasticsearch로 검색?
-      expect(spyGetElasticSearch).toBeCalledTimes(0);
-      expect(spyGetCrossRefData).toBeCalledTimes(1);
+      expect(spyGetElasticSearch).toBeCalledTimes(1);
     });
     it('keyword 미포함시 error - GET /search?keyword=', () => {
       const url = (keyword: string) => `/search?keyword=${keyword}`;
@@ -128,9 +124,9 @@ describe('SearchController', () => {
     it(`getPaper - doi=10.1234/some_doi 일 때 PaperInfoDetail을 return`, async () => {
       const doi = '10.1234/some_doi';
       const paper = await controller.getPaper({ doi });
-      expect(paper.references).toBe(5);
-      expect(paper.referenceList.length).toBe(5);
-      expect(paper).toBeInstanceOf(PaperInfoDetail);
+      expect(paper.references).toBe(10);
+      expect(paper.referenceList.length).toBe(10);
+      expect(() => new PaperInfoDetail(paper)).not.toThrow();
     });
     it('doi가 입력되지 않을 경우 error - GET /search/paper?doi=', () => {
       const url = (keyword: string) => `/search/paper?doi=${keyword}`;
