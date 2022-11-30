@@ -10,11 +10,12 @@ export class RankingController {
   @ApiResponse({ status: 200, description: '검색 결과', type: Ranking, isArray: true })
   @ApiRequestTimeoutResponse({ description: '검색 timeout' })
   async getTen() {
+    console.log('controller getTen 진입');
     return this.rankingService.getTen();
   }
   // TODO: search 됐을 때, this.popularService.insertRedis(searchStr);
   @Get('/insert')
   async insertCache(@Query('keyword') searchStr: string) {
-    this.rankingService.insertRedis(searchStr);
+    return this.rankingService.insertRedis(searchStr);
   }
 }
