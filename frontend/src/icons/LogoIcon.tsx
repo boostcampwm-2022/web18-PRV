@@ -1,10 +1,15 @@
-const LogoIcon = () => {
+interface IProps {
+  height?: string;
+  width?: string;
+}
+
+const LogoIcon = ({ height, width }: IProps) => {
   return (
     <svg
       version="1.0"
       xmlns="http://www.w3.org/2000/svg"
-      width="30pt"
-      height="30pt"
+      width={width}
+      height={height}
       viewBox="0 0 284 300"
       preserveAspectRatio="xMidYMid meet"
     >
@@ -61,6 +66,11 @@ const LogoIcon = () => {
       </g>
     </svg>
   );
+};
+
+LogoIcon.defaultProps = {
+  width: '40',
+  height: '40',
 };
 
 export default LogoIcon;

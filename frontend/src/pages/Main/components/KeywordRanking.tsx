@@ -4,9 +4,10 @@ import { useQuery } from 'react-query';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import Api from '../../../api/api';
-import { createSearchQuery } from '../../../constants/path';
+import IconButton from '../../../components/IconButton';
 import DropdownIcon from '../../../icons/DropdownIcon';
 import DropDownReverseIcon from '../../../icons/DropdownReverseIcon';
+import { createSearchQuery } from '../../../utils/createQuery';
 import RankingSlide from './RankingSlide';
 
 interface IRankingData {
@@ -42,9 +43,10 @@ const KeywordRanking = () => {
             <RankingContent onClick={handleRankingClick}>
               {!isLoading && (rankingData?.length ? <RankingSlide rankingData={rankingData} /> : '데이터가 없습니다.')}
             </RankingContent>
-            <DropdownReverseButton type="button" onClick={handleRankingClick}>
-              {isRankingListOpen ? <DropDownReverseIcon /> : <DropdownIcon />}
-            </DropdownReverseButton>
+            <IconButton
+              icon={isRankingListOpen ? <DropDownReverseIcon /> : <DropdownIcon />}
+              onClick={handleRankingClick}
+            />
           </HeaderContainer>
           {isRankingListOpen && (
             <>
@@ -113,12 +115,6 @@ const HeaderContainer = styled.div`
   height: 23px;
   width: 100%;
   ${({ theme }) => theme.TYPO.body_h}
-`;
-
-const DropdownReverseButton = styled.button`
-  margin-right: 10px;
-  background-color: transparent;
-  cursor: pointer;
 `;
 
 const HeaderDivideLine = styled.hr`

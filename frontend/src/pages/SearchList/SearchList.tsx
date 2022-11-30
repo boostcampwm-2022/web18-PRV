@@ -19,7 +19,7 @@ export interface IPaper {
   publishedAt: string;
   citations: number;
   references: number;
-  doi?: string;
+  doi: string;
 }
 
 export interface IPageInfo {

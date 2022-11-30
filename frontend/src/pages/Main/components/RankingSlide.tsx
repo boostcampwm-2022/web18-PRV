@@ -54,7 +54,11 @@ const RankingSlide = ({ rankingData }: IRankingSlideProps) => {
         {newRankingData.map((data, index) => (
           <SlideItem key={`${index}${data.keyword}`}>
             <span>{index === dataSize - 1 ? 1 : index + 1}</span>
-            <span>{data.keyword.length > MAX_KEYWORD_LENGTH ? `${data.keyword.slice(0, 15)}...` : data.keyword}</span>
+            <span>
+              {data.keyword.length > MAX_KEYWORD_LENGTH
+                ? `${data.keyword.slice(0, MAX_KEYWORD_LENGTH)}...`
+                : data.keyword}
+            </span>
           </SlideItem>
         ))}
       </Slide>

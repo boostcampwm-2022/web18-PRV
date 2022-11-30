@@ -1,7 +1,7 @@
 import { isEmpty } from 'lodash-es';
 import { Dispatch, SetStateAction, useEffect } from 'react';
 import styled from 'styled-components';
-import Clockicon from '../icons/ClockIcon';
+import Clockicon from '../../icons/ClockIcon';
 
 interface RecentKeywordsListProps {
   recentKeywords: string[];

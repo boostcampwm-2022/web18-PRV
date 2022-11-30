@@ -2,14 +2,16 @@ import { ChangeEvent, KeyboardEvent, useCallback, useEffect, useMemo, useRef, us
 import { useQuery } from 'react-query';
 import { createSearchParams, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import Api from '../api/api';
-import { PATH_SEARCH_LIST } from '../constants/path';
-import useDebounceValue from '../customHooks/useDebouncedValue';
-import MaginifyingGlassIcon from '../icons/MagnifyingGlassIcon';
-import { getLocalStorage, setLocalStorage } from '../utils/localStorage';
+import Api from '../../api/api';
+import { PATH_SEARCH_LIST } from '../../constants/path';
+import useDebounceValue from '../../customHooks/useDebouncedValue';
+import MaginifyingGlassIcon from '../../icons/MagnifyingGlassIcon';
+import { createDetailQuery } from '../../utils/createQuery';
+import { getLocalStorage, setLocalStorage } from '../../utils/localStorage';
 import AutoCompletedList from './AutoCompletedList';
-import MoonLoader from './MoonLoader';
+import MoonLoader from '../MoonLoader';
 import RecentKeywordsList from './RecentKeywordsList';
+import IconButton from '../IconButton';
 
 enum DROPDOWN_TYPE {
   AUTO_COMPLETE = 'AUTO_COMPLETE',
@@ -83,6 +85,11 @@ const Search = ({ initialKeyword = '' }: SearchProps) => {
     return result;
   }, []);
 
+  // 논문 상세정보 페이지로 이동
+  const goToDetailPage = (doi: string) => {
+    navigate(createDetailQuery(doi));
+  };
+
   const handleInputChange = (e: ChangeEvent) => {
     const target = e.target as HTMLInputElement;
     setKeyword(target.value);
@@ -120,8 +127,7 @@ const Search = ({ initialKeyword = '' }: SearchProps) => {
     // hover된 항목으로 검색
     switch (dropdownType) {
       case DROPDOWN_TYPE.AUTO_COMPLETE:
-        // Todo : 상세정보 api 호출
-        console.log('상세정보', autoCompletedItems?.[hoverdIndex].doi);
+        autoCompletedItems && goToDetailPage(autoCompletedItems?.[hoverdIndex].doi);
         break;
       case DROPDOWN_TYPE.RECENT_KEYWORDS:
         handleSearchButtonClick(recentKeywords[hoverdIndex]);
@@ -156,6 +162,7 @@ const Search = ({ initialKeyword = '' }: SearchProps) => {
           keyword={keyword}
           hoverdIndex={hoverdIndex}
           setHoveredIndex={setHoveredIndex}
+          handleMouseDown={goToDetailPage}
         />
       ),
       [DROPDOWN_TYPE.RECENT_KEYWORDS]: (
@@ -188,9 +195,7 @@ const Search = ({ initialKeyword = '' }: SearchProps) => {
             onBlur={handleInputBlur}
             onKeyDown={handleInputKeyDown}
           />
-          <SearchButton type="button" onClick={() => handleSearchButtonClick(keyword)}>
-            <MaginifyingGlassIcon />
-          </SearchButton>
+          <IconButton icon={<MaginifyingGlassIcon />} onClick={() => handleSearchButtonClick(keyword)} />
         </SearchBar>
         <DropdownContainer>{renderDropdownContent(dropdownType)}</DropdownContainer>
       </SearchBox>
@@ -239,11 +244,6 @@ const SearchInput = styled.input`
   ::placeholder {
     color: ${({ theme }) => theme.COLOR.gray2};
   }
-`;
-
-const SearchButton = styled.button`
-  background-color: transparent;
-  cursor: pointer;
 `;
 
 const DropdownContainer = styled.div`

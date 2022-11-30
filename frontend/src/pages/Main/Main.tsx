@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 import Footer from '../../components/Footer';
-import Search from '../../components/Search';
+import Search from '../../components/search/Search';
 import StarLayer from '../../components/StarLayer';
 import { SUBTITLE, TITLE, TITLE_KOREAN } from '../../constants/main';
 import LogoIcon from '../../icons/LogoIcon';
