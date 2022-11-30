@@ -156,25 +156,13 @@ export class SearchService {
     const dataset = papers.map((paper) => {
       return { id: paper.doi, ...paper };
     });
-    const operations = dataset.flatMap((doc) => [{ index: { _index: process.env.ELASTIC_INDEX } }, doc]);
+    if (dataset.length <= 0) return;
+    const operations = dataset.flatMap((doc) => [{ index: { _index: process.env.ELASTIC_INDEX, _id: doc.id } }, doc]);
     const bulkResponse = await this.esService.bulk({ refresh: true, operations });
-    if (bulkResponse.errors) {
-      const erroredDocuments = [];
-      bulkResponse.items.forEach((action, i) => {
-        const operation = Object.keys(action)[0];
-        if (action[operation].error) {
-          erroredDocuments.push({
-            status: action[operation].status,
-            error: action[operation].error,
-            operation: operations[i * 2],
-            document: operations[i * 2 + 1],
-          });
-        }
-      });
-      console.log(erroredDocuments);
-    }
+    console.log(`response: ${bulkResponse.items.length}`);
   }
   async multiGet(ids: string[]) {
+    if (ids.length === 0) return { docs: [] };
     return await this.esService.mget<PaperInfoDetail>({ index: process.env.ELASTIC_INDEX, ids });
   }
 }
