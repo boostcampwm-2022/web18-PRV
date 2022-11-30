@@ -115,6 +115,7 @@ export class BatchService {
       })
       .filter(Boolean);
     this.searchService.bulkInsert(bulk);
+    // DEBUG
     this.redis.rpush('urlQueueLength', await queue.size());
     this.redis.rpush('urlQueueTime', Date.now());
   }
@@ -139,6 +140,7 @@ export class BatchService {
         return items[i];
       })
       .filter(Boolean);
+    // TODO: skip (현재 found 못하는 중)
     console.log('skipped:', items.length - filteredItems.length);
 
     const responses = await Promise.allSettled(
@@ -164,6 +166,7 @@ export class BatchService {
       })
       .filter(Boolean);
     this.searchService.bulkInsert(bulk);
+    // DEBUG
     this.redis.rpush('paperQueueLength', await queue.size());
     this.redis.rpush('paperQueueTime', Date.now());
   }
