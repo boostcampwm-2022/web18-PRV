@@ -37,8 +37,8 @@ export abstract class Batcher {
     readonly searchService: SearchService,
     readonly name: string,
   ) {
-    this.queue = new RedisQueue(redis, name);
-    // this.failedQueue = new RedisQueue(redis, name);
+    this.queue = new RedisQueue(this.redis, name);
+    // this.failedQueue = new RedisQueue(this.redis, name);
   }
   abstract makeUrl(...params: string[]): string;
   abstract getParamsFromUrl(url: string): UrlParams;
@@ -50,17 +50,6 @@ export abstract class Batcher {
   ): { papers: PaperInfoDetail[]; referenceDOIs: string[] }; // paper들의 reference들에 대한 doi 목록
   abstract onRejected(item: QueueItemParsed, params: UrlParams, res?: PromiseRejectedResult, i?: number): any;
   abstract validateBatchItem(item: QueueItemParsed): boolean;
-
-  async keywordExist(keyword: string) {
-    return (await this.redis.ttl(keyword)) >= 0;
-  }
-  async setKeyword(keyword: string) {
-    if (await this.keywordExist(keyword)) return false;
-    this.redis.set(keyword, 1);
-    this.redis.expire(keyword, 60 * 60 * 24);
-    this.pushToQueue(0, 0, -1, false, keyword);
-    return true;
-  }
 
   parseQueueItem(value: string) {
     const splits = value.split(':');
