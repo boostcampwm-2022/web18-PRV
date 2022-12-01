@@ -57,8 +57,7 @@ export abstract class Batcher {
       retries: parseInt(splits[0]),
       depth: parseInt(splits[1]),
       pagesLeft: parseInt(splits[2]),
-      // URL은 대소문자 구분을 할까? https://www.youtube.com/watch?v=o3H3qd77XbI
-      url: splits.slice(3).join(':').toLowerCase(),
+      url: splits.slice(3).join(':'),
     } as QueueItemParsed;
   }
 
@@ -80,7 +79,7 @@ export abstract class Batcher {
     // const failedQueue = this.failedQueue;
     const batched = await queue.pop(batchSize);
 
-    // await this.batchLog(queue, batched);
+    await this.batchLog(queue, batched);
     if (!batched) return;
     const items = batched.map((item) => this.parseQueueItem(item)).filter((item) => this.validateBatchItem(item));
     const responses = await this.batchRequest(items);

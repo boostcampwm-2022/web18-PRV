@@ -23,13 +23,18 @@ export class BatchService {
     );
     this.doiBatcher = new DoiBatcher(this.redis, this.httpService.axiosRef, this.searchService, 'paper batch queue');
   }
+  keywordToRedisKey(keyword: string) {
+    return `s:${keyword}`;
+  }
   async keywordExist(keyword: string) {
-    return (await this.redis.ttl(keyword)) >= 0;
+    const key = this.keywordToRedisKey(keyword);
+    return (await this.redis.ttl(key)) >= 0;
   }
   async setKeyword(keyword: string) {
     if (await this.keywordExist(keyword)) return false;
-    this.redis.set(keyword, 1);
-    this.redis.expire(keyword, 60 * 60 * 24);
+    const key = this.keywordToRedisKey(keyword);
+    this.redis.set(key, 1);
+    this.redis.expire(key, 60 * 60 * 24);
     this.searchBatcher.pushToQueue(0, 0, -1, true, keyword);
     return true;
   }

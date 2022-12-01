@@ -20,6 +20,8 @@ export class DoiBatcher extends Batcher {
   }
   validateBatchItem(item: QueueItemParsed): boolean {
     const { doi } = this.getParamsFromUrl(item.url);
+    // DOI 대문자일 경우 검색 안 되는 경우 발생
+    item.url = item.url.toLowerCase();
     return DOI_REGEXP.test(doi);
   }
   onFulfilled(
