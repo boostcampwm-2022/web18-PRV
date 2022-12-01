@@ -2,13 +2,13 @@ import { useQuery } from 'react-query';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
 import Api from '../../api/api';
-import PreviousButtonIcon from '../../icons/PreviousButtonIcon';
+import IconButton from '../../components/IconButton';
+import { PATH_MAIN } from '../../constants/path';
 import LogoIcon from '../../icons/LogoIcon';
+import PreviousButtonIcon from '../../icons/PreviousButtonIcon';
 import { IPaper } from '../SearchList/SearchList';
 import PaperInfo from './components/PaperInfo';
 import ReferenceGraph from './components/ReferenceGraph';
-import { PATH_MAIN } from '../../constants/path';
-import IconButton from '../../components/IconButton';
 
 export interface IPaperDetail extends IPaper {
   referenceList: [
@@ -52,7 +52,7 @@ const PaperDatail = () => {
       {data && (
         <Main>
           <PaperInfo data={data} />
-          <ReferenceGraph />
+          <ReferenceGraph data={data} />
         </Main>
       )}
     </Container>
