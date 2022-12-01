@@ -3,6 +3,8 @@ import Footer from '../../components/Footer';
 import Search from '../../components/search/Search';
 import StarLayer from '../../components/StarLayer';
 import { SUBTITLE, TITLE, TITLE_KOREAN } from '../../constants/main';
+import ErrorBoundary from '../../error/ErrorBoundary';
+import RankingErrorFallback from '../../error/RankingErrorFallback';
 import LogoIcon from '../../icons/LogoIcon';
 import KeywordRanking from './components/KeywordRanking';
 
@@ -20,7 +22,9 @@ const Main = () => {
           <div>{TITLE_KOREAN}</div>
           <div>{SUBTITLE}</div>
         </ContentContainer>
-        <KeywordRanking />
+        <ErrorBoundary fallback={RankingErrorFallback}>
+          <KeywordRanking />
+        </ErrorBoundary>
         <Search />
       </MainContainer>
       <Positioner>

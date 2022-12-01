@@ -1,40 +1,49 @@
+import { isEmpty } from 'lodash-es';
+import { useQuery } from 'react-query';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
+import Api, { IGetSearch } from '../../../api/api';
 import Pagination from '../../../components/Pagination';
 import { createDetailQuery } from '../../../utils/createQuery';
 import { IPageInfo, IPaper } from '../SearchList';
 import Paper from './Paper';
 
 interface SearchResultsProps {
-  pageInfo: IPageInfo;
-  papers: IPaper[];
-  keyword: string;
-  page: number;
+  params: IGetSearch;
   changePage: (page: number) => void;
 }
 
-const SearchResults = ({ pageInfo, papers, keyword, page, changePage }: SearchResultsProps) => {
-  return (
+interface IPapersData {
+  papers: IPaper[];
+  pageInfo: IPageInfo;
+}
+
+const api = new Api();
+
+const SearchResults = ({ params, changePage }: SearchResultsProps) => {
+  const keyword = params.keyword || '';
+  const page = Number(params.page);
+  const { data } = useQuery<IPapersData>(['papers', params], () => api.getSearch(params).then((res) => res.data), {
+    enabled: !isEmpty(params),
+  });
+
+  return data && data.papers.length > 0 ? (
     <>
-      {papers.length > 0 ? (
-        <>
-          <H1>Articles ({pageInfo.totalItems.toLocaleString() || 0})</H1>
-          <Hr />
-          <Section>
-            <Papers>
-              {papers.map((paper) => (
-                <Link key={paper.doi} to={createDetailQuery(paper.doi)}>
-                  <Paper data={paper} keyword={keyword} />
-                </Link>
-              ))}
-            </Papers>
-            <Pagination activePage={page} onChange={changePage} totalPages={pageInfo.totalPages} range={10} />
-          </Section>
-        </>
-      ) : (
-        <NoResult>&apos;{keyword}&apos;에 대한 검색 결과가 없습니다.</NoResult>
-      )}
+      <H1>Articles ({data.pageInfo.totalItems.toLocaleString() || 0})</H1>
+      <Hr />
+      <Section>
+        <Papers>
+          {data.papers.map((paper) => (
+            <Link key={paper.doi} to={createDetailQuery(paper.doi)}>
+              <Paper data={paper} keyword={keyword} />
+            </Link>
+          ))}
+        </Papers>
+        <Pagination activePage={page} onChange={changePage} totalPages={data.pageInfo.totalPages} range={10} />
+      </Section>
     </>
+  ) : (
+    <NoResult>&apos;{keyword}&apos;에 대한 검색 결과가 없습니다.</NoResult>
   );
 };
 

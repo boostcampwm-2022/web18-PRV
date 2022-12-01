@@ -1,4 +1,3 @@
-import { AxiosError } from 'axios';
 import { useState } from 'react';
 import { useQuery } from 'react-query';
 import { Link } from 'react-router-dom';
@@ -19,13 +18,13 @@ const api = new Api();
 
 const KeywordRanking = () => {
   const [isRankingListOpen, setIsRankingListOpen] = useState(false);
-  const {
-    isLoading,
-    isError,
-    data: rankingData,
-  } = useQuery<IRankingData[], AxiosError>('getKeywordRanking', () => api.getKeywordRanking().then((res) => res.data), {
-    retry: 3,
-  });
+  const { isLoading, data: rankingData } = useQuery<IRankingData[]>(
+    'getKeywordRanking',
+    () => api.getKeywordRanking().then((res) => res.data),
+    {
+      suspense: false,
+    },
+  );
 
   const handleRankingClick = () => {
     setIsRankingListOpen((prev) => !prev);
@@ -33,38 +32,34 @@ const KeywordRanking = () => {
 
   return (
     <RankingContainer>
-      {isError ? (
-        <ErrorMessage>오류 발생으로 인기검색어 사용이 불가합니다.</ErrorMessage>
-      ) : (
-        <RankingBar>
-          <HeaderContainer>
-            <span>인기 검색어</span>
-            <HeaderDivideLine />
-            <RankingContent onClick={handleRankingClick}>
-              {!isLoading && (rankingData?.length ? <RankingSlide rankingData={rankingData} /> : '데이터가 없습니다.')}
-            </RankingContent>
-            <IconButton
-              icon={isRankingListOpen ? <DropDownReverseIcon /> : <DropdownIcon />}
-              onClick={handleRankingClick}
-            />
-          </HeaderContainer>
-          {isRankingListOpen && (
-            <>
-              <DivideLine />
-              <RankingKeywordContainer>
-                {rankingData?.slice(0, 10).map((data, index) => (
-                  <Link key={data.keyword} to={createSearchQuery(data.keyword)}>
-                    <KeywordContainer>
-                      <KeywordIndex>{index + 1}</KeywordIndex>
-                      <Keyword>{data.keyword}</Keyword>
-                    </KeywordContainer>
-                  </Link>
-                ))}
-              </RankingKeywordContainer>
-            </>
-          )}
-        </RankingBar>
-      )}
+      <RankingBar>
+        <HeaderContainer>
+          <span>인기 검색어</span>
+          <HeaderDivideLine />
+          <RankingContent onClick={handleRankingClick}>
+            {!isLoading && rankingData?.length ? <RankingSlide rankingData={rankingData} /> : '데이터가 없습니다.'}
+          </RankingContent>
+          <IconButton
+            icon={isRankingListOpen ? <DropDownReverseIcon /> : <DropdownIcon />}
+            onClick={handleRankingClick}
+          />
+        </HeaderContainer>
+        {isRankingListOpen && (
+          <>
+            <DivideLine />
+            <RankingKeywordContainer>
+              {rankingData?.slice(0, 10).map((data, index) => (
+                <Link key={data.keyword} to={createSearchQuery(data.keyword)}>
+                  <KeywordContainer>
+                    <KeywordIndex>{index + 1}</KeywordIndex>
+                    <Keyword>{data.keyword}</Keyword>
+                  </KeywordContainer>
+                </Link>
+              ))}
+            </RankingKeywordContainer>
+          </>
+        )}
+      </RankingBar>
       {isRankingListOpen && <Dimmer onClick={handleRankingClick} />}
     </RankingContainer>
   );
@@ -74,14 +69,6 @@ const RankingContainer = styled.div`
   position: relative;
   width: 500px;
   height: 70px;
-`;
-
-const ErrorMessage = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-top: 30px;
-  padding: 5px 20px;
 `;
 
 const RankingBar = styled.div`
