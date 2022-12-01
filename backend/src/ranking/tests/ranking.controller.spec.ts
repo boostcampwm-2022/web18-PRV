@@ -17,17 +17,23 @@ describe('RankingServiceTest', () => {
     controller = module.get<RankingController>(RankingController);
     service = module.get<RankingService>(RankingService);
   });
-  describe('/keyword-ranking', () => {
-    it('10위까지의 검색어를 가져오기', async () => {
-      //Case 1. redis가 비어있을 경우
-      const topTen = await controller.getTen();
-      expect(topTen.length).toBe(0);
+  describe('/keyword-ranking/insert', () => {
+    //Case1. 기존 redis에 없던 데이터 삽입
+    // it('검색어 redis에 삽입', async () => {
+    //   const result = await controller.insertCache('newData');
+    //   expect(result).toBe(true);
+    // });
+    //Case1. 기존 redis에 있던 데이터 삽입
+    it('검색어 redis에 삽입', async () => {
+      const result = await controller.insertCache('부스트캠프');
+      expect(result).toBe('update');
     });
   });
-  describe('/keyword-ranking/insert', () => {
-    it('검색어 redis에 삽입 후 삽입 여부 확인', async () => {
-      const result = await controller.insertCache('keyword');
-      expect(result).toBe(1);
+  describe('/keyword-ranking', () => {
+    it('10위까지의 검색어를 가져오기', async () => {
+      //Case 1. redis date가 10개 이하인 경우
+      const topTen = await controller.getTen();
+      expect(topTen.length).toBeLessThanOrEqual(10);
     });
   });
 });

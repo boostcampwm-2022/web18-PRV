@@ -6,3 +6,7 @@ export class Ranking {
   @ApiProperty()
   changeRanking: number;
 }
+export class redisRanking {
+  keyword: string;
+  count: number;
+}
