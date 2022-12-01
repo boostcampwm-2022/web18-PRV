@@ -44,9 +44,9 @@ export function mockElasticService() {
           value: 28810,
         },
         hits: mockSearchData
-          .map((data) => {
+          .map((data, key) => {
             return {
-              _source: new PaperInfo(data),
+              _source: { ...new PaperInfo(data), key },
             };
           })
           .slice(0, size),

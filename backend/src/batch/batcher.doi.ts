@@ -42,7 +42,7 @@ export class DoiBatcher extends Batcher {
       // this.failedQueue.push(item.url);
       return;
     }
-    // console.log('error', item.url);
+    console.log('error', item.url);
     item.retries++;
     this.pushToQueue(item.retries + 1, item.depth, item.pagesLeft - 1, false, doi);
     return;
