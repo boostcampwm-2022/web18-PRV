@@ -1,71 +1,63 @@
 import * as d3 from 'd3';
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import styled from 'styled-components';
+import useGraphData from '../../../customHooks/useGraphData';
 import { IPaperDetail } from '../PaperDetail';
 
 interface ReferenceGraphProps {
   data: IPaperDetail;
 }
 
-const nodes: any[] = [
-  { name: 'paper' },
-  { name: 'r1' },
-  { name: 'r2' },
-  { name: 'r3' },
-  { name: 'r1-1' },
-  { name: 'r1-2' },
-];
-
-const links: any[] = [
-  { source: 0, target: 1 },
-  { source: 0, target: 2 },
-  { source: 0, target: 3 },
-  { source: 1, target: 4 },
-  { source: 1, target: 5 },
-  { source: 1, target: 5 },
-];
-
-const updateLinks = (linksSelector: SVGGElement) => {
-  d3.select(linksSelector)
-    .selectAll('line')
-    .data(links)
-    .join('line')
-    .attr('x1', (d) => d.source?.x)
-    .attr('y1', (d) => d.source?.y)
-    .attr('x2', (d) => d.target?.x)
-    .attr('y2', (d) => d.target?.y);
-};
-
-const symbolGenerator = d3.symbol().type(d3.symbolStar).size(50);
-const pathData = symbolGenerator();
-
-function updateNodes(nodesSelector: SVGGElement) {
-  d3.select(nodesSelector)
-    .selectAll('path') // -> 빈 selection이라는 객체
-    .data(nodes) // -> 6개 가상의 selection객체 6개 empty node
-    .join('path') // -> selection path element 결정
-    .attr('transform', (d) => `translate(${[d.x, d.y]})`)
-    .attr('d', pathData);
-  d3.select(nodesSelector)
-    .selectAll('text')
-    .data(nodes)
-    .join('text')
-    .text((d) => d.name)
-    .attr('x', (d) => d.x)
-    .attr('y', (d) => d.y)
-    .attr('dy', 5);
-}
-
-const ticked = (linksSelector: SVGGElement, nodesSelector: SVGGElement) => {
-  updateLinks(linksSelector);
-  updateNodes(nodesSelector);
-};
-
 const ReferenceGraph = ({ data }: ReferenceGraphProps) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const svgRef = useRef<SVGSVGElement | null>(null);
   const linkRef = useRef<SVGGElement | null>(null);
   const nodeRef = useRef<SVGGElement | null>(null);
+
+  const { nodes, links } = useGraphData<{ nodes: any[]; links: any[] }>(data);
+  const updateLinks = useCallback(
+    (linksSelector: SVGGElement) => {
+      d3.select(linksSelector)
+        .selectAll('line')
+        .data(links)
+        .join('line')
+        .attr('x1', (d) => d.source?.x)
+        .attr('y1', (d) => d.source?.y)
+        // .transition()
+        // .delay((d, i) => (i + 1) * 500)
+        .attr('x2', (d) => d.target?.x)
+        .attr('y2', (d) => d.target?.y);
+    },
+    [links],
+  );
+
+  const updateNodes = useCallback(
+    (nodesSelector: SVGGElement) => {
+      const normalSymbol = d3.symbol().type(d3.symbolSquare).size(10)();
+      const starSymbol = d3.symbol().type(d3.symbolStar).size(70)();
+
+      d3.select(nodesSelector)
+        .selectAll('path')
+        .data(nodes)
+        .join('path')
+        // TODO: transition 적용
+        // .transition()
+        // .delay((d, i) => i * 500)
+        .attr('transform', (d) => `translate(${[d.x, d.y]})`)
+        .attr('d', (d) => (d.isSelected ? starSymbol : normalSymbol));
+      d3.select(nodesSelector)
+        .selectAll('text')
+        .data(nodes)
+        .join('text')
+        // .transition()
+        // .delay((d, i) => i * 500)
+        .text((d) => d.author)
+        .attr('x', (d) => d.x)
+        .attr('y', (d) => d.y + 10)
+        .attr('dy', 5);
+    },
+    [nodes],
+  );
 
   useEffect(() => {
     const handleZoom = (e: any) => {
@@ -76,8 +68,12 @@ const ReferenceGraph = ({ data }: ReferenceGraphProps) => {
 
     d3.select(svgRef.current as Element).call(zoom);
 
+    const ticked = (linksSelector: SVGGElement, nodesSelector: SVGGElement) => {
+      updateLinks(linksSelector);
+      updateNodes(nodesSelector);
+    };
     d3.forceSimulation(nodes)
-      .force('charge', d3.forceManyBody().strength(-200)) // 척력
+      .force('charge', d3.forceManyBody().strength(-1500)) // 척력
       .force(
         'center',
         svgRef?.current && d3.forceCenter(svgRef.current.clientWidth / 2, svgRef.current.clientHeight / 2),
@@ -87,7 +83,7 @@ const ReferenceGraph = ({ data }: ReferenceGraphProps) => {
         if (!linkRef.current || !nodeRef.current) return;
         ticked(linkRef.current, nodeRef.current);
       });
-  }, []);
+  }, [nodes, links, updateLinks, updateNodes]);
 
   return (
     <Container ref={containerRef}>
@@ -114,7 +110,8 @@ const Graph = styled.svg`
 
 const Links = styled.g`
   line {
-    stroke: #ccc;
+    stroke: ${({ theme }) => theme.COLOR.gray1};
+    stroke-width: 0.5px;
     stroke-dasharray: 1;
   }
 
@@ -131,8 +128,9 @@ const Nodes = styled.g`
   text {
     text-anchor: middle;
     font-family: 'Helvetica Neue', Helvetica, sans-serif;
-    fill: #666;
-    font-size: 16px;
+    fill: ${({ theme }) => theme.COLOR.gray2};
+    fill-opacity: 50%;
+    font-size: 12px;
   }
 `;
 
