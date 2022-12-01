@@ -1,14 +1,12 @@
-import { AxiosError } from 'axios';
 import { useQuery } from 'react-query';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
 import Api from '../../api/api';
-import MoonLoader from '../../components/MoonLoader';
 import PreviousButtonIcon from '../../icons/PreviousButtonIcon';
 import LogoIcon from '../../icons/LogoIcon';
 import { IPaper } from '../SearchList/SearchList';
 import PaperInfo from './components/PaperInfo';
-import ReferenceGragh from './components/ReferenceGragh';
+import ReferenceGraph from './components/ReferenceGraph';
 import { PATH_MAIN } from '../../constants/path';
 import IconButton from '../../components/IconButton';
 
@@ -31,7 +29,7 @@ const PaperDatail = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const doi = searchParams.get('doi') || '';
-  const { data, isLoading } = useQuery<IPaperDetail, AxiosError>(
+  const { data } = useQuery<IPaperDetail>(
     ['paperDetail', doi],
     () => api.getPaperDetail({ doi }).then((res) => res.data),
     { enabled: !!doi.length },
@@ -47,23 +45,15 @@ const PaperDatail = () => {
 
   return (
     <Container>
-      {isLoading ? (
-        <MoonWrapper>
-          <MoonLoader />
-        </MoonWrapper>
-      ) : (
-        <>
-          <Header>
-            <IconButton icon={<PreviousButtonIcon />} onClick={handlePreviousButtonClick} />
-            <IconButton icon={<LogoIcon height="30" width="30" />} onClick={handleLogoClick} />
-          </Header>
-          {data && (
-            <Main>
-              <PaperInfo data={data} />
-              <ReferenceGragh />
-            </Main>
-          )}
-        </>
+      <Header>
+        <IconButton icon={<PreviousButtonIcon />} onClick={handlePreviousButtonClick} />
+        <IconButton icon={<LogoIcon height="30" width="30" />} onClick={handleLogoClick} />
+      </Header>
+      {data && (
+        <Main>
+          <PaperInfo data={data} />
+          <ReferenceGraph />
+        </Main>
       )}
     </Container>
   );
@@ -73,13 +63,6 @@ const Container = styled.div`
   display: flex;
   height: 100%;
   background-color: ${({ theme }) => theme.COLOR.primary4};
-`;
-
-const MoonWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  flex: 1;
 `;
 
 const Header = styled.header`
