@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-const ReferenceGragh = () => {
+const ReferenceGraph = () => {
   return <Container></Container>;
 };
 
@@ -9,4 +9,4 @@ const Container = styled.div`
   background-color: ${({ theme }) => theme.COLOR.primary4};
 `;
 
-export default ReferenceGragh;
+export default ReferenceGraph;

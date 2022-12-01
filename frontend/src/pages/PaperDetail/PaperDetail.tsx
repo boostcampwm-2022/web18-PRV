@@ -6,7 +6,7 @@ import PreviousButtonIcon from '../../icons/PreviousButtonIcon';
 import LogoIcon from '../../icons/LogoIcon';
 import { IPaper } from '../SearchList/SearchList';
 import PaperInfo from './components/PaperInfo';
-import ReferenceGragh from './components/ReferenceGragh';
+import ReferenceGraph from './components/ReferenceGraph';
 import { PATH_MAIN } from '../../constants/path';
 import IconButton from '../../components/IconButton';
 
@@ -52,7 +52,7 @@ const PaperDatail = () => {
       {data && (
         <Main>
           <PaperInfo data={data} />
-          <ReferenceGragh />
+          <ReferenceGraph />
         </Main>
       )}
     </Container>
