@@ -17,7 +17,7 @@ export class SearchController {
 
   @ApiResponse({ status: 200, description: '자동검색 성공', type: PaperInfo, isArray: true })
   @ApiRequestTimeoutResponse({ description: '검색 timeout' })
-  @ApiBadRequestResponse({ status: 400, description: '유효하지 않은 키워드' })
+  @ApiBadRequestResponse({ description: '유효하지 않은 키워드' })
   @ApiNotFoundResponse({ description: '검색 결과가 존재하지 않습니다. 정보를 수집중입니다.' })
   @Get('auto-complete')
   @UsePipes(new ValidationPipe({ transform: true }))
