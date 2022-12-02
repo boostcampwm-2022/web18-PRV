@@ -7,7 +7,7 @@ export default [
     doi: '10.1021/acs.iecr.9b00714.s001',
     publishedAt: '2020-04-09T15:47:35Z',
     citations: 0,
-    references: 0,
+    references: 10,
   },
   {
     title:

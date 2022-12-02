@@ -4,10 +4,11 @@ import { HttpService } from '@nestjs/axios';
 import { PaperInfo, PaperInfoDetail, PaperInfoExtended } from '../entities/crossRef.entity';
 import { Test, TestingModule } from '@nestjs/testing';
 import { ElasticsearchService } from '@nestjs/elasticsearch';
-import { mockElasticService, mockHttpService, mockRankingService } from './search.service.mock';
+import { mockBatchService, mockElasticService, mockHttpService, mockRankingService } from './search.service.mock';
 import { RankingService } from '../../ranking/ranking.service';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import * as request from 'supertest';
+import { BatchService } from 'src/batch/batch.service';
 
 describe('SearchController', () => {
   let controller: SearchController;
@@ -15,13 +16,14 @@ describe('SearchController', () => {
   let app: INestApplication;
 
   let spyGetElasticSearch: jest.SpyInstance;
-  let spyGetCrossRefData: jest.SpyInstance;
   const keyword = 'coffee';
 
   beforeEach(async () => {
     const httpService = mockHttpService();
     const rankingService = mockRankingService();
     const elasticService = mockElasticService();
+    const batchService = mockBatchService();
+
     const module: TestingModule = await Test.createTestingModule({
       controllers: [SearchController],
       providers: [
@@ -38,12 +40,16 @@ describe('SearchController', () => {
           provide: ElasticsearchService,
           useValue: elasticService,
         },
+        {
+          provide: BatchService,
+          useValue: batchService,
+        },
       ],
     }).compile();
     controller = module.get(SearchController);
     service = module.get(SearchService);
     spyGetElasticSearch = jest.spyOn(service, 'getElasticSearch');
-    spyGetCrossRefData = jest.spyOn(service, 'getCrossRefData');
+    // spyGetCrossRefData = jest.spyOn(service, 'getCrossRefData');
 
     app = module.createNestApplication();
     app.useGlobalPipes(new ValidationPipe());
@@ -68,7 +74,6 @@ describe('SearchController', () => {
       });
 
       expect(spyGetElasticSearch).toBeCalledTimes(2);
-      expect(spyGetCrossRefData).toBeCalledTimes(1);
     });
     it('keyword 미포함시 error - GET /search/auto-complete?keyword=', () => {
       const url = (keyword: string) => `/search/auto-complete?keyword=${keyword}`;
@@ -86,9 +91,7 @@ describe('SearchController', () => {
       items.forEach((item) => {
         expect(item).toBeInstanceOf(PaperInfoExtended);
       });
-      // TODO: elasticsearch로 검색?
-      expect(spyGetElasticSearch).toBeCalledTimes(0);
-      expect(spyGetCrossRefData).toBeCalledTimes(1);
+      expect(spyGetElasticSearch).toBeCalledTimes(1);
     });
     it('keyword 미포함시 error - GET /search?keyword=', () => {
       const url = (keyword: string) => `/search?keyword=${keyword}`;
@@ -121,9 +124,9 @@ describe('SearchController', () => {
     it(`getPaper - doi=10.1234/some_doi 일 때 PaperInfoDetail을 return`, async () => {
       const doi = '10.1234/some_doi';
       const paper = await controller.getPaper({ doi });
-      expect(paper.references).toBe(5);
-      expect(paper.referenceList.length).toBe(5);
-      expect(paper).toBeInstanceOf(PaperInfoDetail);
+      expect(paper.references).toBe(10);
+      expect(paper.referenceList.length).toBe(10);
+      expect(() => new PaperInfoDetail(paper)).not.toThrow();
     });
     it('doi가 입력되지 않을 경우 error - GET /search/paper?doi=', () => {
       const url = (keyword: string) => `/search/paper?doi=${keyword}`;

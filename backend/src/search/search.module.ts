@@ -6,6 +6,7 @@ import { ElasticsearchModule } from '@nestjs/elasticsearch';
 import { HttpConnection } from '@elastic/elasticsearch';
 import { ScheduleModule } from '@nestjs/schedule';
 import { RankingService } from 'src/ranking/ranking.service';
+import { BatchService } from 'src/batch/batch.service';
 @Module({
   imports: [
     HttpModule.register({
@@ -31,6 +32,6 @@ import { RankingService } from 'src/ranking/ranking.service';
     ScheduleModule.forRoot(),
   ],
   controllers: [SearchController],
-  providers: [SearchService, RankingService],
+  providers: [SearchService, RankingService, BatchService],
 })
 export class SearchModule {}

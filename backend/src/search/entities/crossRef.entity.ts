@@ -9,6 +9,9 @@ export class PaperInfo {
   @ApiProperty()
   doi?: string;
 
+  @ApiProperty()
+  key?: string;
+
   constructor(body: PaperInfo) {
     this.title = body.title;
     this.authors = body.authors;
@@ -33,15 +36,15 @@ export class PaperInfoExtended extends PaperInfo {
   }
 }
 export class PaperInfoDetail extends PaperInfoExtended {
-  @ApiPropertyOptional()
-  referenceList?: ReferenceInfo[];
+  @ApiPropertyOptional({ type: PaperInfoExtended, isArray: true })
+  referenceList?: PaperInfoExtended[];
 
   constructor(body: PaperInfoDetail) {
     super(body);
     this.referenceList = body.referenceList;
   }
 }
-export interface ReferenceInfo {
+export class ReferenceInfo {
   issn?: string;
   'standards-body'?: string;
   issue?: string;
@@ -66,6 +69,7 @@ export interface ReferenceInfo {
 }
 export interface CrossRefResponse {
   message: {
+    'next-cursor'?: string;
     'total-results': number;
     items: CrossRefItem[];
   };
@@ -87,5 +91,5 @@ export interface CrossRefItem {
   reference?: ReferenceInfo[];
 }
 export interface CrossRefPaperResponse {
-  message: CrossRefItem;
+  message: CrossRefItem & { 'next-cursor'?: string; 'total-results'?: number };
 }

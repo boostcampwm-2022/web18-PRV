@@ -1,7 +1,8 @@
 import mockCrossRefData from './crossref.mock';
 import mockSearchData from './searchdata.mock';
 import { HttpService } from '@nestjs/axios';
-import { CrossRefPaperResponse, CrossRefResponse, PaperInfo } from '../entities/crossRef.entity';
+import { CrossRefPaperResponse, CrossRefResponse, PaperInfo, PaperInfoDetail } from '../entities/crossRef.entity';
+import { DoiBatcher } from 'src/batch/batcher.doi';
 
 export function mockHttpService() {
   const httpService = new HttpService();
@@ -36,30 +37,37 @@ export function mockElasticService() {
   const index = jest.fn().mockResolvedValue(() => {
     return true;
   });
-  const search = jest.fn();
-  search
-    .mockResolvedValueOnce({
+  const search = jest.fn().mockImplementation(({ size }) => {
+    return Promise.resolve({
       hits: {
         total: {
-          value: 0,
-        },
-      },
-    })
-    .mockResolvedValue({
-      hits: {
-        total: {
-          value: 222,
+          value: 28810,
         },
         hits: mockSearchData
-          .map((data) => {
+          .map((data, key) => {
             return {
-              _source: new PaperInfo(data),
+              _source: { ...new PaperInfo(data), key },
             };
           })
-          .slice(0, 5),
+          .slice(0, size),
       },
     });
-  const elasticService = { index, search };
+  });
+  const get = jest.fn().mockResolvedValue({
+    _source: {
+      ...mockSearchData[0],
+      referenceList: Array.from({ length: mockSearchData[0].references || 0 }, (_, i) => {
+        return { key: mockSearchData[i].doi };
+      }),
+    },
+  });
+  const mget = jest.fn().mockResolvedValue({
+    docs: Array.from({ length: mockSearchData[0].references || 0 }, (_, i) => {
+      const data = mockSearchData[i];
+      return { _id: data.doi, found: Math.random() > 0.5, _source: data };
+    }),
+  });
+  const elasticService = { index, search, get, mget };
   return elasticService;
 }
 
@@ -69,4 +77,15 @@ export function mockRankingService() {
   });
   const rankingService = { insertRedis };
   return rankingService;
+}
+
+export function mockBatchService() {
+  const setKeyword = jest.fn().mockResolvedValue(() => {
+    return true;
+  });
+  const doiBatcher = {
+    pushToQueue: jest.fn(),
+  };
+  const batchService = { setKeyword, doiBatcher };
+  return batchService;
 }
