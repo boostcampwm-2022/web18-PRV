@@ -6,7 +6,7 @@ export default function useGraphData<T>(data: IPaperDetail) {
     const nodes = [
       { author: data.authors?.[0] || 'unknown', isSelected: true, x: 327, y: 398 },
       ...data.referenceList.map((v) => ({
-        author: v.author || 'unknown',
+        author: v.authors?.[0] || 'unknown',
         isSelected: false,
       })),
     ];

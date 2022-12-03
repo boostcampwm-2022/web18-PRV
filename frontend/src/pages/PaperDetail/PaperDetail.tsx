@@ -14,7 +14,7 @@ export interface IPaperDetail extends IPaper {
   referenceList: [
     {
       title: string;
-      author: string;
+      authors: string[];
       publishedAt: string;
       citations: number;
       references: number;
