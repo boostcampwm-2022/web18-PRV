@@ -12,9 +12,7 @@ export class RankingController {
   async getTen() {
     return await this.rankingService.getTen();
   }
-  // TODO: search 됐을 때, this.popularService.insertRedis(searchStr);
   @Get('/insert')
-  @UsePipes(new ValidationPipe({ transform: true }))
   async insertCache(@Query('keyword') searchStr: string) {
     return this.rankingService.insertRedis(searchStr);
   }
