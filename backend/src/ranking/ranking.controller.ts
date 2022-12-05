@@ -1,20 +1,21 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get, Query, UsePipes, ValidationPipe } from '@nestjs/common';
 import { RankingService } from './ranking.service';
-import { ApiResponse, ApiRequestTimeoutResponse } from '@nestjs/swagger';
+import { ApiResponse, ApiRequestTimeoutResponse, ApiUnsupportedMediaTypeResponse } from '@nestjs/swagger';
 import { Ranking } from './entities/ranking.entity';
 
 @Controller('keyword-ranking')
 export class RankingController {
   constructor(private readonly rankingService: RankingService) {}
-  @Get()
   @ApiResponse({ status: 200, description: '검색 결과', type: Ranking, isArray: true })
   @ApiRequestTimeoutResponse({ description: '검색 timeout' })
+  @Get()
   async getTen() {
-    return this.rankingService.getTen();
+    return await this.rankingService.getTen();
   }
   // TODO: search 됐을 때, this.popularService.insertRedis(searchStr);
   @Get('/insert')
+  @UsePipes(new ValidationPipe({ transform: true }))
   async insertCache(@Query('keyword') searchStr: string) {
-    this.rankingService.insertRedis(searchStr);
+    return this.rankingService.insertRedis(searchStr);
   }
 }
