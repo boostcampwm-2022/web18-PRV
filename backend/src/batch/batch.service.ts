@@ -39,9 +39,6 @@ export class BatchService {
     this.redis.expire(key, 60 * 60 * 24);
     return true;
   }
-  async setDoi(doi: string) {
-    this.doiBatcher.pushToQueue(0, 0, -1, true, doi);
-  }
 
   @Interval(TIME_INTERVAL)
   batchSearchQueue(batchSize = SEARCH_BATCH_SIZE) {

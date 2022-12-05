@@ -87,7 +87,6 @@ export class SearchController {
       });
       return { ...origin, referenceList };
     }
-    this.batchService.doiBatcher.pushToQueue(0, 1, -1, true, doi);
     throw new NotFoundException('해당 doi는 존재하지 않습니다. 정보를 수집중입니다.');
   }
 
