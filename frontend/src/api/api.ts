@@ -26,28 +26,18 @@ export default class Api {
   }
 
   getSearch(params: IGetSearch) {
-    // const check_kor = /[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/;
-    // if (params.keyword.match(check_kor)) {
-    //   const encodeKeyword = encodeURI(params.keyword);
-    //   params.keyword = encodeKeyword;
-    //   return this.instance.get('/search', {
-    //     params,
-    //   });
-    // } else {
-    //   return this.instance.get('/search', {
-    //     params,
-    //   });
-    // }
     return this.instance.get('/search', {
       params,
     });
   }
 
   getAutoComplete(params: IGetAutoComplete) {
+    console.log(params);
     return this.instance.get('/search/auto-complete', { params });
   }
 
   getPaperDetail(params: IGetPaperDetail) {
+    console.log(params);
     return this.instance.get(`/search/paper`, { params });
   }
 }

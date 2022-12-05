@@ -23,11 +23,11 @@ export class RankingService {
     return result;
   }
   async insertRedis(data: string) {
-    console.log(data);
-    const isRanking: string = await this.redis.zscore(process.env.REDIS_POPULAR_KEY, data);
+    const encodeData = decodeURI(data);
+    const isRanking: string = await this.redis.zscore(process.env.REDIS_POPULAR_KEY, encodeData);
     isRanking
-      ? await this.redis.zadd(process.env.REDIS_POPULAR_KEY, Number(isRanking) + 1, data)
-      : await this.redis.zadd(process.env.REDIS_POPULAR_KEY, 1, data);
+      ? await this.redis.zadd(process.env.REDIS_POPULAR_KEY, Number(isRanking) + 1, encodeData)
+      : await this.redis.zadd(process.env.REDIS_POPULAR_KEY, 1, encodeData);
   }
   @Interval('update-ranking', 600000)
   async updateRanking() {
