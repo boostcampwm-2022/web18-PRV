@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { IPaperDetail } from '../pages/PaperDetail/PaperDetail';
 
 export default function useGraphData<T>(data: IPaperDetail) {
-  const result = useMemo<T>(() => {
+  return useMemo<T>(() => {
     const nodes = [
       { author: data.authors?.[0] || 'unknown', isSelected: true, x: 327, y: 398 },
       ...data.referenceList.map((v) => ({
@@ -17,5 +17,4 @@ export default function useGraphData<T>(data: IPaperDetail) {
 
     return { nodes, links } as T;
   }, [data]);
-  return result;
 }

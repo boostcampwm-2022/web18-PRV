@@ -27,18 +27,14 @@ const PaperInfo = ({ data }: IProps) => {
         <DivideLine />
       </BasicInfo>
       <References>
-        <h3>References ({data.references})</h3>
+        <h3>References ({data.referenceList.length})</h3>
         <ReferenceContainer>
-          {data.referenceList.map(
-            (reference, index) =>
-              // TODO: 임시로 key에 index 사용 중. 서버에서 key로 사용할 데이터 전송 예정.
-              reference.title && (
-                <ReferenceItem key={index}>
-                  <span>{reference.title}</span>
-                  <span>{reference.authors.join(', ')}</span>
-                </ReferenceItem>
-              ),
-          )}
+          {data.referenceList.map((reference) => (
+            <ReferenceItem key={reference.key}>
+              <span>{reference.title}</span>
+              <span>{reference.authors?.join(', ') || 'unknown'}</span>
+            </ReferenceItem>
+          ))}
         </ReferenceContainer>
       </References>
     </Container>

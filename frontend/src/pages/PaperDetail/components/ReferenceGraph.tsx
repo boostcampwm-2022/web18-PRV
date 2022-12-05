@@ -73,7 +73,7 @@ const ReferenceGraph = ({ data }: ReferenceGraphProps) => {
       updateNodes(nodesSelector);
     };
     d3.forceSimulation(nodes)
-      .force('charge', d3.forceManyBody().strength(-1500)) // 척력
+      .force('charge', d3.forceManyBody().strength(-1500))
       .force(
         'center',
         svgRef?.current && d3.forceCenter(svgRef.current.clientWidth / 2, svgRef.current.clientHeight / 2),

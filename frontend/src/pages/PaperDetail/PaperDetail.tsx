@@ -11,16 +11,15 @@ import PaperInfo from './components/PaperInfo';
 import ReferenceGraph from './components/ReferenceGraph';
 
 export interface IPaperDetail extends IPaper {
-  referenceList: [
-    {
-      title: string;
-      authors: string[];
-      publishedAt: string;
-      citations: number;
-      references: number;
-      doi: string;
-    },
-  ];
+  referenceList: {
+    title?: string;
+    authors?: string[];
+    doi?: string;
+    key: string;
+    publishedAt?: string;
+    citations?: number;
+    references?: number;
+  }[];
 }
 
 const api = new Api();
@@ -32,7 +31,13 @@ const PaperDatail = () => {
   const { data } = useQuery<IPaperDetail>(
     ['paperDetail', doi],
     () => api.getPaperDetail({ doi }).then((res) => res.data),
-    { enabled: !!doi.length },
+    {
+      enabled: !!doi.length,
+      select: (data) => {
+        const referenceList = data.referenceList.filter((reference) => reference.title);
+        return { ...data, referenceList };
+      },
+    },
   );
 
   const handlePreviousButtonClick = () => {
