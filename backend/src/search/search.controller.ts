@@ -44,7 +44,8 @@ export class SearchController {
       throw new NotFoundException(`page(${page})는 ${totalPages} 보다 클 수 없습니다.`);
     }
     this.rankingService.insertRedis(keyword);
-    this.batchService.setKeyword(keyword);
+    const keywordHasSet = await this.batchService.setKeyword(keyword);
+    if (keywordHasSet) this.batchService.searchBatcher.pushToQueue(0, 0, -1, true, keyword);
 
     const papers = data.hits.hits.map((paper) => new PaperInfoExtended(paper._source));
     if (papers.length === 0) throw new NotFoundException('검색 결과가 존재하지 않습니다. 정보를 수집중입니다.');
@@ -66,15 +67,20 @@ export class SearchController {
   async getPaper(@Query() query: GetPaperDto) {
     const { doi } = query;
 
+    const keywordHasSet = await this.batchService.setKeyword(doi);
+    if (keywordHasSet) this.batchService.doiBatcher.pushToQueue(0, 0, -1, false, doi);
+
     const paper = await this.searchService.getPaper(doi);
     if (paper) {
       const origin = new PaperInfoDetail(paper._source);
+      // 기존에 넣어놨던 데이터에 referenceList라는 key가 없을 수 있다..
+      if (!origin.referenceList?.length) {
+        this.batchService.doiBatcher.pushToQueue(0, 1, -1, false, origin.doi || origin.key);
+        return { ...origin, referenceList: [] };
+      }
+
+      // Is it N+1 Problem?
       const references = await this.searchService.multiGet(origin.referenceList.map((ref) => ref.key).filter(Boolean));
-      references.docs
-        .filter((doc) => !(doc as GetGetResult).found)
-        .forEach((doc) => {
-          this.batchService.doiBatcher.pushToQueue(0, 1, -1, true, doc._id);
-        });
       const referenceList = references.docs.map((doc) => {
         const _source = (doc as GetGetResult<PaperInfoDetail>)._source;
         return { key: doc._id, ..._source };
@@ -83,5 +89,17 @@ export class SearchController {
     }
     this.batchService.doiBatcher.pushToQueue(0, 1, -1, true, doi);
     throw new NotFoundException('해당 doi는 존재하지 않습니다. 정보를 수집중입니다.');
+  }
+
+  @Get('stat')
+  async getStats() {
+    const es = await this.searchService.esStat();
+    const searchBatch = await this.batchService.searchBatcher.queue.size();
+    const doiBatch = await this.batchService.doiBatcher.queue.size();
+    return {
+      es,
+      searchBatch,
+      doiBatch,
+    };
   }
 }

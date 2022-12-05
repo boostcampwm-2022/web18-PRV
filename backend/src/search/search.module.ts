@@ -10,7 +10,7 @@ import { BatchService } from 'src/batch/batch.service';
 @Module({
   imports: [
     HttpModule.register({
-      timeout: 20000,
+      timeout: 1000 * 60,
       headers: {
         'User-Agent': `Axios/1.1.3(mailto:${process.env.MAIL_TO})`,
       },
