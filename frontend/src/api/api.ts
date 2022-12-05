@@ -1,5 +1,4 @@
 import axios, { AxiosInstance } from 'axios';
-
 export interface IGetSearch {
   keyword: string;
   page: string;
@@ -15,7 +14,7 @@ export interface IGetPaperDetail {
 }
 
 export default class Api {
-  private readonly baseURL = 'http://49.50.172.204:4000/';
+  private readonly baseURL = 'http://localhost:4000/';
   private readonly instance: AxiosInstance;
 
   constructor() {
@@ -27,6 +26,18 @@ export default class Api {
   }
 
   getSearch(params: IGetSearch) {
+    // const check_kor = /[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/;
+    // if (params.keyword.match(check_kor)) {
+    //   const encodeKeyword = encodeURI(params.keyword);
+    //   params.keyword = encodeKeyword;
+    //   return this.instance.get('/search', {
+    //     params,
+    //   });
+    // } else {
+    //   return this.instance.get('/search', {
+    //     params,
+    //   });
+    // }
     return this.instance.get('/search', {
       params,
     });
