@@ -19,12 +19,12 @@ describe('RankingServiceTest', () => {
     service = module.get<RankingService>(RankingService);
   });
   describe('/keyword-ranking', () => {
-    it('10위까지의 검색어를 가져오기', async () => {
+    it('redis date가 10개 이하인 경우', async () => {
       //Case 1. redis date가 10개 이하인 경우
       const topTen = await controller.getTen();
       expect(topTen.length).toBeLessThanOrEqual(10);
     });
-    it('데이터 삽입 후 top10 체크', async () => {
+    it('데이터 삽입 후 topTen 체크', async () => {
       //Case 2. 데이터 삽입 후 topTen 체크
       const flag = await controller.insertCache('9번째 데이터');
       expect(flag).toBe('new');
@@ -35,7 +35,7 @@ describe('RankingServiceTest', () => {
       const topTen2 = await controller.getTen();
       expect(topTen2.length).toBe(10);
     });
-    it('데이터 검색 후 순위 변동 확인', async () => {
+    it('2위인 "사랑해요" 데이터가 한번 더 검색시 1위로 업데이트', async () => {
       //Case 3. 2위인 "사랑해요" 데이터가 한번 더 검색시 1위로 업데이트
       const flag = await controller.insertCache('사랑해요');
       expect(flag).toBe('update');
@@ -45,12 +45,12 @@ describe('RankingServiceTest', () => {
   });
   describe('/keyword-ranking/insert', () => {
     // Case1. 기존 redis에 없던 데이터 삽입
-    it('검색어 redis에 삽입', async () => {
+    it('기존 redis에 없던 데이터 삽입', async () => {
       const result = await controller.insertCache('newData');
       expect(result).toBe('new');
     });
     // Case2. 기존 redis에 있던 데이터 삽입
-    it('검색어 redis에 삽입', async () => {
+    it('기존 redis에 있던 데이터 삽입', async () => {
       const result = await controller.insertCache('부스트캠프');
       expect(result).toBe('update');
     });
@@ -61,7 +61,7 @@ describe('RankingServiceTest', () => {
       );
     });
     //Case4. insert 실패시 타임 아웃 TimeOut
-    it('빈 검색어 redis에 삽입', async () => {
+    it('insert 실패시 타임 아웃 TimeOut', async () => {
       await expect(controller.insertCache('')).rejects.toEqual(
         new BadRequestException({ status: 400, error: 'bad request' }),
       );

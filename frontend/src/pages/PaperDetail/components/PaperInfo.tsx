@@ -35,7 +35,7 @@ const PaperInfo = ({ data }: IProps) => {
               reference.title && (
                 <ReferenceItem key={index}>
                   <span>{reference.title}</span>
-                  <span>{reference.author}</span>
+                  <span>{reference.authors.join(', ')}</span>
                 </ReferenceItem>
               ),
           )}
