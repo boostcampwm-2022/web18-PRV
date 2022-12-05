@@ -26,6 +26,7 @@ export default class Api {
   }
 
   getSearch(params: IGetSearch) {
+    params.keyword = decodeURI(params.keyword);
     return this.instance.get('/search', {
       params,
     });
