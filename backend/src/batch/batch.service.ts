@@ -27,15 +27,16 @@ export class BatchService {
     return `s:${keyword}`;
   }
   async keywordExist(keyword: string) {
-    const key = this.keywordToRedisKey(keyword);
+    const lowercased = keyword.toLowerCase();
+    const key = this.keywordToRedisKey(lowercased);
     return (await this.redis.ttl(key)) >= 0;
   }
   async setKeyword(keyword: string) {
-    if (await this.keywordExist(keyword)) return false;
-    const key = this.keywordToRedisKey(keyword);
+    const lowercased = keyword.toLowerCase();
+    if (await this.keywordExist(lowercased)) return false;
+    const key = this.keywordToRedisKey(lowercased);
     this.redis.set(key, 1);
     this.redis.expire(key, 60 * 60 * 24);
-    this.searchBatcher.pushToQueue(0, 0, -1, true, keyword);
     return true;
   }
   async setDoi(doi: string) {
@@ -43,11 +44,8 @@ export class BatchService {
   }
 
   @Interval(TIME_INTERVAL)
-  async batchSearchQueue(batchSize = SEARCH_BATCH_SIZE) {
-    const referencesDoiWithDepth = await this.searchBatcher.runBatch(batchSize);
-    referencesDoiWithDepth?.forEach((v) => {
-      this.doiBatcher.pushToQueue(0, v.depth + 1, -1, false, v.doi);
-    });
+  batchSearchQueue(batchSize = SEARCH_BATCH_SIZE) {
+    this.searchBatcher.runBatch(batchSize);
   }
 
   @Interval(TIME_INTERVAL)

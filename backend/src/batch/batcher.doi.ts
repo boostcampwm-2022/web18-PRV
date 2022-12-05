@@ -36,7 +36,7 @@ export class DoiBatcher extends Batcher {
     return { papers: [p], referenceDOIs };
   }
 
-  onRejected(item: QueueItemParsed, params: UrlParams) {
+  onRejected(item: QueueItemParsed, params: UrlParams, shouldPushLeft: boolean) {
     const { doi } = params;
     if (item.retries + 1 > MAX_RETRY) {
       // this.failedQueue.push(item.url);
@@ -44,7 +44,7 @@ export class DoiBatcher extends Batcher {
     }
     console.log('error', item.url);
     item.retries++;
-    this.pushToQueue(item.retries + 1, item.depth, item.pagesLeft - 1, false, doi);
+    this.pushToQueue(item.retries + 1, item.depth, item.pagesLeft - 1, shouldPushLeft, doi);
     return;
   }
 }
