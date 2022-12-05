@@ -13,7 +13,7 @@ export const CROSSREF_API_URL_CURSOR = (
 ) =>
   `${BASE_URL}?query=${keyword}&rows=${rows}&select=${selects.join(',')}&mailto=${
     process.env.MAIL_TO
-  }&cursor=${cursor}`;
+  }&sort=is-referenced-by-count&cursor=${cursor}`;
 export const CROSSREF_API_PAPER_URL = (doi: string) => `${BASE_URL}/${doi}`;
 export class Queue<T = string> {
   data: Set<T>;
