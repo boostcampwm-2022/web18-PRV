@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, HttpException, HttpStatus, Injectable, UsePipes, ValidationPipe } from '@nestjs/common';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import Redis from 'ioredis';
 import { Ranking } from './entities/ranking.entity';
@@ -22,11 +22,18 @@ export class RankingService {
     );
     return result;
   }
+  @UsePipes(new ValidationPipe({ transform: true }))
   async insertRedis(data: string) {
-    const isRanking: string = await this.redis.zscore(process.env.REDIS_POPULAR_KEY, data);
-    isRanking
-      ? await this.redis.zadd(process.env.REDIS_POPULAR_KEY, Number(isRanking) + 1, data)
-      : await this.redis.zadd(process.env.REDIS_POPULAR_KEY, 1, data);
+    if (data === '' || data.length <= 2) throw new BadRequestException();
+    const encodeData = decodeURI(data);
+    try {
+      const isRanking: string = await this.redis.zscore(process.env.REDIS_POPULAR_KEY, encodeData);
+      isRanking
+        ? await this.redis.zadd(process.env.REDIS_POPULAR_KEY, Number(isRanking) + 1, encodeData)
+        : await this.redis.zadd(process.env.REDIS_POPULAR_KEY, 1, encodeData);
+    } catch (error) {
+      throw new HttpException('Internel Server Error', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
   @Interval('update-ranking', 600000)
   async updateRanking() {
