@@ -75,9 +75,9 @@ export abstract class Batcher {
     this.queue.push(`${retries}:${depth}:${page}:${url}`, shouldPushLeft);
   }
   async batchLog(queue: RedisQueue, batched: string[]) {
-    const urlQueueSize = await queue.size();
+    const queueSize = await queue.size();
     const batchedSize = batched?.length || 0;
-    (urlQueueSize || batchedSize) && console.log(`${queue.name} size`, urlQueueSize, ', batch size ', batchedSize);
+    (queueSize || batchedSize) && console.log(`${queue.name} size`, queueSize, ', batch size ', batchedSize);
   }
   fetchCrossRef<T = CrossRefAble>(url: string) {
     return this.axios.get<T>(url);
@@ -88,7 +88,6 @@ export abstract class Batcher {
     const queue = this.queue;
     // const failedQueue = this.failedQueue;
     const batched = await queue.pop(batchSize);
-
     // await this.batchLog(queue, batched);
     if (!batched) return;
     this.running = true;
@@ -168,22 +167,18 @@ export abstract class Batcher {
     return this.searchService.bulkInsert(papers);
   }
 
-  getPapersToRequest(item: CrossRefItem, depth: number) {
+  getPapersReferences(item: CrossRefItem, depth: number) {
     const hasHope = this.paperHasInformation(item);
-    const papers: string[] = [];
-    if (hasHope && depth < MAX_DEPTH) {
-      if (item.DOI) {
-        papers.push(item.DOI);
-      }
+    const dois: string[] = [];
+    if (hasHope && depth + 1 < MAX_DEPTH) {
       item.reference?.forEach((ref) => {
-        // doi가 있는 reference에 대해 paperQueue에 집어넣는다.
+        // doi가 있는 reference는 다음 paperQueue에 집어넣는다.
         if (this.referenceHasInformation(ref)) {
-          // return [ref.DOI, 0, depth + 1];
-          papers.push(ref.DOI);
+          dois.push(ref.DOI);
         }
       });
     }
-    return papers;
+    return dois;
   }
 
   paperHasInformation(paper: CrossRefItem) {
