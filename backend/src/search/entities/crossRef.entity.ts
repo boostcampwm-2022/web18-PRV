@@ -15,7 +15,7 @@ export class PaperInfo {
   constructor(body: PaperInfo) {
     this.title = body.title;
     this.authors = body.authors;
-    this.doi = body.doi;
+    this.doi = body.doi.toLowerCase();
   }
 }
 export class PaperInfoExtended extends PaperInfo {

@@ -56,6 +56,7 @@ export default {
         member: '78',
         reference: [
           {
+            DOI: '10.1016/B0-12-227055-X/00268-6_bib0001',
             key: '10.1016/B0-12-227055-X/00268-6_bib0001',
             'first-page': '265',
             'article-title': 'Polysaccharides in green coffee beans',
@@ -63,6 +64,7 @@ export default {
             year: '1987',
           },
           {
+            DOI: '10.1016/B0-12-227055-X/00268-6_bib0002',
             key: '10.1016/B0-12-227055-X/00268-6_bib0002',
             'article-title': 'Coffee technology',
             volume: 'vol. 4',
