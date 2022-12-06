@@ -66,7 +66,8 @@ const ReferenceGraph = ({ data, hoveredNode, changeHoveredNode }: ReferenceGraph
       d3.select(svgRef.current).selectChildren().attr('transform', e.transform);
     };
 
-    const zoom = d3.zoom().on('zoom', handleZoom);
+    // 최소 0.5배, 최대 5배로 zoom
+    const zoom = d3.zoom().scaleExtent([0.5, 5]).on('zoom', handleZoom);
 
     d3.select(svgRef.current as Element).call(zoom);
 
