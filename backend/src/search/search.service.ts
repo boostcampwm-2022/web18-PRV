@@ -96,6 +96,7 @@ export class SearchService {
         index: process.env.ELASTIC_INDEX,
         from,
         size,
+        sort: ['_score', { citations: 'desc' }],
         query,
       })
       .catch(() => {
