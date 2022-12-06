@@ -14,7 +14,7 @@ export interface IGetPaperDetail {
 }
 
 export default class Api {
-  private readonly baseURL = 'http://localhost:4000/';
+  private readonly baseURL = 'http://49.50.172.204:4000/';
   private readonly instance: AxiosInstance;
 
   constructor() {
@@ -33,7 +33,6 @@ export default class Api {
   }
 
   getAutoComplete(params: IGetAutoComplete) {
-    console.log(params);
     return this.instance.get('/search/auto-complete', { params });
   }
 
