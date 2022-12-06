@@ -3,11 +3,21 @@ import { IPaperDetail } from '../PaperDetail';
 
 interface IProps {
   data: IPaperDetail;
+  hoveredNode: string;
+  changeHoveredNode: (key: string) => void;
 }
 
 const DOI_BASE_URL = 'https://doi.org/';
 
-const PaperInfo = ({ data }: IProps) => {
+const PaperInfo = ({ data, hoveredNode, changeHoveredNode }: IProps) => {
+  const handleMouseOver = (key: string) => {
+    changeHoveredNode(key);
+  };
+
+  const handleMouseOut = () => {
+    changeHoveredNode('');
+  };
+
   return (
     <Container>
       <BasicInfo>
@@ -30,7 +40,12 @@ const PaperInfo = ({ data }: IProps) => {
         <h3>References ({data.referenceList.length})</h3>
         <ReferenceContainer>
           {data.referenceList.map((reference) => (
-            <ReferenceItem key={reference.key}>
+            <ReferenceItem
+              key={reference.key}
+              onMouseOver={() => handleMouseOver(reference.key)}
+              onMouseOut={() => handleMouseOut()}
+              className={`info ${reference.key === hoveredNode ? 'hovered' : ''}`}
+            >
               <span>{reference.title}</span>
               <span>{reference.authors?.join(', ') || 'unknown'}</span>
             </ReferenceItem>
@@ -116,6 +131,7 @@ const ReferenceItem = styled.li`
   display: flex;
   flex-direction: column;
   gap: 10px;
+  cursor: pointer;
 
   span {
     :first-child {
@@ -125,6 +141,10 @@ const ReferenceItem = styled.li`
     :last-child {
       ${({ theme }) => theme.TYPO.caption};
     }
+  }
+
+  &.hovered {
+    color: ${({ theme }) => theme.COLOR.secondary2};
   }
 `;
 

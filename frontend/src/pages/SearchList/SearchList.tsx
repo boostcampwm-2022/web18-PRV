@@ -11,10 +11,11 @@ import SearchResults from './components/SearchResults';
 export interface IPaper {
   title: string;
   authors: string[];
+  doi: string;
+  key: string;
   publishedAt: string;
   citations: number;
   references: number;
-  doi: string;
 }
 
 export interface IPageInfo {

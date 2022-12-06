@@ -37,7 +37,6 @@ export default class Api {
   }
 
   getPaperDetail(params: IGetPaperDetail) {
-    console.log(params);
     return this.instance.get(`/search/paper`, { params });
   }
 }

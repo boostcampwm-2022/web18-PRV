@@ -1,3 +1,4 @@
+import { useCallback, useState } from 'react';
 import { useQuery } from 'react-query';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
@@ -28,6 +29,7 @@ const PaperDatail = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const doi = searchParams.get('doi') || '';
+  const [hoveredNode, setHoveredNode] = useState('');
   const { data } = useQuery<IPaperDetail>(
     ['paperDetail', doi],
     () => api.getPaperDetail({ doi }).then((res) => res.data),
@@ -48,6 +50,10 @@ const PaperDatail = () => {
     navigate(PATH_MAIN);
   };
 
+  const changeHoveredNode = useCallback((key: string) => {
+    setHoveredNode(key);
+  }, []);
+
   return (
     <Container>
       <Header>
@@ -56,8 +62,8 @@ const PaperDatail = () => {
       </Header>
       {data && (
         <Main>
-          <PaperInfo data={data} />
-          <ReferenceGraph data={data} />
+          <PaperInfo data={data} hoveredNode={hoveredNode} changeHoveredNode={changeHoveredNode} />
+          <ReferenceGraph data={data} hoveredNode={hoveredNode} changeHoveredNode={changeHoveredNode} />
         </Main>
       )}
     </Container>

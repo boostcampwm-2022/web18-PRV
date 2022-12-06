@@ -6,15 +6,17 @@ import { IPaperDetail } from '../PaperDetail';
 
 interface ReferenceGraphProps {
   data: IPaperDetail;
+  hoveredNode: string;
+  changeHoveredNode: (key: string) => void;
 }
 
-const ReferenceGraph = ({ data }: ReferenceGraphProps) => {
+const ReferenceGraph = ({ data, hoveredNode, changeHoveredNode }: ReferenceGraphProps) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const svgRef = useRef<SVGSVGElement | null>(null);
   const linkRef = useRef<SVGGElement | null>(null);
   const nodeRef = useRef<SVGGElement | null>(null);
-
   const { nodes, links } = useGraphData<{ nodes: any[]; links: any[] }>(data);
+
   const updateLinks = useCallback(
     (linksSelector: SVGGElement) => {
       d3.select(linksSelector)
@@ -23,8 +25,6 @@ const ReferenceGraph = ({ data }: ReferenceGraphProps) => {
         .join('line')
         .attr('x1', (d) => d.source?.x)
         .attr('y1', (d) => d.source?.y)
-        // .transition()
-        // .delay((d, i) => (i + 1) * 500)
         .attr('x2', (d) => d.target?.x)
         .attr('y2', (d) => d.target?.y);
     },
@@ -40,23 +40,25 @@ const ReferenceGraph = ({ data }: ReferenceGraphProps) => {
         .selectAll('path')
         .data(nodes)
         .join('path')
-        // TODO: transition 적용
-        // .transition()
-        // .delay((d, i) => i * 500)
         .attr('transform', (d) => `translate(${[d.x, d.y]})`)
         .attr('d', (d) => (d.isSelected ? starSymbol : normalSymbol));
+
       d3.select(nodesSelector)
         .selectAll('text')
         .data(nodes)
         .join('text')
-        // .transition()
-        // .delay((d, i) => i * 500)
         .text((d) => d.author)
+        .on('mouseover', (e, d) => {
+          changeHoveredNode(d.key);
+        })
+        .on('mouseout', () => {
+          changeHoveredNode('');
+        })
         .attr('x', (d) => d.x)
         .attr('y', (d) => d.y + 10)
         .attr('dy', 5);
     },
-    [nodes],
+    [nodes, changeHoveredNode],
   );
 
   useEffect(() => {
@@ -72,6 +74,7 @@ const ReferenceGraph = ({ data }: ReferenceGraphProps) => {
       updateLinks(linksSelector);
       updateNodes(nodesSelector);
     };
+
     d3.forceSimulation(nodes)
       .force('charge', d3.forceManyBody().strength(-1500))
       .force(
@@ -84,6 +87,18 @@ const ReferenceGraph = ({ data }: ReferenceGraphProps) => {
         ticked(linkRef.current, nodeRef.current);
       });
   }, [nodes, links, updateLinks, updateNodes]);
+
+  useEffect(() => {
+    if (hoveredNode === '') {
+      d3.select(nodeRef.current).selectAll('text').style('fill-opacity', '0.5');
+    }
+
+    d3.select(nodeRef.current)
+      .selectAll('text')
+      .data(nodes)
+      .filter((d) => d.key === hoveredNode)
+      .style('fill-opacity', '1');
+  }, [hoveredNode, nodes]);
 
   return (
     <Container ref={containerRef}>
@@ -131,6 +146,11 @@ const Nodes = styled.g`
     fill: ${({ theme }) => theme.COLOR.gray2};
     fill-opacity: 50%;
     font-size: 12px;
+    cursor: pointer;
+
+    :hover {
+      fill-opacity: 100%;
+    }
   }
 `;
 
