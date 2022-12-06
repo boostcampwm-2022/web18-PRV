@@ -1,5 +1,4 @@
 import axios, { AxiosInstance } from 'axios';
-
 export interface IGetSearch {
   keyword: string;
   page: string;
@@ -27,6 +26,7 @@ export default class Api {
   }
 
   getSearch(params: IGetSearch) {
+    params.keyword = decodeURI(params.keyword);
     return this.instance.get('/search', {
       params,
     });
@@ -37,6 +37,7 @@ export default class Api {
   }
 
   getPaperDetail(params: IGetPaperDetail) {
+    console.log(params);
     return this.instance.get(`/search/paper`, { params });
   }
 }

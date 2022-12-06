@@ -43,7 +43,7 @@ export class SearchBatcher extends Batcher {
     return { papers, referenceDOIs };
   }
 
-  onRejected(item: QueueItemParsed, params: UrlParams) {
+  onRejected(item: QueueItemParsed, params: UrlParams, shouldPushLeft: boolean) {
     const { keyword, cursor } = params;
     if (item.retries + 1 > MAX_RETRY) {
       // this.failedQueue.push(item.url);
@@ -51,7 +51,7 @@ export class SearchBatcher extends Batcher {
     }
     console.log('error', item.url);
     item.retries++;
-    this.pushToQueue(item.retries + 1, item.depth, item.pagesLeft - 1, false, keyword, cursor);
+    this.pushToQueue(item.retries + 1, item.depth, item.pagesLeft - 1, shouldPushLeft, keyword, cursor);
     return;
   }
 }

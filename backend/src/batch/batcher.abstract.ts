@@ -10,7 +10,7 @@ import {
   ReferenceInfo,
 } from 'src/search/entities/crossRef.entity';
 import { SearchService } from 'src/search/search.service';
-import { ALLOW_UPDATE, MAX_DEPTH } from './batch.config';
+import { ALLOW_UPDATE, MAX_DEPTH, RESTART_INTERVAL } from './batch.config';
 import { RedisQueue } from './batch.queue';
 
 export interface QueueItemParsed {
@@ -29,6 +29,9 @@ type CrossRefAble = CrossRefResponse | CrossRefPaperResponse;
 
 @Injectable()
 export abstract class Batcher {
+  static blocked = false;
+  running = false;
+
   queue: RedisQueue;
   // failedQueue: RedisQueue;
   constructor(
@@ -48,7 +51,13 @@ export abstract class Batcher {
     res: AxiosResponse<CrossRefAble, any>,
     i?: number,
   ): { papers: PaperInfoDetail[]; referenceDOIs: string[] }; // paper들의 reference들에 대한 doi 목록
-  abstract onRejected(item: QueueItemParsed, params: UrlParams, res?: PromiseRejectedResult, i?: number): any;
+  abstract onRejected(
+    item: QueueItemParsed,
+    params: UrlParams,
+    shouldPushLeft?: boolean,
+    res?: PromiseRejectedResult,
+    i?: number,
+  ): any;
   abstract validateBatchItem(item: QueueItemParsed): boolean;
 
   parseQueueItem(value: string) {
@@ -61,9 +70,9 @@ export abstract class Batcher {
     } as QueueItemParsed;
   }
 
-  pushToQueue(retries = 0, depth = 0, page = -1, pushLeft = false, ...params: string[]) {
+  pushToQueue(retries = 0, depth = 0, page = -1, shouldPushLeft = false, ...params: string[]) {
     const url = this.makeUrl(...params);
-    this.queue.push(`${retries}:${depth}:${page}:${url}`, pushLeft);
+    this.queue.push(`${retries}:${depth}:${page}:${url}`, shouldPushLeft);
   }
   async batchLog(queue: RedisQueue, batched: string[]) {
     const urlQueueSize = await queue.size();
@@ -75,17 +84,22 @@ export abstract class Batcher {
   }
 
   async runBatch(batchSize: number) {
+    if (Batcher.blocked || this.running) return;
     const queue = this.queue;
     // const failedQueue = this.failedQueue;
     const batched = await queue.pop(batchSize);
 
     // await this.batchLog(queue, batched);
     if (!batched) return;
+    this.running = true;
+
     const items = batched.map((item) => this.parseQueueItem(item)).filter((item) => this.validateBatchItem(item));
     const responses = await this.batchRequest(items);
     const { papers, doiWithDepth } = this.responsesParser(items, responses);
     const bulkPapers = await this.makeBulkIndex(papers);
-    this.doBulkIndex(bulkPapers);
+    this.doBulkInsert(bulkPapers);
+
+    this.running = false;
     return doiWithDepth;
   }
   batchRequest<T = CrossRefAble>(items: QueueItemParsed[]) {
@@ -99,12 +113,24 @@ export abstract class Batcher {
         if (res.status === 'fulfilled') {
           return this.onFulfilled(items[i], params, res.value, i);
         } else {
+          if (Batcher.blocked) {
+            this.onRejected(items[i], params, true, res, i);
+            return;
+          }
+
           const error = res.reason as AxiosError;
           // Resource not found.
-          if (error.response?.status === 404) return;
+          if (error.response?.status === 404) {
+            return;
+          }
 
-          // timeout of 20000ms exceeded
-          this.onRejected(items[i], params, res, i);
+          // Too many request
+          if (error.response?.status === 429) {
+            this.stopBatch();
+          }
+
+          // Timeout exceeded
+          this.onRejected(items[i], params, false, res, i);
         }
       })
       .reduce(
@@ -138,7 +164,7 @@ export abstract class Batcher {
     // console.log(`${this.queue.name} skipped papers:`, papers.length - indexes.length);
     return indexes;
   }
-  doBulkIndex(papers: PaperInfoDetail[]) {
+  doBulkInsert(papers: PaperInfoDetail[]) {
     return this.searchService.bulkInsert(papers);
   }
 
@@ -167,5 +193,14 @@ export abstract class Batcher {
 
   referenceHasInformation(reference: ReferenceInfo) {
     return reference['DOI'];
+  }
+
+  stopBatch() {
+    Batcher.blocked = true;
+    console.log(`${new Date()} Too many request.`);
+    setTimeout(() => {
+      Batcher.blocked = false;
+      console.log(`${new Date()} Batch Restarted`);
+    }, RESTART_INTERVAL);
   }
 }
