@@ -32,7 +32,7 @@ export class RankingService {
         ? await this.redis.zadd(process.env.REDIS_POPULAR_KEY, Number(isRanking) + 1, encodeData)
         : await this.redis.zadd(process.env.REDIS_POPULAR_KEY, 1, encodeData);
     } catch (error) {
-      throw new HttpException('Internel Server Error', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException('Internal Server Error', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
   @Interval('update-ranking', 600000)
