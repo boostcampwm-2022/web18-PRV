@@ -123,4 +123,7 @@ export class SearchService {
     });
     return await this.esService.mget<PaperInfoDetail>({ docs });
   }
+  esStat() {
+    return this.esService.cat.indices();
+  }
 }
