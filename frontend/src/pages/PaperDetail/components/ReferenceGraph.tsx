@@ -1,7 +1,11 @@
 import * as d3 from 'd3';
-import { useCallback, useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import styled from 'styled-components';
-import useGraphData from '../../../customHooks/useGraphData';
+import useGraphData from '../../../hooks/useGraphData';
+import useGraphHover from '../../../hooks/useGraphHover';
+import useGraphZoom from '../../../hooks/useGraphZoom';
+import useLinkUpdate from '../../../hooks/useLinkUpdate';
+import useNodeUpdate from '../../../hooks/useNodeUpdate';
 import { IPaperDetail } from '../PaperDetail';
 
 interface ReferenceGraphProps {
@@ -11,66 +15,18 @@ interface ReferenceGraphProps {
 }
 
 const ReferenceGraph = ({ data, hoveredNode, changeHoveredNode }: ReferenceGraphProps) => {
-  const containerRef = useRef<HTMLDivElement | null>(null);
   const svgRef = useRef<SVGSVGElement | null>(null);
   const linkRef = useRef<SVGGElement | null>(null);
   const nodeRef = useRef<SVGGElement | null>(null);
+
   const { nodes, links } = useGraphData<{ nodes: any[]; links: any[] }>(data);
+  const updateLinks = useLinkUpdate(links);
+  const updateNodes = useNodeUpdate(nodes, changeHoveredNode);
 
-  const updateLinks = useCallback(
-    (linksSelector: SVGGElement) => {
-      d3.select(linksSelector)
-        .selectAll('line')
-        .data(links)
-        .join('line')
-        .attr('x1', (d) => d.source?.x)
-        .attr('y1', (d) => d.source?.y)
-        .attr('x2', (d) => d.target?.x)
-        .attr('y2', (d) => d.target?.y);
-    },
-    [links],
-  );
-
-  const updateNodes = useCallback(
-    (nodesSelector: SVGGElement) => {
-      const normalSymbol = d3.symbol().type(d3.symbolSquare).size(10)();
-      const starSymbol = d3.symbol().type(d3.symbolStar).size(70)();
-
-      d3.select(nodesSelector)
-        .selectAll('path')
-        .data(nodes)
-        .join('path')
-        .attr('transform', (d) => `translate(${[d.x, d.y]})`)
-        .attr('d', (d) => (d.isSelected ? starSymbol : normalSymbol));
-
-      d3.select(nodesSelector)
-        .selectAll('text')
-        .data(nodes)
-        .join('text')
-        .text((d) => d.author)
-        .on('mouseover', (e, d) => {
-          changeHoveredNode(d.key);
-        })
-        .on('mouseout', () => {
-          changeHoveredNode('');
-        })
-        .attr('x', (d) => d.x)
-        .attr('y', (d) => d.y + 10)
-        .attr('dy', 5);
-    },
-    [nodes, changeHoveredNode],
-  );
+  useGraphZoom(svgRef.current);
+  useGraphHover(nodeRef.current, nodes, hoveredNode);
 
   useEffect(() => {
-    const handleZoom = (e: any) => {
-      d3.select(svgRef.current).selectChildren().attr('transform', e.transform);
-    };
-
-    // 최소 0.5배, 최대 5배로 zoom
-    const zoom = d3.zoom().scaleExtent([0.5, 5]).on('zoom', handleZoom);
-
-    d3.select(svgRef.current as Element).call(zoom);
-
     const ticked = (linksSelector: SVGGElement, nodesSelector: SVGGElement) => {
       updateLinks(linksSelector);
       updateNodes(nodesSelector);
@@ -89,20 +45,8 @@ const ReferenceGraph = ({ data, hoveredNode, changeHoveredNode }: ReferenceGraph
       });
   }, [nodes, links, updateLinks, updateNodes]);
 
-  useEffect(() => {
-    if (hoveredNode === '') {
-      d3.select(nodeRef.current).selectAll('text').style('fill-opacity', '0.5');
-    }
-
-    d3.select(nodeRef.current)
-      .selectAll('text')
-      .data(nodes)
-      .filter((d) => d.key === hoveredNode)
-      .style('fill-opacity', '1');
-  }, [hoveredNode, nodes]);
-
   return (
-    <Container ref={containerRef}>
+    <Container>
       <Graph ref={svgRef}>
         <Links ref={linkRef}></Links>
         <Nodes ref={nodeRef}></Nodes>

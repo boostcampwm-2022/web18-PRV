@@ -4,7 +4,7 @@ import { createSearchParams, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import Api from '../../api/api';
 import { PATH_SEARCH_LIST } from '../../constants/path';
-import useDebounceValue from '../../customHooks/useDebouncedValue';
+import useDebounceValue from '../../hooks/useDebouncedValue';
 import MaginifyingGlassIcon from '../../icons/MagnifyingGlassIcon';
 import { createDetailQuery } from '../../utils/createQuery';
 import { getLocalStorage, setLocalStorage } from '../../utils/localStorage';
