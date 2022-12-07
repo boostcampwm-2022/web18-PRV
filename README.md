@@ -38,39 +38,43 @@ production server :
   </tr>
 </table>
 
-### how to start
+### How to start
 
 #### FE
 
-```shell
-# cd frontend
-# npm install
-# npm start
+```bash
+cd frontend
+npm install
+npm start
 ```
 
 #### BE
 
-```shell
-# cd backend
-# npm install
-# npm start
+```bash
+cd backend
+npm install
+npm start
 ```
 
 ### 환경변수
 
+#### Back-end
+
 ```
-# .env
+PORT=
 REDIS_POPULAR_KEY=
+REDIS_PREVRANKING=
 REDIS_HOST=
 REDIS_PORT=
+REDIS_PASSWORD=
+ELASTIC_INDEX=
+ELASTIC_HOST=
+ELASTIC_USER=
+ELASTIC_PASSWORD=
+ALLOW_UPDATE=
+MAIL_TO=
 ```
 
 ### 기술스택
 
-
-|   범위    |                                                                                                                                                                                                                                                                                                                                                                                  스택                                                                                                                                                                                                                                                                                                                                                                                   |
-| :-------: | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
-| Front End | <img src="https://images.velog.io/images/asroq1/post/c0a3526f-d3f9-43b4-93fe-dbabe0964bb3/00ts.png" alt="" height="50"/> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/react/react-original-wordmark.svg" alt="" height="50"/> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <img src="https://velog.velcdn.com/images/woohobi/post/0233c2ea-03ab-439f-b735-7bb125f091f0/image.svg" alt="" height="50"/> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <img src="https://images.velog.io/images/vi2920va/post/9b15f05e-6a45-4490-9003-2250397ecf58/%EB%8B%A4%EC%9A%B4%EB%A1%9C%EB%93%9C.png" alt="" height="50"/> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <img src="https://avatars.githubusercontent.com/u/1562726?s=280&v=4" alt="" height="50"/> |
-| Back End  |                            <img src="https://images.velog.io/images/asroq1/post/c0a3526f-d3f9-43b4-93fe-dbabe0964bb3/00ts.png" alt="" height="50"/> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <img src="https://miro.medium.com/max/1000/0*-ftkZ8Kd3WTw6ucE.png" alt="" height="50"/> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <img src="https://images.velog.io/images/banjjoknim/post/82df7d69-1f8d-4325-8d45-29faf2995ceb/redis.png" alt="" height="50"/> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <img src="https://miro.medium.com/max/512/1*doAg1_fMQKWFoub-6gwUiQ.png" alt="" height="50"/> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <img src="https://images.velog.io/images/qnfmtm666/post/affb90c0-8cb9-4a95-927a-e7f8492b8795/elasticsearch-logo.png" alt="" height="50"/>                            |
-|  DevOps   |                                                                                                  <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/docker/docker-original-wordmark.svg" alt="" height="50"/> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <img src="https://cdn-images-1.medium.com/max/1200/1*r5KdIfHXaz7UQM4FmZ0D5A.png" alt="" width="50"/> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <img src="https://miro.medium.com/max/456/0*co0wSjYRkrtl9V9f.png" alt="" width="50"/> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <img src="https://i0.wp.com/thinkground.studio/wp-content/uploads/2019/04/190415_Nginx-Logo.png?fit=423%2C401&ssl=1" alt="" width="50"/>                                                                                                   |
-
+![tech stack](https://s3.us-west-2.amazonaws.com/secure.notion-static.com/dc2980d2-2539-4ab8-918f-0a0536f73e70/Untitled.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIAT73L2G45EIPT3X45%2F20221207%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20221207T045207Z&X-Amz-Expires=86400&X-Amz-Signature=b1bb6ee2b2f4d26514f5d0d54a30d521946f2af1e70380e1f521054da7e2dfec&X-Amz-SignedHeaders=host&response-content-disposition=filename%3D%22Untitled.png%22&x-id=GetObject)
