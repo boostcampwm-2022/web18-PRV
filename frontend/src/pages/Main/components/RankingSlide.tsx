@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import styled from 'styled-components';
-import useInterval from '../../../customHooks/useInterval';
+import useInterval from '../../../hooks/useInterval';
 
 interface IRankingData {
   keyword: string;
