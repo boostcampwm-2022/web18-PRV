@@ -40,8 +40,8 @@ export default function useGraphData<T>(data: IPaperDetail) {
     nodes.current.forEach((node, i) => doiMap.set(node.key, i));
 
     const newLinks = data.referenceList.map((reference) => ({
-      source: doiMap.get(data.key),
-      target: doiMap.get(reference.key),
+      source: data.key,
+      target: reference.key,
     }));
 
     setLinks((prev) => [...prev, ...newLinks]);
