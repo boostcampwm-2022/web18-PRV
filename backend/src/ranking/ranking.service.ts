@@ -1,4 +1,4 @@
-import { BadRequestException, HttpException, HttpStatus, Injectable, UsePipes, ValidationPipe } from '@nestjs/common';
+import { BadRequestException, HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import Redis from 'ioredis';
 import { Ranking } from './entities/ranking.entity';
@@ -22,7 +22,6 @@ export class RankingService {
     );
     return result;
   }
-  @UsePipes(new ValidationPipe({ transform: true }))
   async insertRedis(data: string) {
     if (data === '' || data.length <= 2) throw new BadRequestException();
     const encodeData = decodeURI(data);
