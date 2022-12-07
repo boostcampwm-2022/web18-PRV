@@ -34,7 +34,6 @@ const PaperDatail = () => {
     ['paperDetail', doi],
     () => api.getPaperDetail({ doi }).then((res) => res.data),
     {
-      enabled: !!doi.length,
       select: (data) => {
         const referenceList = data.referenceList.filter((reference) => reference.title);
         return { ...data, referenceList };

@@ -1,11 +1,11 @@
 import * as d3 from 'd3';
 import { useEffect, useRef } from 'react';
 import styled from 'styled-components';
-import useGraphData from '../../../hooks/useGraphData';
-import useGraphHover from '../../../hooks/useGraphHover';
-import useGraphZoom from '../../../hooks/useGraphZoom';
-import useLinkUpdate from '../../../hooks/useLinkUpdate';
-import useNodeUpdate from '../../../hooks/useNodeUpdate';
+import useGraphData from '../../../hooks/graph/useGraphData';
+import useGraphHover from '../../../hooks/graph/useGraphHover';
+import useGraphZoom from '../../../hooks/graph/useGraphZoom';
+import useLinkUpdate from '../../../hooks/graph/useLinkUpdate';
+import useNodeUpdate from '../../../hooks/graph/useNodeUpdate';
 import { IPaperDetail } from '../PaperDetail';
 
 interface ReferenceGraphProps {

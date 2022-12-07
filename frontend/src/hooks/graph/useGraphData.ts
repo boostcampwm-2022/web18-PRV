@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { IPaperDetail } from '../pages/PaperDetail/PaperDetail';
+import { IPaperDetail } from '../../pages/PaperDetail/PaperDetail';
 
 export default function useGraphData<T>(data: IPaperDetail) {
   return useMemo<T>(() => {
