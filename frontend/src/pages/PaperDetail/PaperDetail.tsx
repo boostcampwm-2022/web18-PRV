@@ -56,14 +56,6 @@ const PaperDatail = () => {
   }, []);
 
   const addChildrensNodes = useCallback(async (data: any) => {
-    if (!data.doi) {
-      console.log('doi 없음');
-      return;
-    }
-    if (data.isSelected) {
-      console.log('이미 렌더링된 노드');
-      return;
-    }
     const result = await api.getPaperDetail({ doi: data.doi }).then((res) => res.data);
     setData(result);
   }, []);
