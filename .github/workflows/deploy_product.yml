@@ -3,7 +3,7 @@ name: Auto deploy to NCP
 on:
   push:
     branches:
-      - production-test
+      - product-test
 
 jobs:
   changes:
