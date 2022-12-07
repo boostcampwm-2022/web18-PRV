@@ -25,7 +25,6 @@ export class SearchController {
     const { keyword } = query;
     const data = await this.searchService.getElasticSearch(keyword);
     const papers = data.hits.hits.map((paper) => new PaperInfo(paper._source));
-    if (papers.length === 0) throw new NotFoundException('검색 결과가 존재하지 않습니다. 정보를 수집중입니다.');
     return papers;
   }
 
