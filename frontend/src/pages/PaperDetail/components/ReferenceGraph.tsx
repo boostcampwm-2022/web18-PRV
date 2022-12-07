@@ -1,5 +1,4 @@
 import * as d3 from 'd3';
-import { Simulation, SimulationNodeDatum } from 'd3';
 import { useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import useGraphData from '../../../hooks/graph/useGraphData';
@@ -20,12 +19,12 @@ const ReferenceGraph = ({ data, addChildrensNodes, hoveredNode, changeHoveredNod
   const svgRef = useRef<SVGSVGElement | null>(null);
   const linkRef = useRef<SVGGElement | null>(null);
   const nodeRef = useRef<SVGGElement | null>(null);
-  const forceRef = useRef<Simulation<SimulationNodeDatum, undefined>>();
 
   const { nodes, links } = useGraphData<{ nodes: any[]; links: any[] }>(data);
 
   const updateLinks = useLinkUpdate(links);
   const updateNodes = useNodeUpdate(nodes, changeHoveredNode, addChildrensNodes);
+
   useGraphZoom(svgRef.current);
   useGraphHover(nodeRef.current, nodes, hoveredNode);
 
@@ -35,22 +34,26 @@ const ReferenceGraph = ({ data, addChildrensNodes, hoveredNode, changeHoveredNod
       updateNodes(nodesSelector);
     };
 
-    d3.forceSimulation(nodes)
+    const simulation = d3
+      .forceSimulation(nodes)
       .force('charge', d3.forceManyBody().strength(-500)) // 척력
       .force(
         'center',
         svgRef?.current && d3.forceCenter(svgRef.current.clientWidth / 2, svgRef.current.clientHeight / 2),
       )
-      .force('link', d3.forceLink().links(links))
+      .force(
+        'link',
+        d3.forceLink(links).id((d, i) => i),
+      )
       .on('tick', () => {
         if (!linkRef.current || !nodeRef.current) return;
         ticked(linkRef.current, nodeRef.current);
       });
+
+    return () => {
+      simulation.stop();
+    };
   }, [nodes, links, updateLinks, updateNodes]);
-
-  console.table(nodes);
-
-  console.table(links);
 
   return (
     <Container>

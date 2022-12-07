@@ -1,28 +1,31 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { IPaperDetail } from './../../pages/PaperDetail/PaperDetail';
 
+type DoiMap = {
+  [key: string]: number;
+};
+
 export default function useGraphData<T>(data: IPaperDetail) {
+  const [links, setLinks] = useState<any[]>([]);
   const nodes = useRef<any[]>([]);
-  const links = useRef<any[]>([]);
-  const doiMap = useRef<any>({});
+  const doiMap = useRef<DoiMap>({});
 
   useEffect(() => {
     const newNodes = [
       {
         author: data.authors?.[0] || 'unknown',
         isSelected: true,
-        key: data.doi,
+        key: data.key,
         doi: data.doi,
-        referenceList: data.referenceList.map((v) => v.key),
       },
       ...data.referenceList.map((v) => ({
         author: v.authors?.[0] || 'unknown',
         isSelected: false,
         key: v.key,
-        doi: v?.doi,
-        referenceList: [],
+        doi: v.doi,
       })),
     ];
+
     newNodes.forEach((node) => {
       if (doiMap.current[node.key]) return;
       else nodes.current.push(node);
@@ -30,23 +33,13 @@ export default function useGraphData<T>(data: IPaperDetail) {
 
     doiMap.current = nodes.current.reduce((prev, curr, i) => ({ ...prev, [curr.key]: i }), {});
 
-    const newLinks = newNodes
-      .map((newNode: any) =>
-        newNode.referenceList.reduce(
-          (prev: any[], curr: any) => [
-            ...prev,
-            {
-              source: doiMap.current[newNode.key],
-              target: doiMap.current[curr],
-            },
-          ],
-          [],
-        ),
-      )
-      .flat();
-    links.current.push(...newLinks);
-    console.log(nodes.current, links.current);
-  }, [data]);
+    const newLinks = data.referenceList.map((reference) => {
+      doiMap.current[reference.key];
+      return { source: doiMap.current[data.key], target: doiMap.current[reference.key] };
+    });
 
-  return { nodes: nodes.current, links: links.current } as T;
+    setLinks((prev) => [...prev, ...newLinks]);
+  }, [data, doiMap]);
+
+  return { nodes: nodes.current, links } as T;
 }
