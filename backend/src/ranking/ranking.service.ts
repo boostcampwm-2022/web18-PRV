@@ -22,7 +22,6 @@ export class RankingService {
     );
     return result;
   }
-  @UsePipes(new ValidationPipe({ transform: true }))
   async insertRedis(data: string) {
     const encodeData = decodeURI(data);
     const isRanking: string = await this.redis.zscore(process.env.REDIS_POPULAR_KEY, encodeData);
