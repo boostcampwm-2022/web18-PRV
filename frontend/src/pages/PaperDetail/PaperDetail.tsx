@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { useQuery } from 'react-query';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
@@ -10,29 +11,33 @@ import { IPaper } from '../SearchList/SearchList';
 import PaperInfo from './components/PaperInfo';
 import ReferenceGraph from './components/ReferenceGraph';
 
+export interface IReference {
+  title: string;
+  authors: string[];
+  publishedAt: string;
+  citations: number;
+  references: number;
+  key: string;
+  doi?: string;
+}
 export interface IPaperDetail extends IPaper {
-  referenceList: [
-    {
-      title: string;
-      authors: string[];
-      publishedAt: string;
-      citations: number;
-      references: number;
-      doi: string;
-    },
-  ];
+  referenceList: IReference[];
 }
 
 const api = new Api();
 
 const PaperDatail = () => {
   const navigate = useNavigate();
+  const [paperInfos, setPaperInfos] = useState<IPaperDetail[]>([]);
   const [searchParams] = useSearchParams();
   const doi = searchParams.get('doi') || '';
+
   const { data } = useQuery<IPaperDetail>(
     ['paperDetail', doi],
     () => api.getPaperDetail({ doi }).then((res) => res.data),
-    { enabled: !!doi.length },
+    {
+      enabled: !!doi.length,
+    },
   );
 
   const handlePreviousButtonClick = () => {
@@ -43,18 +48,34 @@ const PaperDatail = () => {
     navigate(PATH_MAIN);
   };
 
+  const addChildrensNodes = async (data: any) => {
+    if (!data.doi) {
+      console.log('doi 없음');
+      return;
+    }
+    if (data.isSelected) {
+      console.log('이미 렌더링된 노드');
+      return;
+    }
+    const result = await api.getPaperDetail({ doi: data.doi }).then((res) => res.data);
+    setPaperInfos((prev) => [...prev, result]);
+  };
+
+  useEffect(() => {
+    if (!data) return;
+    setPaperInfos((prev) => [...prev, data]);
+  }, [data]);
+
   return (
     <Container>
       <Header>
         <IconButton icon={<PreviousButtonIcon />} onClick={handlePreviousButtonClick} />
         <IconButton icon={<LogoIcon height="30" width="30" />} onClick={handleLogoClick} />
       </Header>
-      {data && (
-        <Main>
-          <PaperInfo data={data} />
-          <ReferenceGraph data={data} />
-        </Main>
-      )}
+      <Main>
+        {data && <PaperInfo data={data} />}
+        {paperInfos && <ReferenceGraph paperInfos={paperInfos} addChildrensNodes={addChildrensNodes} />}
+      </Main>
     </Container>
   );
 };

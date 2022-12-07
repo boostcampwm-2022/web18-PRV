@@ -5,16 +5,18 @@ import useGraphData from '../../../customHooks/useGraphData';
 import { IPaperDetail } from '../PaperDetail';
 
 interface ReferenceGraphProps {
-  data: IPaperDetail;
+  paperInfos: IPaperDetail[];
+  addChildrensNodes: (doi: number) => void;
 }
 
-const ReferenceGraph = ({ data }: ReferenceGraphProps) => {
+const ReferenceGraph = ({ paperInfos, addChildrensNodes }: ReferenceGraphProps) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const svgRef = useRef<SVGSVGElement | null>(null);
   const linkRef = useRef<SVGGElement | null>(null);
   const nodeRef = useRef<SVGGElement | null>(null);
 
-  const { nodes, links } = useGraphData<{ nodes: any[]; links: any[] }>(data);
+  const { nodes, links } = useGraphData<{ nodes: any[]; links: any[] }>(paperInfos);
+
   const updateLinks = useCallback(
     (linksSelector: SVGGElement) => {
       d3.select(linksSelector)
@@ -44,7 +46,8 @@ const ReferenceGraph = ({ data }: ReferenceGraphProps) => {
         // .transition()
         // .delay((d, i) => i * 500)
         .attr('transform', (d) => `translate(${[d.x, d.y]})`)
-        .attr('d', (d) => (d.isSelected ? starSymbol : normalSymbol));
+        .attr('d', (d) => (d.isSelected ? starSymbol : normalSymbol))
+        .on('click', (_, data) => addChildrensNodes(data));
       d3.select(nodesSelector)
         .selectAll('text')
         .data(nodes)
@@ -56,7 +59,7 @@ const ReferenceGraph = ({ data }: ReferenceGraphProps) => {
         .attr('y', (d) => d.y + 10)
         .attr('dy', 5);
     },
-    [nodes],
+    [addChildrensNodes, nodes],
   );
 
   useEffect(() => {
@@ -73,7 +76,7 @@ const ReferenceGraph = ({ data }: ReferenceGraphProps) => {
       updateNodes(nodesSelector);
     };
     d3.forceSimulation(nodes)
-      .force('charge', d3.forceManyBody().strength(-1500)) // 척력
+      .force('charge', d3.forceManyBody().strength(-500)) // 척력
       .force(
         'center',
         svgRef?.current && d3.forceCenter(svgRef.current.clientWidth / 2, svgRef.current.clientHeight / 2),

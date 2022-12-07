@@ -15,6 +15,7 @@ export interface IPaper {
   citations: number;
   references: number;
   doi: string;
+  key: string;
 }
 
 export interface IPageInfo {
