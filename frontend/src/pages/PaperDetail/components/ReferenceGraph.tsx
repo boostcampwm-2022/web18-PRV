@@ -1,80 +1,40 @@
 import * as d3 from 'd3';
-import { useCallback, useEffect, useRef } from 'react';
+import { Simulation, SimulationNodeDatum } from 'd3';
+import { useEffect, useRef } from 'react';
 import styled from 'styled-components';
-import useGraphData from '../../../customHooks/useGraphData';
+import useGraphData from '../../../hooks/graph/useGraphData';
+import useGraphHover from '../../../hooks/graph/useGraphHover';
+import useGraphZoom from '../../../hooks/graph/useGraphZoom';
+import useLinkUpdate from '../../../hooks/graph/useLinkUpdate';
+import useNodeUpdate from '../../../hooks/graph/useNodeUpdate';
 import { IPaperDetail } from '../PaperDetail';
 
 interface ReferenceGraphProps {
-  paperInfos: IPaperDetail[];
-  addChildrensNodes: (doi: number) => void;
+  data: IPaperDetail;
+  addChildrensNodes: (node: any) => void;
+  hoveredNode: string;
+  changeHoveredNode: (key: string) => void;
 }
 
-const ReferenceGraph = ({ paperInfos, addChildrensNodes }: ReferenceGraphProps) => {
-  const containerRef = useRef<HTMLDivElement | null>(null);
+const ReferenceGraph = ({ data, addChildrensNodes, hoveredNode, changeHoveredNode }: ReferenceGraphProps) => {
   const svgRef = useRef<SVGSVGElement | null>(null);
   const linkRef = useRef<SVGGElement | null>(null);
   const nodeRef = useRef<SVGGElement | null>(null);
+  const forceRef = useRef<Simulation<SimulationNodeDatum, undefined>>();
 
-  const { nodes, links } = useGraphData<{ nodes: any[]; links: any[] }>(paperInfos);
+  const { nodes, links } = useGraphData<{ nodes: any[]; links: any[] }>(data);
 
-  const updateLinks = useCallback(
-    (linksSelector: SVGGElement) => {
-      d3.select(linksSelector)
-        .selectAll('line')
-        .data(links)
-        .join('line')
-        .attr('x1', (d) => d.source?.x)
-        .attr('y1', (d) => d.source?.y)
-        // .transition()
-        // .delay((d, i) => (i + 1) * 500)
-        .attr('x2', (d) => d.target?.x)
-        .attr('y2', (d) => d.target?.y);
-    },
-    [links],
-  );
-
-  const updateNodes = useCallback(
-    (nodesSelector: SVGGElement) => {
-      const normalSymbol = d3.symbol().type(d3.symbolSquare).size(10)();
-      const starSymbol = d3.symbol().type(d3.symbolStar).size(70)();
-
-      d3.select(nodesSelector)
-        .selectAll('path')
-        .data(nodes)
-        .join('path')
-        // TODO: transition 적용
-        // .transition()
-        // .delay((d, i) => i * 500)
-        .attr('transform', (d) => `translate(${[d.x, d.y]})`)
-        .attr('d', (d) => (d.isSelected ? starSymbol : normalSymbol))
-        .on('click', (_, data) => addChildrensNodes(data));
-      d3.select(nodesSelector)
-        .selectAll('text')
-        .data(nodes)
-        .join('text')
-        // .transition()
-        // .delay((d, i) => i * 500)
-        .text((d) => d.author)
-        .attr('x', (d) => d.x)
-        .attr('y', (d) => d.y + 10)
-        .attr('dy', 5);
-    },
-    [addChildrensNodes, nodes],
-  );
+  const updateLinks = useLinkUpdate(links);
+  const updateNodes = useNodeUpdate(nodes, changeHoveredNode, addChildrensNodes);
+  useGraphZoom(svgRef.current);
+  useGraphHover(nodeRef.current, nodes, hoveredNode);
 
   useEffect(() => {
-    const handleZoom = (e: any) => {
-      d3.select(svgRef.current).selectChildren().attr('transform', e.transform);
-    };
-
-    const zoom = d3.zoom().on('zoom', handleZoom);
-
-    d3.select(svgRef.current as Element).call(zoom);
-
     const ticked = (linksSelector: SVGGElement, nodesSelector: SVGGElement) => {
       updateLinks(linksSelector);
       updateNodes(nodesSelector);
     };
+
     d3.forceSimulation(nodes)
       .force('charge', d3.forceManyBody().strength(-500)) // 척력
       .force(
@@ -88,8 +48,12 @@ const ReferenceGraph = ({ paperInfos, addChildrensNodes }: ReferenceGraphProps) 
       });
   }, [nodes, links, updateLinks, updateNodes]);
 
+  console.table(nodes);
+
+  console.table(links);
+
   return (
-    <Container ref={containerRef}>
+    <Container>
       <Graph ref={svgRef}>
         <Links ref={linkRef}></Links>
         <Nodes ref={nodeRef}></Nodes>
@@ -134,6 +98,11 @@ const Nodes = styled.g`
     fill: ${({ theme }) => theme.COLOR.gray2};
     fill-opacity: 50%;
     font-size: 12px;
+    cursor: pointer;
+
+    :hover {
+      fill-opacity: 100%;
+    }
   }
 `;
 

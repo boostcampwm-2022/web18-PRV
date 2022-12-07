@@ -3,11 +3,21 @@ import { IPaperDetail } from '../PaperDetail';
 
 interface IProps {
   data: IPaperDetail;
+  hoveredNode: string;
+  changeHoveredNode: (key: string) => void;
 }
 
 const DOI_BASE_URL = 'https://doi.org/';
 
-const PaperInfo = ({ data }: IProps) => {
+const PaperInfo = ({ data, hoveredNode, changeHoveredNode }: IProps) => {
+  const handleMouseOver = (key: string) => {
+    changeHoveredNode(key);
+  };
+
+  const handleMouseOut = () => {
+    changeHoveredNode('');
+  };
+
   return (
     <Container>
       <BasicInfo>
@@ -27,18 +37,19 @@ const PaperInfo = ({ data }: IProps) => {
         <DivideLine />
       </BasicInfo>
       <References>
-        <h3>References ({data.references})</h3>
+        <h3>References ({data.referenceList.length})</h3>
         <ReferenceContainer>
-          {data.referenceList.map(
-            (reference, index) =>
-              // TODO: 임시로 key에 index 사용 중. 서버에서 key로 사용할 데이터 전송 예정.
-              reference.title && (
-                <ReferenceItem key={index}>
-                  <span>{reference.title}</span>
-                  <span>{reference.authors.join(', ')}</span>
-                </ReferenceItem>
-              ),
-          )}
+          {data.referenceList.map((reference, i) => (
+            <ReferenceItem
+              key={i}
+              onMouseOver={() => handleMouseOver(reference.key)}
+              onMouseOut={() => handleMouseOut()}
+              className={`info ${reference.key === hoveredNode ? 'hovered' : ''}`}
+            >
+              <span>{reference.title}</span>
+              <span>{reference.authors?.join(', ') || 'unknown'}</span>
+            </ReferenceItem>
+          ))}
         </ReferenceContainer>
       </References>
     </Container>
@@ -120,6 +131,7 @@ const ReferenceItem = styled.li`
   display: flex;
   flex-direction: column;
   gap: 10px;
+  cursor: pointer;
 
   span {
     :first-child {
@@ -129,6 +141,10 @@ const ReferenceItem = styled.li`
     :last-child {
       ${({ theme }) => theme.TYPO.caption};
     }
+  }
+
+  &.hovered {
+    color: ${({ theme }) => theme.COLOR.secondary2};
   }
 `;
 

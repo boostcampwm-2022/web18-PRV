@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useQuery } from 'react-query';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
@@ -12,13 +12,13 @@ import PaperInfo from './components/PaperInfo';
 import ReferenceGraph from './components/ReferenceGraph';
 
 export interface IReference {
-  title: string;
-  authors: string[];
-  publishedAt: string;
-  citations: number;
-  references: number;
   key: string;
+  title?: string;
+  authors?: string[];
   doi?: string;
+  publishedAt?: string;
+  citations?: number;
+  references?: number;
 }
 export interface IPaperDetail extends IPaper {
   referenceList: IReference[];
@@ -28,15 +28,18 @@ const api = new Api();
 
 const PaperDatail = () => {
   const navigate = useNavigate();
-  const [paperInfos, setPaperInfos] = useState<IPaperDetail[]>([]);
+  const [data, setData] = useState<IPaperDetail>();
   const [searchParams] = useSearchParams();
   const doi = searchParams.get('doi') || '';
-
-  const { data } = useQuery<IPaperDetail>(
+  const [hoveredNode, setHoveredNode] = useState('');
+  const { data: _data } = useQuery<IPaperDetail>(
     ['paperDetail', doi],
     () => api.getPaperDetail({ doi }).then((res) => res.data),
     {
-      enabled: !!doi.length,
+      select: (data) => {
+        const referenceList = data.referenceList.filter((reference) => reference.title);
+        return { ...data, referenceList };
+      },
     },
   );
 
@@ -48,7 +51,11 @@ const PaperDatail = () => {
     navigate(PATH_MAIN);
   };
 
-  const addChildrensNodes = async (data: any) => {
+  const changeHoveredNode = useCallback((key: string) => {
+    setHoveredNode(key);
+  }, []);
+
+  const addChildrensNodes = useCallback(async (data: any) => {
     if (!data.doi) {
       console.log('doi 없음');
       return;
@@ -58,13 +65,13 @@ const PaperDatail = () => {
       return;
     }
     const result = await api.getPaperDetail({ doi: data.doi }).then((res) => res.data);
-    setPaperInfos((prev) => [...prev, result]);
-  };
+    setData(result);
+  }, []);
 
   useEffect(() => {
-    if (!data) return;
-    setPaperInfos((prev) => [...prev, data]);
-  }, [data]);
+    if (!_data) return;
+    setData(_data);
+  }, [_data]);
 
   return (
     <Container>
@@ -73,9 +80,17 @@ const PaperDatail = () => {
         <IconButton icon={<LogoIcon height="30" width="30" />} onClick={handleLogoClick} />
       </Header>
       <Main>
-        {data && <PaperInfo data={data} />}
-        {paperInfos && <ReferenceGraph paperInfos={paperInfos} addChildrensNodes={addChildrensNodes} />}
+        {data && <PaperInfo data={data} hoveredNode={hoveredNode} changeHoveredNode={changeHoveredNode} />}
+        {data && (
+          <ReferenceGraph
+            data={data}
+            hoveredNode={hoveredNode}
+            changeHoveredNode={changeHoveredNode}
+            addChildrensNodes={addChildrensNodes}
+          />
+        )}
       </Main>
+      )
     </Container>
   );
 };

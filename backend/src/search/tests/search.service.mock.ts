@@ -73,6 +73,7 @@ export function mockElasticService() {
 
 export function mockRankingService() {
   const insertRedis = jest.fn().mockResolvedValue(() => {
+    console.log('insertRedis 사용했다하하ㅏㅎ하ㅏ');
     return true;
   });
   const rankingService = { insertRedis };
