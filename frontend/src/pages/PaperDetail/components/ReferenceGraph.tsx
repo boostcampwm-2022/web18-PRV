@@ -36,7 +36,7 @@ const ReferenceGraph = ({ data, addChildrensNodes, hoveredNode, changeHoveredNod
 
     const simulation = d3
       .forceSimulation(nodes)
-      .force('charge', d3.forceManyBody().strength(-200)) // 척력
+      .force('charge', d3.forceManyBody().strength(-200).distanceMax(200)) // 척력
       .force(
         'center',
         svgRef?.current && d3.forceCenter(svgRef.current.clientWidth / 2, svgRef.current.clientHeight / 2),
@@ -100,7 +100,7 @@ const Nodes = styled.g`
     font-family: 'Helvetica Neue', Helvetica, sans-serif;
     fill: ${({ theme }) => theme.COLOR.gray2};
     fill-opacity: 50%;
-    font-size: 10px;
+    font-size: 8px;
     cursor: pointer;
 
     :hover {

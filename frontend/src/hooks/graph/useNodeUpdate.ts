@@ -8,8 +8,8 @@ export default function useNodeUpdate(
 ) {
   return useCallback(
     (nodesSelector: SVGGElement) => {
-      const normalSymbol = d3.symbol().type(d3.symbolSquare).size(10)();
-      const starSymbol = d3.symbol().type(d3.symbolStar).size(70)();
+      const normalSymbol = d3.symbol().type(d3.symbolSquare).size(20)();
+      const starSymbol = d3.symbol().type(d3.symbolStar).size(100)();
 
       d3.select(nodesSelector)
         .selectAll('path')
