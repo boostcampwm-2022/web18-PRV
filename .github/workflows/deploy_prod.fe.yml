@@ -49,7 +49,7 @@ jobs:
           cache-from: type=registry,ref=${{ secrets.PRODUCTION_CONTAINER_REGISTRY }}/prv-frontend:latest
           cache-to: type=inline
           secrets: |
-            REACT_APP_BASE_URL=${{ secretes.REACT_APP_BASE_URL_PROD }}
+            REACT_APP_BASE_URL=${{ secrets.REACT_APP_BASE_URL_PROD }}
 
   pull_from_registry:
     name: Connect server ssh and pull from container registry
