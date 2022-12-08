@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 import { MAX_TITLE_LENGTH } from '../../../constants/main';
-import { removeHtml } from '../../../utils/format';
+import { removeTag } from '../../../utils/format';
 import { IPaperDetail } from '../PaperDetail';
 
 interface IProps {
@@ -27,7 +27,7 @@ const PaperInfo = ({ data, hoveredNode, changeHoveredNode }: IProps) => {
   return (
     <Container>
       <BasicInfo>
-        <Title>{sliceTitle(removeHtml(data?.title))}</Title>
+        <Title>{sliceTitle(removeTag(data?.title))}</Title>
         <InfoContainer>
           <InfoItem>
             <h3>{data?.authors.length > 1 ? 'Authors ' : 'Author '}</h3>

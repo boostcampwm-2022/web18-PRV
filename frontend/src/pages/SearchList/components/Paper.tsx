@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 import { MAX_TITLE_LENGTH } from '../../../constants/main';
-import { removeHtml } from '../../../utils/format';
+import { removeTag } from '../../../utils/format';
 import { IPaper } from '../SearchList';
 
 interface PaperProps {
@@ -36,7 +36,7 @@ const Paper = ({ data, keyword }: PaperProps) => {
 
   return (
     <Container>
-      {title && <Title>{highlightKeyword(sliceTitle(removeHtml(title)))}</Title>}
+      {title && <Title>{highlightKeyword(sliceTitle(removeTag(title)))}</Title>}
       {authors && (
         <Content>
           <div>

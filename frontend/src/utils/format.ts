@@ -1,3 +1,3 @@
-export const removeHtml = (text: string) => {
+export const removeTag = (text: string) => {
   return text.replace(/<[^>]*>?/g, ' ');
 };
