@@ -1,0 +1,24 @@
+version: "3"
+
+services:
+  prv:
+    restart: always
+    env_file:
+      - ${ENV_FILE_BE}
+    image: ${NCP_CONTAINER_REGISTRY}/prv-backend
+    ports:
+      - 4000:4000
+
+
+  redis:
+    image: redis:7.0.5
+    expose:
+      - 6379
+    command: redis-server --save 60 1000 --loglevel notice --requirepass ${REDIS_PASSWORD}
+
+  client:
+    env_file:
+      - ${ENV_FILE_FE}
+    image: ${NCP_CONTAINER_REGISTRY}/prv-frontend
+    ports:
+      - 3000:80
