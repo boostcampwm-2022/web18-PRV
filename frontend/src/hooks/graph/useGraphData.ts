@@ -1,16 +1,15 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { IPaperDetail } from './../../pages/PaperDetail/PaperDetail';
 
-type DoiMap = {
-  [key: string]: number;
-};
-
 export default function useGraphData<T>(data: IPaperDetail) {
   const [links, setLinks] = useState<any[]>([]);
   const nodes = useRef<any[]>([]);
   const doiMap = useMemo<Map<string, number>>(() => new Map(), []);
 
   useEffect(() => {
+    const newIndex = doiMap.get(data.key);
+    if (newIndex !== undefined && nodes.current[newIndex].isSelected) return;
+
     const newNodes = [
       {
         author: data.authors?.[0] || 'unknown',
@@ -28,8 +27,8 @@ export default function useGraphData<T>(data: IPaperDetail) {
 
     newNodes.forEach((node) => {
       const foundIndex = doiMap.get(node.key);
-      if (foundIndex) {
-        if (foundIndex === doiMap.get(data.key)) {
+      if (foundIndex !== undefined) {
+        if (foundIndex === newIndex) {
           nodes.current[foundIndex].isSelected = true;
         }
         return;

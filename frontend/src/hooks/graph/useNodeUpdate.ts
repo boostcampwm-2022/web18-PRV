@@ -17,7 +17,7 @@ export default function useNodeUpdate(
         .join('path')
         .attr('transform', (d) => `translate(${[d.x, d.y]})`)
         .attr('d', (d) => (d.isSelected ? starSymbol : normalSymbol))
-        .on('click', (_, d) => (d.doi && !d.isSelected ? addChildrensNodes(d) : undefined));
+        .on('click', (_, d) => (d.doi ? addChildrensNodes(d) : undefined));
 
       d3.select(nodesSelector)
         .selectAll('text')
@@ -29,7 +29,7 @@ export default function useNodeUpdate(
         .attr('x', (d) => d.x)
         .attr('y', (d) => d.y + 10)
         .attr('dy', 5)
-        .on('click', (_, d) => (d.doi && !d.isSelected ? addChildrensNodes(d) : undefined));
+        .on('click', (_, d) => (d.doi ? addChildrensNodes(d) : undefined));
     },
     [nodes, addChildrensNodes, changeHoveredNode],
   );
