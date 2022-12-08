@@ -4,27 +4,12 @@ on:
   push:
     branches:
       - main
+    paths:
+      - "backend/**"
 
 jobs:
-  changes:
-    name: Diff check
-    runs-on: ubuntu-latest
-    permissions:
-      pull-requests: read
-    outputs:
-      backend: ${{ steps.filter.outputs.backend }}
-    steps:
-      - uses: actions/checkout@v3
-      - uses: dorny/paths-filter@v2
-        id: filter
-        with:
-          filters: |
-            backend:
-              - 'backend/**'
   push_to_registry_be:
     name: (BE) Build & Push
-    needs: changes
-    if: ${{ needs.changes.outputs.backend == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
