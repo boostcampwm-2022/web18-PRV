@@ -4,6 +4,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
 import Api from '../../api/api';
 import IconButton from '../../components/IconButton';
+import MoonLoader from '../../components/loader/MoonLoader';
 import { PATH_MAIN } from '../../constants/path';
 import LogoIcon from '../../icons/LogoIcon';
 import PreviousButtonIcon from '../../icons/PreviousButtonIcon';
@@ -32,7 +33,7 @@ const PaperDatail = () => {
   const [searchParams] = useSearchParams();
   const [doi, setDoi] = useState<string>(searchParams.get('doi') || '');
   const [hoveredNode, setHoveredNode] = useState('');
-  const { data: _data } = useQuery<IPaperDetail>(
+  const { isLoading, data: _data } = useQuery<IPaperDetail>(
     ['paperDetail', doi],
     () => api.getPaperDetail({ doi }).then((res) => res.data),
     {
@@ -53,7 +54,7 @@ const PaperDatail = () => {
   };
 
   const changeHoveredNode = useCallback((key: string) => {
-    setHoveredNode(key);
+    setHoveredNode(key.toLowerCase());
   }, []);
 
   const addChildrensNodes = useCallback(async (doi: string) => {
@@ -73,23 +74,27 @@ const PaperDatail = () => {
       </Header>
       <Main>
         {data && (
-          <PaperInfo
-            data={data}
-            hoveredNode={hoveredNode}
-            changeHoveredNode={changeHoveredNode}
-            onClick={addChildrensNodes}
-          />
-        )}
-        {data && (
-          <ReferenceGraph
-            data={data}
-            hoveredNode={hoveredNode}
-            changeHoveredNode={changeHoveredNode}
-            addChildrensNodes={addChildrensNodes}
-          />
+          <>
+            <PaperInfo
+              data={data}
+              hoveredNode={hoveredNode}
+              changeHoveredNode={changeHoveredNode}
+              addChildrensNodes={addChildrensNodes}
+            />
+            <ReferenceGraph
+              data={data}
+              hoveredNode={hoveredNode}
+              changeHoveredNode={changeHoveredNode}
+              addChildrensNodes={addChildrensNodes}
+            />
+          </>
         )}
       </Main>
-      )
+      {isLoading && (
+        <LoaderWrapper>
+          <MoonLoader />
+        </LoaderWrapper>
+      )}
     </Container>
   );
 };
@@ -115,6 +120,17 @@ const Main = styled.main`
   display: flex;
   width: 100%;
   height: 100%;
+`;
+
+const LoaderWrapper = styled.div`
+  position: absolute;
+  z-index: 10;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: ${({ theme }) => theme.COLOR.primary4}50;
 `;
 
 export default PaperDatail;
