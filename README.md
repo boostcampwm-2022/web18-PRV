@@ -32,20 +32,26 @@
   </tr>
   <tr>
     <td align="center"><a href="https://github.com/JunYupK">김준엽</a>
-    <br/>
-    <a href="https://velog.io/@top1506">블로그</a>
     </td>
     <td align="center"><a href="https://github.com/Palwol">박미림</a>
-    <br/>
-    <a href="https://udadacoder.tistory.com/">블로그</a>
     </td>
     <td align="center"><a href="https://github.com/leesungbin">이성빈</a>
-    <br/>
-    <a href="https://sungbin.dev">블로그</a>
     </td>
     <td align="center"><a href="https://github.com/yeynii">최예윤</a>
-    <br/>
-    <a href="https://velog.io/@say_ye">블로그</a></td>
+  </tr>
+  <tr>
+  <td align="center">
+    <a href="https://velog.io/@top1506">Blog</a>
+  </td>
+  <td align="center">
+    <a href="https://udadacoder.tistory.com/">Blog</a>
+  </td>
+  <td align="center">
+    <a href="https://sungbin.dev">Blog</a>
+  </td>
+  <td align="center">
+    <a href="https://velog.io/@say_ye">Blog</a>
+  </td>
   </tr>
 </table>
 
