@@ -1,9 +1,9 @@
 name: "Backend Tester"
 on:
   pull_request:
-    types: [opened, ready_for_review, edited]
-    paths-ignore:
-      - "frontend/**"
+    types: [opened, ready_for_review]
+    paths:
+      - "backend/**"
 
 jobs:
   run-test:
