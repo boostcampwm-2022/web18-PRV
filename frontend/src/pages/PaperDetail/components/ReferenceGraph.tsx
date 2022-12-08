@@ -15,7 +15,7 @@ interface ReferenceGraphProps {
   changeHoveredNode: (key: string) => void;
 }
 
-// Todo : any 걷어내기, 구조 리팩터링하기, click 재요청(react-query), 링크 강조, 프론트 테스트
+// Todo : any 걷어내기, 구조 리팩터링하기, 프론트 테스트
 const ReferenceGraph = ({ data, addChildrensNodes, hoveredNode, changeHoveredNode }: ReferenceGraphProps) => {
   const svgRef = useRef<SVGSVGElement | null>(null);
   const linkRef = useRef<SVGGElement | null>(null);
@@ -95,8 +95,7 @@ const Nodes = styled.g`
     fill: ${({ theme }) => theme.COLOR.gray2};
     fill-opacity: 50%;
     font-size: 8px;
-    cursor: pointer;
-
+    cursor: default;
     :hover {
       fill-opacity: 100%;
     }

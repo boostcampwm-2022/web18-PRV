@@ -26,6 +26,7 @@ export default function useNodeUpdate(
         .attr('transform', (d) => `translate(${[d.x, d.y]})`)
         .attr('d', (d) => (d.isSelected ? starSymbol : normalSymbol))
         .attr('fill', (d) => converToColor(d.citations || 0))
+        .attr('fill-opacity', (d) => (d.doi ? 1 : 0.5))
         .on('click', (_, d) => d.doi && addChildrensNodes(d.doi));
 
       d3.select(nodesSelector)
