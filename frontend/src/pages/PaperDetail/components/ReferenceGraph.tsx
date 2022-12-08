@@ -46,10 +46,7 @@ const ReferenceGraph = ({ data, addChildrensNodes, hoveredNode, changeHoveredNod
         'link',
         d3.forceLink(links).id((d: any) => d.key),
       )
-      .on('tick', () => {
-        if (!linkRef.current || !nodeRef.current) return;
-        ticked(linkRef.current, nodeRef.current);
-      });
+      .on('tick', () => linkRef.current && nodeRef.current && ticked(linkRef.current, nodeRef.current));
 
     return () => {
       simulation.stop();
