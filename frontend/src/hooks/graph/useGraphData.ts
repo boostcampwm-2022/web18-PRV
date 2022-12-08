@@ -36,7 +36,9 @@ export default function useGraphData<T>(data: IPaperDetail) {
         return;
       }
       if (foundIndex === newIndex) {
-        nodes.current[foundIndex].isSelected = true;
+        Object.entries(node).forEach(([k, v]) => {
+          nodes.current[foundIndex][k] = v;
+        });
       }
     });
 

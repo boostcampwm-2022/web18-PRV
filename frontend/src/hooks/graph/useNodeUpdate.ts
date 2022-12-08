@@ -17,6 +17,8 @@ export default function useNodeUpdate(
 
       const converToColor = d3.scaleLog([1, 10000], ['white', theme.COLOR.secondary2]).interpolate(d3.interpolateRgb);
 
+      console.log(nodes.map((v) => v.citations));
+
       d3.select(nodesSelector)
         .selectAll('path')
         .data(nodes)
