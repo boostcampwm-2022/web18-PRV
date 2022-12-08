@@ -43,8 +43,7 @@ export default function useGraphData<T>(data: IPaperDetail) {
       source: data.key,
       target: reference.key,
     }));
-
-    setLinks((prev) => [...prev, ...newLinks]);
+    if (newLinks.length > 0) setLinks((prev) => [...prev, ...newLinks]);
   }, [data, doiMap]);
 
   return { nodes: nodes.current, links } as T;
