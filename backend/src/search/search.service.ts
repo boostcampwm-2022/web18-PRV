@@ -1,11 +1,19 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { CrossRefItem, PaperInfoExtended, PaperInfo, PaperInfoDetail } from './entities/crossRef.entity';
+import {
+  CrossRefItem,
+  PaperInfoExtended,
+  PaperInfo,
+  PaperInfoDetail,
+  CrossRefPaperResponse,
+} from './entities/crossRef.entity';
 import { ElasticsearchService } from '@nestjs/elasticsearch';
 import { MgetOperation, SearchHit } from '@elastic/elasticsearch/lib/api/types';
+import { HttpService } from '@nestjs/axios';
+import { CROSSREF_API_PAPER_URL } from '../util';
 
 @Injectable()
 export class SearchService {
-  constructor(private readonly esService: ElasticsearchService) {}
+  constructor(private readonly esService: ElasticsearchService, private readonly httpService: HttpService) {}
 
   parsePaperInfo = (item: CrossRefItem) => {
     const data = {
@@ -43,6 +51,7 @@ export class SearchService {
             reference['volume-title'] ||
             reference.unstructured,
           doi: reference['DOI'],
+          authors: reference['author'] ? [reference['author']] : undefined,
         };
       }) || [];
     const data = {
@@ -52,7 +61,10 @@ export class SearchService {
 
     return new PaperInfoDetail(data);
   };
-
+  async getPaperFromCrossref(doi: string) {
+    const item = await this.httpService.axiosRef.get<CrossRefPaperResponse>(CROSSREF_API_PAPER_URL(doi));
+    return this.parsePaperInfoDetail(item.data.message);
+  }
   async getPaper(doi: string) {
     try {
       const paper = await this.esService.get<PaperInfoDetail>({ index: process.env.ELASTIC_INDEX, id: doi });

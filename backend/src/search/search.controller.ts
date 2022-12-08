@@ -69,23 +69,34 @@ export class SearchController {
     if (keywordHasSet) this.batchService.doiBatcher.pushToQueue(0, 0, -1, false, doi);
 
     const paper = await this.searchService.getPaper(doi);
-    if (paper) {
-      const origin = new PaperInfoDetail(paper._source);
-      // 기존에 넣어놨던 데이터에 referenceList라는 key가 없을 수 있다..
-      if (!origin.referenceList?.length) {
-        this.batchService.doiBatcher.pushToQueue(0, 1, -1, false, origin.doi || origin.key);
-        return { ...origin, referenceList: [] };
-      }
+    try {
+      if (paper) {
+        const origin = new PaperInfoDetail(paper._source);
+        // 기존에 넣어놨던 데이터에 referenceList라는 key가 없을 수 있다..
+        if (!origin.referenceList?.length) {
+          this.batchService.doiBatcher.pushToQueue(0, 1, -1, false, origin.doi || origin.key);
+          throw new Error('SHOULD_CALL_CROSSREF');
+          // return { ...origin, referenceList: [] };
+        }
 
-      // Is it N+1 Problem?
-      const references = await this.searchService.multiGet(origin.referenceList.map((ref) => ref.key).filter(Boolean));
-      const referenceList = references.docs.map((doc) => {
-        const _source = (doc as GetGetResult<PaperInfoDetail>)._source;
-        return { key: doc._id, ..._source };
-      });
-      return { ...origin, referenceList };
+        const references = await this.searchService.multiGet(
+          origin.referenceList.map((ref) => ref.key).filter(Boolean),
+        );
+
+        const referenceList = references.docs.map((doc) => {
+          const _source = (doc as GetGetResult<PaperInfoDetail>)._source;
+          if (!!_source.title || !!_source.authors?.length) throw new Error('SHOULD_CALL_CROSSREF');
+          return { key: doc._id, ..._source };
+        });
+        if (referenceList.length !== origin.references) throw new Error('SHOULD_CALL_CROSSREF');
+        return { ...origin, referenceList };
+      }
+      throw new Error('SHOULD_CALL_CROSSREF');
+    } catch (err) {
+      const res = await this.searchService.getPaperFromCrossref(doi);
+      return res;
+      // throw new NotFoundException('해당 doi는 존재하지 않습니다. 정보를 수집중입니다.');
     }
-    throw new NotFoundException('해당 doi는 존재하지 않습니다. 정보를 수집중입니다.');
   }
 
   @Get('stat')
