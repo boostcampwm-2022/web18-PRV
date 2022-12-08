@@ -39,9 +39,9 @@ const PaperInfo = ({ data, hoveredNode, changeHoveredNode }: IProps) => {
       <References>
         <h3>References ({data.referenceList.length})</h3>
         <ReferenceContainer>
-          {data.referenceList.map((reference) => (
+          {data.referenceList.map((reference, i) => (
             <ReferenceItem
-              key={reference.key}
+              key={i}
               onMouseOver={() => handleMouseOver(reference.key)}
               onMouseOut={() => handleMouseOut()}
               className={`info ${reference.key === hoveredNode ? 'hovered' : ''}`}

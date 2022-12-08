@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useQuery } from 'react-query';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
@@ -11,26 +11,28 @@ import { IPaper } from '../SearchList/SearchList';
 import PaperInfo from './components/PaperInfo';
 import ReferenceGraph from './components/ReferenceGraph';
 
+export interface IReference {
+  key: string;
+  title?: string;
+  authors?: string[];
+  doi?: string;
+  publishedAt?: string;
+  citations?: number;
+  references?: number;
+}
 export interface IPaperDetail extends IPaper {
-  referenceList: {
-    title?: string;
-    authors?: string[];
-    doi?: string;
-    key: string;
-    publishedAt?: string;
-    citations?: number;
-    references?: number;
-  }[];
+  referenceList: IReference[];
 }
 
 const api = new Api();
 
 const PaperDatail = () => {
   const navigate = useNavigate();
+  const [data, setData] = useState<IPaperDetail>();
   const [searchParams] = useSearchParams();
   const doi = searchParams.get('doi') || '';
   const [hoveredNode, setHoveredNode] = useState('');
-  const { data } = useQuery<IPaperDetail>(
+  const { data: _data } = useQuery<IPaperDetail>(
     ['paperDetail', doi],
     () => api.getPaperDetail({ doi }).then((res) => res.data),
     {
@@ -53,18 +55,35 @@ const PaperDatail = () => {
     setHoveredNode(key);
   }, []);
 
+  const addChildrensNodes = useCallback(async (doi: string) => {
+    const result = (await api.getPaperDetail({ doi }).then((res) => res.data)) as IPaperDetail;
+    const referenceList = result.referenceList.filter((reference) => reference.title);
+    setData({ ...result, referenceList });
+  }, []);
+
+  useEffect(() => {
+    if (!_data) return;
+    setData(_data);
+  }, [_data]);
+
   return (
     <Container>
       <Header>
         <IconButton icon={<PreviousButtonIcon />} onClick={handlePreviousButtonClick} />
         <IconButton icon={<LogoIcon height="30" width="30" />} onClick={handleLogoClick} />
       </Header>
-      {data && (
-        <Main>
-          <PaperInfo data={data} hoveredNode={hoveredNode} changeHoveredNode={changeHoveredNode} />
-          <ReferenceGraph data={data} hoveredNode={hoveredNode} changeHoveredNode={changeHoveredNode} />
-        </Main>
-      )}
+      <Main>
+        {data && <PaperInfo data={data} hoveredNode={hoveredNode} changeHoveredNode={changeHoveredNode} />}
+        {data && (
+          <ReferenceGraph
+            data={data}
+            hoveredNode={hoveredNode}
+            changeHoveredNode={changeHoveredNode}
+            addChildrensNodes={addChildrensNodes}
+          />
+        )}
+      </Main>
+      )
     </Container>
   );
 };

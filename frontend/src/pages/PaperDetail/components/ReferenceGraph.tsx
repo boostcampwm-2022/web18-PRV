@@ -10,18 +10,21 @@ import { IPaperDetail } from '../PaperDetail';
 
 interface ReferenceGraphProps {
   data: IPaperDetail;
+  addChildrensNodes: (doi: string) => void;
   hoveredNode: string;
   changeHoveredNode: (key: string) => void;
 }
 
-const ReferenceGraph = ({ data, hoveredNode, changeHoveredNode }: ReferenceGraphProps) => {
+// Todo : any 걷어내기, 구조 리팩터링하기, click 재요청(react-query), 링크 강조, 프론트 테스트
+const ReferenceGraph = ({ data, addChildrensNodes, hoveredNode, changeHoveredNode }: ReferenceGraphProps) => {
   const svgRef = useRef<SVGSVGElement | null>(null);
   const linkRef = useRef<SVGGElement | null>(null);
   const nodeRef = useRef<SVGGElement | null>(null);
 
   const { nodes, links } = useGraphData<{ nodes: any[]; links: any[] }>(data);
+
   const updateLinks = useLinkUpdate(links);
-  const updateNodes = useNodeUpdate(nodes, changeHoveredNode);
+  const updateNodes = useNodeUpdate(nodes, changeHoveredNode, addChildrensNodes);
 
   useGraphZoom(svgRef.current);
   useGraphHover(nodeRef.current, nodes, hoveredNode);
@@ -32,17 +35,25 @@ const ReferenceGraph = ({ data, hoveredNode, changeHoveredNode }: ReferenceGraph
       updateNodes(nodesSelector);
     };
 
-    d3.forceSimulation(nodes)
-      .force('charge', d3.forceManyBody().strength(-1500))
+    const simulation = d3
+      .forceSimulation(nodes)
+      .force('charge', d3.forceManyBody().strength(-200).distanceMax(200))
       .force(
         'center',
         svgRef?.current && d3.forceCenter(svgRef.current.clientWidth / 2, svgRef.current.clientHeight / 2),
       )
-      .force('link', d3.forceLink().links(links))
+      .force(
+        'link',
+        d3.forceLink(links).id((d: any) => d.key),
+      )
       .on('tick', () => {
         if (!linkRef.current || !nodeRef.current) return;
         ticked(linkRef.current, nodeRef.current);
       });
+
+    return () => {
+      simulation.stop();
+    };
   }, [nodes, links, updateLinks, updateNodes]);
 
   return (
@@ -81,16 +92,12 @@ const Links = styled.g`
 `;
 
 const Nodes = styled.g`
-  path {
-    fill: ${({ theme }) => theme.COLOR.secondary1};
-  }
-
   text {
     text-anchor: middle;
     font-family: 'Helvetica Neue', Helvetica, sans-serif;
     fill: ${({ theme }) => theme.COLOR.gray2};
     fill-opacity: 50%;
-    font-size: 12px;
+    font-size: 8px;
     cursor: pointer;
 
     :hover {
