@@ -42,12 +42,12 @@ export default function useGraphEmphasize(
     d3.select(nodeSelector)
       .selectAll('text')
       .data(nodes)
-      .filter((d) => {
-        const targetList = links
+      .filter((d) =>
+        links
           .filter((l) => l.source.key === selectedKey || l.source.key === hoveredNode)
-          .map((l) => l.target.key);
-        return targetList.indexOf(d.key) >= 0;
-      })
+          .map((l) => l.target.key)
+          .includes(d.key),
+      )
       .style('fill-opacity', styles.EMPHASIZE_OPACITY);
 
     // click/hover된 노드의 링크 강조
