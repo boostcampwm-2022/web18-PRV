@@ -14,7 +14,7 @@ export interface IGetPaperDetail {
 }
 
 export default class Api {
-  private readonly baseURL = 'http://49.50.172.204:4000/';
+  private readonly baseURL = process.env.REACT_APP_BASE_URL;
   private readonly instance: AxiosInstance;
 
   constructor() {
