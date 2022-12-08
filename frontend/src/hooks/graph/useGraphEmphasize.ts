@@ -1,6 +1,6 @@
 import { useTheme } from 'styled-components';
 import * as d3 from 'd3';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 
 export default function useGraphEmphasize(
   nodeSelector: SVGGElement | null,
@@ -21,6 +21,12 @@ export default function useGraphEmphasize(
     EMPHASIZE_STROKE_DASH: 'none',
     BASIC_STROKE_DASH: '1',
   });
+
+  const getStyles = useCallback(
+    (key: string, emphasizeStyle: string, basicStyle: string) =>
+      key === selectedKey || key === hoveredNode ? emphasizeStyle : basicStyle,
+    [hoveredNode, selectedKey],
+  );
 
   useEffect(() => {
     const styles = styleConstants.current;
@@ -54,20 +60,10 @@ export default function useGraphEmphasize(
     d3.select(linkSelector)
       .selectAll('line')
       .data(links)
-      .style('stroke', (d) => {
-        return d.source.key === selectedKey || d.source.key === hoveredNode
-          ? styles.EMPHASIZE_COLOR
-          : styles.BASIC_COLOR;
-      })
-      .style('stroke-width', (d) =>
-        d.source.key === selectedKey || d.source.key === hoveredNode
-          ? styles.EMPHASIZE_STROKE_WIDTH
-          : styles.BASIC_STROKE_WIDTH,
-      )
+      .style('stroke', (d) => getStyles(d.source.key, styles.EMPHASIZE_COLOR, styles.BASIC_COLOR))
+      .style('stroke-width', (d) => getStyles(d.source.key, styles.EMPHASIZE_STROKE_WIDTH, styles.BASIC_STROKE_WIDTH))
       .style('stroke-dasharray', (d) =>
-        d.source.key === selectedKey || d.source.key === hoveredNode
-          ? styles.EMPHASIZE_STROKE_DASH
-          : styles.BASIC_STROKE_DASH,
+        getStyles(d.source.key, styles.EMPHASIZE_STROKE_DASH, styles.BASIC_STROKE_DASH),
       );
-  }, [nodeSelector, hoveredNode, nodes, links, selectedKey, linkSelector]);
+  }, [nodeSelector, hoveredNode, nodes, links, selectedKey, linkSelector, getStyles]);
 }
