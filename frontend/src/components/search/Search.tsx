@@ -208,6 +208,7 @@ const Container = styled.div`
   flex: 1;
   overflow-y: auto;
   z-index: 3;
+  margin-bottom: 45px;
   padding-bottom: 15px;
 `;
 
