@@ -1,5 +1,6 @@
 import styled from 'styled-components';
 import { MAX_TITLE_LENGTH } from '../../../constants/main';
+import { removeHtml } from '../../../utils/format';
 import { IPaper } from '../SearchList';
 
 interface PaperProps {
@@ -29,24 +30,24 @@ const Paper = ({ data, keyword }: PaperProps) => {
       : text;
   };
 
+  const sliceTitle = (title: string) => {
+    return title.length > MAX_TITLE_LENGTH ? `${title.slice(0, MAX_TITLE_LENGTH)}...` : title;
+  };
+
   return (
     <Container>
-      {title && (
-        <Title>
-          {highlightKeyword(title.length > MAX_TITLE_LENGTH ? `${title.slice(0, MAX_TITLE_LENGTH)}...` : title)}
-        </Title>
-      )}
+      {title && <Title>{highlightKeyword(sliceTitle(removeHtml(title)))}</Title>}
       {authors && (
         <Content>
           <div>
-            <Bold>authors </Bold>
-            {highlightKeyword(authors?.join(', '))}
+            <Bold>{authors.length > 1 ? 'Authors ' : 'Author '}</Bold>
+            <span>{highlightKeyword(authors?.join(', '))}</span>
           </div>
         </Content>
       )}
       <Content>
         <div>
-          <Bold>published </Bold>
+          <Bold>Published </Bold>
           {year}
         </div>
         <div>
@@ -80,6 +81,15 @@ const Content = styled.div`
   color: ${({ theme }) => theme.COLOR.gray4};
   display: flex;
   justify-content: space-between;
+  > div > span {
+    white-space: normal;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    word-break: keep-all;
+  }
 `;
 
 const Bold = styled.b`

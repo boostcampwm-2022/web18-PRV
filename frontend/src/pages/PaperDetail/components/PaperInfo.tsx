@@ -1,4 +1,6 @@
 import styled from 'styled-components';
+import { MAX_TITLE_LENGTH } from '../../../constants/main';
+import { removeHtml } from '../../../utils/format';
 import { IPaperDetail } from '../PaperDetail';
 
 interface IProps {
@@ -18,13 +20,17 @@ const PaperInfo = ({ data, hoveredNode, changeHoveredNode }: IProps) => {
     changeHoveredNode('');
   };
 
+  const sliceTitle = (title: string) => {
+    return title.length > MAX_TITLE_LENGTH ? `${title.slice(0, MAX_TITLE_LENGTH)}...` : title;
+  };
+
   return (
     <Container>
       <BasicInfo>
-        <Title>{data?.title}</Title>
+        <Title>{sliceTitle(removeHtml(data?.title))}</Title>
         <InfoContainer>
           <InfoItem>
-            <h3>Authors</h3>
+            <h3>{data?.authors.length > 1 ? 'Authors ' : 'Author '}</h3>
             <span>{data?.authors?.join(', ')}</span>
           </InfoItem>
           <InfoItem>
@@ -101,6 +107,13 @@ const InfoItem = styled.div`
   }
   span {
     ${({ theme }) => theme.TYPO.body2};
+    white-space: normal;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    word-break: keep-all;
   }
 `;
 
