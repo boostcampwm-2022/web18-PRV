@@ -1,5 +1,6 @@
 import styled from 'styled-components';
 import { MAX_TITLE_LENGTH } from '../../../constants/main';
+import { Ellipsis } from '../../../style/styleUtils';
 import { removeTag } from '../../../utils/format';
 import { IPaper } from '../SearchList';
 
@@ -41,7 +42,7 @@ const Paper = ({ data, keyword }: PaperProps) => {
         <Content>
           <div>
             <Bold>{authors.length > 1 ? 'Authors ' : 'Author '}</Bold>
-            <span>{highlightKeyword(authors?.join(', '))}</span>
+            <Ellipsis>{highlightKeyword(authors?.join(', '))}</Ellipsis>
           </div>
         </Content>
       )}
@@ -81,15 +82,6 @@ const Content = styled.div`
   color: ${({ theme }) => theme.COLOR.gray4};
   display: flex;
   justify-content: space-between;
-  > div > span {
-    white-space: normal;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    word-break: keep-all;
-  }
 `;
 
 const Bold = styled.b`
