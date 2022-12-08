@@ -1,7 +1,6 @@
 import styled from 'styled-components';
-import { MAX_TITLE_LENGTH } from '../../../constants/main';
 import { Ellipsis } from '../../../style/styleUtils';
-import { removeTag } from '../../../utils/format';
+import { removeTag, sliceTitle } from '../../../utils/format';
 import { IPaperDetail } from '../PaperDetail';
 
 interface IProps {
@@ -20,10 +19,6 @@ const PaperInfo = ({ data, hoveredNode, changeHoveredNode, addChildrensNodes }: 
 
   const handleMouseOut = () => {
     changeHoveredNode('');
-  };
-
-  const sliceTitle = (title: string) => {
-    return title.length > MAX_TITLE_LENGTH ? `${title.slice(0, MAX_TITLE_LENGTH)}...` : title;
   };
 
   return (

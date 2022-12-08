@@ -9,3 +9,8 @@ export const Ellipsis = styled.span`
   -webkit-box-orient: vertical;
   word-break: keep-all;
 `;
+
+export const Emphasize = styled.span`
+  color: #3244ff;
+  font-weight: 700;
+`;
