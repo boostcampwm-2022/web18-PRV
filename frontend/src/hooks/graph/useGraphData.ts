@@ -31,13 +31,13 @@ export default function useGraphData<T>(data: IPaperDetail) {
 
     newNodes.forEach((node) => {
       const foundIndex = doiMap.current.get(node.key);
-      if (foundIndex !== undefined) {
-        if (foundIndex === newIndex) {
-          nodes.current[foundIndex].isSelected = true;
-        }
+      if (foundIndex === undefined) {
+        nodes.current.push(node);
         return;
       }
-      nodes.current.push(node);
+      if (foundIndex === newIndex) {
+        nodes.current[foundIndex].isSelected = true;
+      }
     });
 
     nodes.current.forEach((node, i) => doiMap.current.set(node.key, i));
