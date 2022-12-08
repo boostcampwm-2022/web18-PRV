@@ -34,7 +34,7 @@ const PaperDatail = () => {
   const [doi, setDoi] = useState<string>(searchParams.get('doi') || '');
   const [hoveredNode, setHoveredNode] = useState('');
   const { isLoading, data: _data } = useQuery<IPaperDetail>(
-    ['paperDetail', doi],
+    ['paperDetail', doi.toLowerCase()],
     () => api.getPaperDetail({ doi }).then((res) => res.data),
     {
       select: (data) => {
