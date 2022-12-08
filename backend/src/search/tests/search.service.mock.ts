@@ -2,7 +2,7 @@ import mockCrossRefData from './crossref.mock';
 import mockSearchData from './searchdata.mock';
 import { HttpService } from '@nestjs/axios';
 import { CrossRefPaperResponse, CrossRefResponse, PaperInfo, PaperInfoDetail } from '../entities/crossRef.entity';
-import { DoiBatcher } from 'src/batch/batcher.doi';
+import { ElasticsearchService } from '@nestjs/elasticsearch';
 
 export function mockHttpService() {
   const httpService = new HttpService();
@@ -67,8 +67,9 @@ export function mockElasticService() {
       return { _id: data.doi, found: Math.random() > 0.5, _source: data };
     }),
   });
-  const elasticService = { index, search, get, mget };
-  return elasticService;
+  const bulk = jest.fn().mockResolvedValue([]);
+  const elasticService = { index, search, get, mget, bulk };
+  return elasticService as unknown as ElasticsearchService;
 }
 
 export function mockRankingService() {
@@ -87,6 +88,9 @@ export function mockBatchService() {
   const doiBatcher = {
     pushToQueue: jest.fn(),
   };
-  const batchService = { setKeyword, doiBatcher };
+  const searchBatcher = {
+    pushToQueue: jest.fn(),
+  };
+  const batchService = { setKeyword, doiBatcher, searchBatcher };
   return batchService;
 }

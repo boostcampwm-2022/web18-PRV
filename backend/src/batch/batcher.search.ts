@@ -35,7 +35,7 @@ export class SearchBatcher extends Batcher {
       this.pushToQueue(0, item.depth, item.pagesLeft - 1, false, keyword, presentCursor);
     }
     const referenceDOIs = res.data.message.items.flatMap((paper) => {
-      return this.getPapersToRequest(paper, item.depth);
+      return this.getPapersReferences(paper, item.depth);
     });
     const papers = res.data.message.items.map((paper) => {
       return this.searchService.parsePaperInfoDetail(paper);

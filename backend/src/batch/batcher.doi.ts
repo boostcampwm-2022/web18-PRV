@@ -31,7 +31,7 @@ export class DoiBatcher extends Batcher {
   ): { papers: PaperInfoDetail[]; referenceDOIs: string[] } {
     const paper = res.data.message;
     const { depth } = item;
-    const referenceDOIs = this.getPapersToRequest(paper, depth);
+    const referenceDOIs = this.getPapersReferences(paper, depth);
     const p = this.searchService.parsePaperInfoDetail(paper);
     return { papers: [p], referenceDOIs };
   }
