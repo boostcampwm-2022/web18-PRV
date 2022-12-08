@@ -20,14 +20,26 @@ export default function useGraphEmphasize(
       d3.select(nodeSelector).selectAll('text').style('fill-opacity', '0.5');
     }
 
+    // click/hover된 노드 강조
     d3.select(nodeSelector)
       .selectAll('text')
       .data(nodes)
-      .filter((d) => d.key === hoveredNode)
+      .filter((d) => d.key === selectedKey || d.key === hoveredNode)
       .style('fill-opacity', '1');
-  }, [nodeSelector, hoveredNode, nodes]);
 
-  useEffect(() => {
+    // click/hover된 노드의 자식 노드들 강조
+    d3.select(nodeSelector)
+      .selectAll('text')
+      .data(nodes)
+      .filter((d) => {
+        const targetList = links
+          .filter((l) => l.source.key === selectedKey || l.source.key === hoveredNode)
+          .map((l) => l.target.key);
+        return targetList.indexOf(d.key) >= 0;
+      })
+      .style('fill-opacity', '1');
+
+    // click/hover된 노드의 링크 강조
     d3.select(linkSelector)
       .selectAll('line')
       .data(links)
@@ -36,5 +48,5 @@ export default function useGraphEmphasize(
       })
       .style('stroke-width', (d) => (d.source.key === selectedKey || d.source.key === hoveredNode ? '0.8px' : '0.5px'))
       .style('stroke-dasharray', (d) => (d.source.key === selectedKey || d.source.key === hoveredNode ? 'none' : '1'));
-  }, [basic, selectedKey, emphasize, links, hoveredNode, linkSelector]);
+  }, [nodeSelector, hoveredNode, nodes, links, selectedKey, linkSelector, emphasize, basic]);
 }
