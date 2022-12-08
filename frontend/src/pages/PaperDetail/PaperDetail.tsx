@@ -56,8 +56,9 @@ const PaperDatail = () => {
   }, []);
 
   const addChildrensNodes = useCallback(async (doi: string) => {
-    const result = await api.getPaperDetail({ doi }).then((res) => res.data);
-    setData(result);
+    const result = (await api.getPaperDetail({ doi }).then((res) => res.data)) as IPaperDetail;
+    const referenceList = result.referenceList.filter((reference) => reference.title);
+    setData({ ...result, referenceList });
   }, []);
 
   useEffect(() => {
