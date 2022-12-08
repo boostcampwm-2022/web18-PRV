@@ -29,28 +29,43 @@ export default function useGraphEmphasize(
   useEffect(() => {
     if (nodeSelector === null) return;
 
-    if (hoveredNode === '') {
-      d3.select(nodeSelector).selectAll('text').style('fill-opacity', styles.BASIC_OPACITY);
-    }
-
-    // click/hover된 노드 강조
+    // hover된 노드 강조
     d3.select(nodeSelector)
       .selectAll('text')
       .data(nodes)
-      .filter((d) => d.key === selectedKey || d.key === hoveredNode)
+      .filter((d) => d.key === hoveredNode)
       .style('fill-opacity', styles.EMPHASIZE_OPACITY);
 
-    // click/hover된 노드의 자식 노드들 강조
+    // hover된 노드의 자식 노드들 강조
     d3.select(nodeSelector)
       .selectAll('text')
       .data(nodes)
       .filter((d) =>
         links
-          .filter((l) => l.source.key === selectedKey || l.source.key === hoveredNode)
+          .filter((l) => l.source.key === hoveredNode)
           .map((l) => l.target.key)
           .includes(d.key),
       )
       .style('fill-opacity', styles.EMPHASIZE_OPACITY);
+
+    // click된 노드 강조
+    d3.select(nodeSelector)
+      .selectAll('text')
+      .data(nodes)
+      .filter((d) => d.key === selectedKey)
+      .style('fill', theme.COLOR.secondary1);
+
+    // click된 노드의 자식 노드들 강조
+    d3.select(nodeSelector)
+      .selectAll('text')
+      .data(nodes)
+      .filter((d) =>
+        links
+          .filter((l) => l.source.key === selectedKey)
+          .map((l) => l.target.key)
+          .includes(d.key),
+      )
+      .style('fill', theme.COLOR.secondary1);
 
     // click/hover된 노드의 링크 강조
     d3.select(linkSelector)
@@ -61,5 +76,10 @@ export default function useGraphEmphasize(
       .style('stroke-dasharray', (d) =>
         getStyles(d.source.key, styles.EMPHASIZE_STROKE_DASH, styles.BASIC_STROKE_DASH),
       );
+
+    return () => {
+      d3.select(nodeSelector).selectAll('text').style('fill-opacity', styles.BASIC_OPACITY);
+      d3.select(nodeSelector).selectAll('text').style('fill', theme.COLOR.offWhite);
+    };
   }, [nodeSelector, hoveredNode, nodes, links, selectedKey, linkSelector, getStyles, theme]);
 }
