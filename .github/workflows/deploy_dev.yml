@@ -51,8 +51,7 @@ jobs:
             ${{ secrets.NCP_CONTAINER_REGISTRY }}/prv-backend:${{ github.run_number }}
           cache-from: type=registry,ref=${{ secrets.NCP_CONTAINER_REGISTRY }}/prv-backend:latest
           cache-to: type=inline
-          secrets: |
-            GIT_AUTH_TOKEN=${{ secrets.GIT_TOKEN }}
+
   push_to_registry_fe:
     name: (FE) Build & Push
     needs: changes
@@ -81,7 +80,7 @@ jobs:
           cache-from: type=registry,ref=${{ secrets.NCP_CONTAINER_REGISTRY }}/prv-frontend:latest
           cache-to: type=inline
           secrets: |
-            GIT_AUTH_TOKEN=${{ secrets.GIT_TOKEN }}
+            REACT_APP_BASE_URL=${{ secretes.REACT_APP_BASE_URL_DEV }}
 
   pull_from_registry:
     name: Connect server ssh and pull from container registry
