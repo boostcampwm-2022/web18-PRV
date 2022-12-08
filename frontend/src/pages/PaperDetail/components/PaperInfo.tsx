@@ -30,7 +30,7 @@ const PaperInfo = ({ data, hoveredNode, changeHoveredNode }: IProps) => {
         <Title>{sliceTitle(removeTag(data?.title))}</Title>
         <InfoContainer>
           <InfoItem>
-            <h3>{data?.authors.length > 1 ? 'Authors ' : 'Author '}</h3>
+            <h3>{data?.authors?.length > 1 ? 'Authors ' : 'Author '}</h3>
             <span>{data?.authors?.join(', ')}</span>
           </InfoItem>
           <InfoItem>
@@ -52,7 +52,7 @@ const PaperInfo = ({ data, hoveredNode, changeHoveredNode }: IProps) => {
               onMouseOut={() => handleMouseOut()}
               className={`info ${reference.key === hoveredNode ? 'hovered' : ''}`}
             >
-              <span>{reference.title}</span>
+              {reference.title && <span>{sliceTitle(removeTag(reference.title))}</span>}
               <span>{reference.authors?.join(', ') || 'unknown'}</span>
             </ReferenceItem>
           ))}
