@@ -1,6 +1,15 @@
 import { useTheme } from 'styled-components';
 import * as d3 from 'd3';
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useCallback } from 'react';
+
+const styles = {
+  EMPHASIZE_OPACITY: '1',
+  BASIC_OPACITY: '0.5',
+  EMPHASIZE_STROKE_WIDTH: '0.8px',
+  BASIC_STROKE_WIDTH: '0.5px',
+  EMPHASIZE_STROKE_DASH: 'none',
+  BASIC_STROKE_DASH: '1',
+};
 
 export default function useGraphEmphasize(
   nodeSelector: SVGGElement | null,
@@ -11,17 +20,6 @@ export default function useGraphEmphasize(
   selectedKey: string,
 ) {
   const theme = useTheme();
-  const styleConstants = useRef({
-    EMPHASIZE_COLOR: theme.COLOR.secondary1,
-    BASIC_COLOR: theme.COLOR.gray1,
-    EMPHASIZE_OPACITY: '1',
-    BASIC_OPACITY: '0.5',
-    EMPHASIZE_STROKE_WIDTH: '0.8px',
-    BASIC_STROKE_WIDTH: '0.5px',
-    EMPHASIZE_STROKE_DASH: 'none',
-    BASIC_STROKE_DASH: '1',
-  });
-
   const getStyles = useCallback(
     (key: string, emphasizeStyle: string, basicStyle: string) =>
       key === selectedKey || key === hoveredNode ? emphasizeStyle : basicStyle,
@@ -29,8 +27,6 @@ export default function useGraphEmphasize(
   );
 
   useEffect(() => {
-    const styles = styleConstants.current;
-
     if (nodeSelector === null) return;
 
     if (hoveredNode === '') {
@@ -60,10 +56,10 @@ export default function useGraphEmphasize(
     d3.select(linkSelector)
       .selectAll('line')
       .data(links)
-      .style('stroke', (d) => getStyles(d.source.key, styles.EMPHASIZE_COLOR, styles.BASIC_COLOR))
+      .style('stroke', (d) => getStyles(d.source.key, theme.COLOR.secondary1, theme.COLOR.gray1))
       .style('stroke-width', (d) => getStyles(d.source.key, styles.EMPHASIZE_STROKE_WIDTH, styles.BASIC_STROKE_WIDTH))
       .style('stroke-dasharray', (d) =>
         getStyles(d.source.key, styles.EMPHASIZE_STROKE_DASH, styles.BASIC_STROKE_DASH),
       );
-  }, [nodeSelector, hoveredNode, nodes, links, selectedKey, linkSelector, getStyles]);
+  }, [nodeSelector, hoveredNode, nodes, links, selectedKey, linkSelector, getStyles, theme]);
 }
