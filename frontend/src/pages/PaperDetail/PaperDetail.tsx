@@ -30,7 +30,7 @@ const PaperDatail = () => {
   const navigate = useNavigate();
   const [data, setData] = useState<IPaperDetail>();
   const [searchParams] = useSearchParams();
-  const doi = searchParams.get('doi') || '';
+  const [doi, setDoi] = useState<string>(searchParams.get('doi') || '');
   const [hoveredNode, setHoveredNode] = useState('');
   const { data: _data } = useQuery<IPaperDetail>(
     ['paperDetail', doi],
@@ -40,6 +40,7 @@ const PaperDatail = () => {
         const referenceList = data.referenceList.filter((reference) => reference.title);
         return { ...data, referenceList };
       },
+      suspense: false,
     },
   );
 
@@ -56,9 +57,7 @@ const PaperDatail = () => {
   }, []);
 
   const addChildrensNodes = useCallback(async (doi: string) => {
-    const result = (await api.getPaperDetail({ doi }).then((res) => res.data)) as IPaperDetail;
-    const referenceList = result.referenceList.filter((reference) => reference.title);
-    setData({ ...result, referenceList });
+    setDoi(doi);
   }, []);
 
   useEffect(() => {
@@ -73,7 +72,14 @@ const PaperDatail = () => {
         <IconButton icon={<LogoIcon height="30" width="30" />} onClick={handleLogoClick} />
       </Header>
       <Main>
-        {data && <PaperInfo data={data} hoveredNode={hoveredNode} changeHoveredNode={changeHoveredNode} />}
+        {data && (
+          <PaperInfo
+            data={data}
+            hoveredNode={hoveredNode}
+            changeHoveredNode={changeHoveredNode}
+            onClick={addChildrensNodes}
+          />
+        )}
         {data && (
           <ReferenceGraph
             data={data}

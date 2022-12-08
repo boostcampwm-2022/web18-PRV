@@ -7,11 +7,12 @@ interface IProps {
   data: IPaperDetail;
   hoveredNode: string;
   changeHoveredNode: (key: string) => void;
+  onClick: (doi: string) => void;
 }
 
 const DOI_BASE_URL = 'https://doi.org/';
 
-const PaperInfo = ({ data, hoveredNode, changeHoveredNode }: IProps) => {
+const PaperInfo = ({ data, hoveredNode, changeHoveredNode, onClick }: IProps) => {
   const handleMouseOver = (key: string) => {
     changeHoveredNode(key);
   };
@@ -30,7 +31,7 @@ const PaperInfo = ({ data, hoveredNode, changeHoveredNode }: IProps) => {
         <Title>{sliceTitle(removeTag(data?.title))}</Title>
         <InfoContainer>
           <InfoItem>
-            <h3>{data?.authors.length > 1 ? 'Authors ' : 'Author '}</h3>
+            <h3>{data?.authors?.length > 1 ? 'Authors ' : 'Author '}</h3>
             <span>{data?.authors?.join(', ')}</span>
           </InfoItem>
           <InfoItem>
@@ -51,6 +52,7 @@ const PaperInfo = ({ data, hoveredNode, changeHoveredNode }: IProps) => {
               onMouseOver={() => handleMouseOver(reference.key)}
               onMouseOut={() => handleMouseOut()}
               className={`info ${reference.key === hoveredNode ? 'hovered' : ''}`}
+              onClick={() => reference.doi && onClick(reference.doi)}
             >
               <span>{reference.title}</span>
               <span>{reference.authors?.join(', ') || 'unknown'}</span>
