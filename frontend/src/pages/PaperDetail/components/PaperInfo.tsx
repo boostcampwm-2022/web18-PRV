@@ -7,11 +7,12 @@ interface IProps {
   data: IPaperDetail;
   hoveredNode: string;
   changeHoveredNode: (key: string) => void;
+  addChildrensNodes: (doi: string) => void;
 }
 
 const DOI_BASE_URL = 'https://doi.org/';
 
-const PaperInfo = ({ data, hoveredNode, changeHoveredNode }: IProps) => {
+const PaperInfo = ({ data, hoveredNode, changeHoveredNode, addChildrensNodes }: IProps) => {
   const handleMouseOver = (key: string) => {
     changeHoveredNode(key);
   };
@@ -30,7 +31,7 @@ const PaperInfo = ({ data, hoveredNode, changeHoveredNode }: IProps) => {
         <Title>{sliceTitle(removeTag(data?.title))}</Title>
         <InfoContainer>
           <InfoItem>
-            <h3>{data?.authors.length > 1 ? 'Authors ' : 'Author '}</h3>
+            <h3>{data?.authors?.length > 1 ? 'Authors ' : 'Author '}</h3>
             <span>{data?.authors?.join(', ')}</span>
           </InfoItem>
           <InfoItem>
@@ -50,7 +51,9 @@ const PaperInfo = ({ data, hoveredNode, changeHoveredNode }: IProps) => {
               key={i}
               onMouseOver={() => handleMouseOver(reference.key)}
               onMouseOut={() => handleMouseOut()}
-              className={`info ${reference.key === hoveredNode ? 'hovered' : ''}`}
+              className={`info ${reference.key.toLowerCase() === hoveredNode ? 'hovered' : ''}`}
+              onClick={() => reference.doi && addChildrensNodes(reference.doi)}
+              disabled={!reference.doi}
             >
               <span>{reference.title}</span>
               <span>{reference.authors?.join(', ') || 'unknown'}</span>
@@ -140,11 +143,12 @@ const ReferenceContainer = styled.ul`
   padding: 0 15px;
 `;
 
-const ReferenceItem = styled.li`
+const ReferenceItem = styled.li<{ disabled: boolean }>`
   display: flex;
   flex-direction: column;
   gap: 10px;
-  cursor: pointer;
+  cursor: ${({ disabled }) => (disabled ? 'auto' : 'pointer')};
+  opacity: ${({ disabled }) => (disabled ? 0.5 : 1)};
 
   span {
     :first-child {
@@ -157,7 +161,7 @@ const ReferenceItem = styled.li`
   }
 
   &.hovered {
-    color: ${({ theme }) => theme.COLOR.secondary2};
+    color: ${({ theme, disabled }) => (!disabled ? theme.COLOR.secondary2 : undefined)};
   }
 `;
 

@@ -14,7 +14,7 @@ export default function useGraphData<T>(data: IPaperDetail) {
       {
         author: data.authors?.[0] || 'unknown',
         isSelected: true,
-        key: data.key,
+        key: data.key.toLowerCase(),
         doi: data.doi,
         citations: data.citations,
         publishedYear: new Date(data.publishedAt).getFullYear(),
@@ -22,7 +22,7 @@ export default function useGraphData<T>(data: IPaperDetail) {
       ...data.referenceList.map((v) => ({
         author: v.authors?.[0] || 'unknown',
         isSelected: false,
-        key: v.key,
+        key: v.key.toLowerCase(),
         doi: v.doi,
         citations: v.citations,
         publishedYear: v.publishedAt && new Date(v.publishedAt).getFullYear(),
@@ -36,15 +36,17 @@ export default function useGraphData<T>(data: IPaperDetail) {
         return;
       }
       if (foundIndex === newIndex) {
-        nodes.current[foundIndex].isSelected = true;
+        Object.entries(node).forEach(([k, v]) => {
+          nodes.current[foundIndex][k] = v;
+        });
       }
     });
 
     nodes.current.forEach((node, i) => doiMap.current.set(node.key, i));
 
     const newLinks = data.referenceList.map((reference) => ({
-      source: data.key,
-      target: reference.key,
+      source: data.key.toLowerCase(),
+      target: reference.key.toLowerCase(),
     }));
     if (newLinks.length > 0) setLinks((prev) => [...prev, ...newLinks]);
   }, [data]);

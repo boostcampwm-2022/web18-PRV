@@ -15,9 +15,9 @@ export default function useNodeUpdate(
       const normalSymbol = d3.symbol().type(d3.symbolSquare).size(NORMAL_SYMBOL_SIZE)();
       const starSymbol = d3.symbol().type(d3.symbolStar).size(STAR_SYMBOL_SIZE)();
 
-      const converToColor = d3
-        .scaleLog([1, 10, 1000], ['white', theme.COLOR.secondary1, theme.COLOR.secondary2])
-        .interpolate(d3.interpolateRgb);
+      const converToColor = d3.scaleLog([1, 10000], ['white', theme.COLOR.secondary2]).interpolate(d3.interpolateRgb);
+
+      console.log(nodes.map((v) => v.citations));
 
       d3.select(nodesSelector)
         .selectAll('path')
@@ -26,7 +26,8 @@ export default function useNodeUpdate(
         .attr('transform', (d) => `translate(${[d.x, d.y]})`)
         .attr('d', (d) => (d.isSelected ? starSymbol : normalSymbol))
         .attr('fill', (d) => converToColor(d.citations || 0))
-        .on('click', (_, d) => (d.doi ? addChildrensNodes(d.doi) : undefined));
+        .attr('fill-opacity', (d) => (d.doi ? 1 : 0.5))
+        .on('click', (_, d) => d.doi && addChildrensNodes(d.doi));
 
       d3.select(nodesSelector)
         .selectAll('text')
