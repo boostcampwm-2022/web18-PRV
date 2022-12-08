@@ -55,8 +55,8 @@ const PaperDatail = () => {
     setHoveredNode(key);
   }, []);
 
-  const addChildrensNodes = useCallback(async (data: any) => {
-    const result = await api.getPaperDetail({ doi: data.doi }).then((res) => res.data);
+  const addChildrensNodes = useCallback(async (doi: string) => {
+    const result = await api.getPaperDetail({ doi }).then((res) => res.data);
     setData(result);
   }, []);
 

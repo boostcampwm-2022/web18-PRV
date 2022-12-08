@@ -10,11 +10,12 @@ import { IPaperDetail } from '../PaperDetail';
 
 interface ReferenceGraphProps {
   data: IPaperDetail;
-  addChildrensNodes: (node: any) => void;
+  addChildrensNodes: (doi: string) => void;
   hoveredNode: string;
   changeHoveredNode: (key: string) => void;
 }
 
+// Todo : any 걷어내기, 구조 리팩터링하기, click 재요청(react-query), 링크 강조, 프론트 테스트
 const ReferenceGraph = ({ data, addChildrensNodes, hoveredNode, changeHoveredNode }: ReferenceGraphProps) => {
   const svgRef = useRef<SVGSVGElement | null>(null);
   const linkRef = useRef<SVGGElement | null>(null);
@@ -91,10 +92,6 @@ const Links = styled.g`
 `;
 
 const Nodes = styled.g`
-  path {
-    fill: ${({ theme }) => theme.COLOR.secondary1};
-  }
-
   text {
     text-anchor: middle;
     font-family: 'Helvetica Neue', Helvetica, sans-serif;
