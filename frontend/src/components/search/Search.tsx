@@ -4,7 +4,7 @@ import { createSearchParams, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import Api from '../../api/api';
 import { PATH_SEARCH_LIST } from '../../constants/path';
-import useDebounceValue from '../../customHooks/useDebouncedValue';
+import useDebounceValue from '../../hooks/useDebouncedValue';
 import MaginifyingGlassIcon from '../../icons/MagnifyingGlassIcon';
 import { createDetailQuery } from '../../utils/createQuery';
 import { getLocalStorage, setLocalStorage } from '../../utils/localStorage';
@@ -208,6 +208,7 @@ const Container = styled.div`
   flex: 1;
   overflow-y: auto;
   z-index: 3;
+  margin-bottom: 45px;
   padding-bottom: 15px;
 `;
 

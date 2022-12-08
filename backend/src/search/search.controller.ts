@@ -25,7 +25,6 @@ export class SearchController {
     const { keyword } = query;
     const data = await this.searchService.getElasticSearch(keyword);
     const papers = data.hits.hits.map((paper) => new PaperInfo(paper._source));
-    if (papers.length === 0) throw new NotFoundException('검색 결과가 존재하지 않습니다. 정보를 수집중입니다.');
     return papers;
   }
 
@@ -40,7 +39,7 @@ export class SearchController {
     const data = await this.searchService.getElasticSearch(keyword, rows, rows * (page - 1));
     const totalItems = (data.hits.total as SearchTotalHits).value;
     const totalPages = Math.ceil(totalItems / rows);
-    if (page > totalPages) {
+    if (page > totalPages && totalPages !== 0) {
       throw new NotFoundException(`page(${page})는 ${totalPages} 보다 클 수 없습니다.`);
     }
     this.rankingService.insertRedis(keyword);
@@ -48,7 +47,6 @@ export class SearchController {
     if (keywordHasSet) this.batchService.searchBatcher.pushToQueue(0, 0, -1, true, keyword);
 
     const papers = data.hits.hits.map((paper) => new PaperInfoExtended(paper._source));
-    if (papers.length === 0) throw new NotFoundException('검색 결과가 존재하지 않습니다. 정보를 수집중입니다.');
     return {
       papers,
       pageInfo: {

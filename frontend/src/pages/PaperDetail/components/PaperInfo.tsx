@@ -1,20 +1,36 @@
 import styled from 'styled-components';
+import { MAX_TITLE_LENGTH } from '../../../constants/main';
+import { removeTag } from '../../../utils/format';
 import { IPaperDetail } from '../PaperDetail';
 
 interface IProps {
   data: IPaperDetail;
+  hoveredNode: string;
+  changeHoveredNode: (key: string) => void;
 }
 
 const DOI_BASE_URL = 'https://doi.org/';
 
-const PaperInfo = ({ data }: IProps) => {
+const PaperInfo = ({ data, hoveredNode, changeHoveredNode }: IProps) => {
+  const handleMouseOver = (key: string) => {
+    changeHoveredNode(key);
+  };
+
+  const handleMouseOut = () => {
+    changeHoveredNode('');
+  };
+
+  const sliceTitle = (title: string) => {
+    return title.length > MAX_TITLE_LENGTH ? `${title.slice(0, MAX_TITLE_LENGTH)}...` : title;
+  };
+
   return (
     <Container>
       <BasicInfo>
-        <Title>{data?.title}</Title>
+        <Title>{sliceTitle(removeTag(data?.title))}</Title>
         <InfoContainer>
           <InfoItem>
-            <h3>Authors</h3>
+            <h3>{data?.authors.length > 1 ? 'Authors ' : 'Author '}</h3>
             <span>{data?.authors?.join(', ')}</span>
           </InfoItem>
           <InfoItem>
@@ -27,18 +43,19 @@ const PaperInfo = ({ data }: IProps) => {
         <DivideLine />
       </BasicInfo>
       <References>
-        <h3>References ({data.references})</h3>
+        <h3>References ({data.referenceList.length})</h3>
         <ReferenceContainer>
-          {data.referenceList.map(
-            (reference, index) =>
-              // TODO: 임시로 key에 index 사용 중. 서버에서 key로 사용할 데이터 전송 예정.
-              reference.title && (
-                <ReferenceItem key={index}>
-                  <span>{reference.title}</span>
-                  <span>{reference.authors.join(', ')}</span>
-                </ReferenceItem>
-              ),
-          )}
+          {data.referenceList.map((reference, i) => (
+            <ReferenceItem
+              key={i}
+              onMouseOver={() => handleMouseOver(reference.key)}
+              onMouseOut={() => handleMouseOut()}
+              className={`info ${reference.key === hoveredNode ? 'hovered' : ''}`}
+            >
+              <span>{reference.title}</span>
+              <span>{reference.authors?.join(', ') || 'unknown'}</span>
+            </ReferenceItem>
+          ))}
         </ReferenceContainer>
       </References>
     </Container>
@@ -90,6 +107,13 @@ const InfoItem = styled.div`
   }
   span {
     ${({ theme }) => theme.TYPO.body2};
+    white-space: normal;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    word-break: keep-all;
   }
 `;
 
@@ -120,6 +144,7 @@ const ReferenceItem = styled.li`
   display: flex;
   flex-direction: column;
   gap: 10px;
+  cursor: pointer;
 
   span {
     :first-child {
@@ -129,6 +154,10 @@ const ReferenceItem = styled.li`
     :last-child {
       ${({ theme }) => theme.TYPO.caption};
     }
+  }
+
+  &.hovered {
+    color: ${({ theme }) => theme.COLOR.secondary2};
   }
 `;
 

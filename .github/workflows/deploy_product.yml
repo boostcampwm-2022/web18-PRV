@@ -3,7 +3,7 @@ name: Auto deploy to NCP
 on:
   push:
     branches:
-      - dev
+      - product-test
 
 jobs:
   changes:
@@ -99,6 +99,6 @@ jobs:
           password: ${{ secrets.DEV_PASSWORD }}
           port: ${{ secrets.DEV_PORT }}
           script: |
-            docker compose --env-file ${{ secrets.ENV_FILENAME_DOCKER_COMPOSE_DEV }} pull
-            docker compose --env-file ${{ secrets.ENV_FILENAME_DOCKER_COMPOSE_DEV }} up -d
+            docker compose --env-file ${{ secrets.ENV_FILENAME_BACKEND }} pull
+            docker compose --env-file ${{ secrets.ENV_FILENAME_BACKEND }} up -d
             docker image prune -f
