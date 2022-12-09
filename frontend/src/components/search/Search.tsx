@@ -195,7 +195,11 @@ const Search = ({ initialKeyword = '' }: SearchProps) => {
             onBlur={handleInputBlur}
             onKeyDown={handleInputKeyDown}
           />
-          <IconButton icon={<MaginifyingGlassIcon />} onClick={() => handleSearchButtonClick(keyword)} />
+          <IconButton
+            icon={<MaginifyingGlassIcon />}
+            onClick={() => handleSearchButtonClick(keyword)}
+            aria-label="검색"
+          />
         </SearchBar>
         <DropdownContainer>{renderDropdownContent(dropdownType)}</DropdownContainer>
       </SearchBox>

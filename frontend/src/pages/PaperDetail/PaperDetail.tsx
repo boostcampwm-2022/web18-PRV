@@ -33,6 +33,7 @@ const PaperDatail = () => {
   const [searchParams] = useSearchParams();
   const [doi, setDoi] = useState<string>(searchParams.get('doi') || '');
   const [hoveredNode, setHoveredNode] = useState('');
+
   const { isLoading, data: _data } = useQuery<IPaperDetail>(
     ['paperDetail', doi.toLowerCase()],
     () => api.getPaperDetail({ doi }).then((res) => res.data),
@@ -69,8 +70,8 @@ const PaperDatail = () => {
   return (
     <Container>
       <Header>
-        <IconButton icon={<PreviousButtonIcon />} onClick={handlePreviousButtonClick} />
-        <IconButton icon={<LogoIcon height="30" width="30" />} onClick={handleLogoClick} />
+        <IconButton icon={<PreviousButtonIcon />} onClick={handlePreviousButtonClick} aria-label="뒤로가기" />
+        <IconButton icon={<LogoIcon height="30" width="30" />} onClick={handleLogoClick} aria-label="메인으로" />
       </Header>
       <Main>
         {data && (
@@ -113,7 +114,8 @@ const Header = styled.header`
   top: 0;
   left: 0;
   width: 100%;
-  padding: 10px;
+  height: 50px;
+  padding: 10px 10px 0;
 `;
 
 const Main = styled.main`

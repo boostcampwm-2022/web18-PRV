@@ -19,7 +19,12 @@ const Footer = ({ bgColor, contentColor }: FooterProps) => {
           데이터 수집 정책
         </DataLink>
         <span>Copyright Ⓒ 2022. View Point All rights reserved.</span>
-        <a href="https://github.com/boostcampwm-2022/web18-PRV" rel="noreferrer" target="_blank">
+        <a
+          href="https://github.com/boostcampwm-2022/web18-PRV"
+          rel="noreferrer"
+          target="_blank"
+          aria-label="github_link"
+        >
           <GithubLogoIcon />
         </a>
       </FooterRight>

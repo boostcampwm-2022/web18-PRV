@@ -42,6 +42,7 @@ const KeywordRanking = () => {
           <IconButton
             icon={isRankingListOpen ? <DropDownReverseIcon /> : <DropdownIcon />}
             onClick={handleRankingClick}
+            aria-label={isRankingListOpen ? '인기검색어 목록 닫기' : '인기검색어 목록 펼치기'}
           />
         </HeaderContainer>
         {isRankingListOpen && (
