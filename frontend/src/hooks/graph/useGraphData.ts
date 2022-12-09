@@ -48,7 +48,7 @@ export default function useGraphData<T>(data: IPaperDetail) {
       source: data.key.toLowerCase(),
       target: reference.key.toLowerCase(),
     }));
-    if (newLinks.length > 0) setLinks((prev) => [...prev, ...newLinks]);
+    setLinks((prev) => [...prev, ...newLinks]);
   }, [data]);
 
   return { nodes: nodes.current, links } as T;
