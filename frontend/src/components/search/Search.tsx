@@ -7,6 +7,7 @@ import { PATH_SEARCH_LIST } from '../../constants/path';
 import useDebounceValue from '../../hooks/useDebouncedValue';
 import MaginifyingGlassIcon from '../../icons/MagnifyingGlassIcon';
 import { createDetailQuery } from '../../utils/createQuery';
+import { DOI_REGEXP } from '../../utils/format';
 import { getLocalStorage, setLocalStorage } from '../../utils/localStorage';
 import IconButton from '../IconButton';
 import MoonLoader from '../loader/MoonLoader';
@@ -114,7 +115,11 @@ const Search = ({ initialKeyword = '' }: SearchProps) => {
     recentSet.delete(keyword);
     recentSet.add(keyword);
     setLocalStorage('recentKeywords', Array.from(recentSet).slice(-5));
-    goToSearchList(keyword);
+    if (DOI_REGEXP.test(keyword)) {
+      goToDetailPage(keyword);
+    } else {
+      goToSearchList(keyword);
+    }
     inputRef?.current?.blur();
   };
 
@@ -188,7 +193,7 @@ const Search = ({ initialKeyword = '' }: SearchProps) => {
         <SearchBar>
           <SearchInput
             ref={inputRef}
-            placeholder="저자, 제목, 키워드"
+            placeholder="저자, 제목, 키워드, DOI"
             value={keyword}
             onChange={handleInputChange}
             onFocus={handleInputFocus}
