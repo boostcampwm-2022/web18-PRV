@@ -2,28 +2,14 @@ import { useCallback, useEffect, useState } from 'react';
 import { useQuery } from 'react-query';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
-import Api from '../../api/api';
+import Api, { IPaperDetail } from '../../api/api';
 import IconButton from '../../components/IconButton';
 import MoonLoader from '../../components/loader/MoonLoader';
 import { PATH_MAIN } from '../../constants/path';
 import LogoIcon from '../../icons/LogoIcon';
 import PreviousButtonIcon from '../../icons/PreviousButtonIcon';
-import { IPaper } from '../SearchList/SearchList';
 import PaperInfo from './components/PaperInfo';
 import ReferenceGraph from './components/ReferenceGraph';
-
-export interface IReference {
-  key: string;
-  title?: string;
-  authors?: string[];
-  doi?: string;
-  publishedAt?: string;
-  citations?: number;
-  references?: number;
-}
-export interface IPaperDetail extends IPaper {
-  referenceList: IReference[];
-}
 
 const api = new Api();
 
@@ -38,7 +24,7 @@ const PaperDatail = () => {
 
   const { isLoading, data: _data } = useQuery<IPaperDetail>(
     ['paperDetail', doi.toLowerCase()],
-    () => api.getPaperDetail({ doi }).then((res) => res.data),
+    () => api.getPaperDetail({ doi }),
     {
       select: (data) => {
         const referenceList = data.referenceList.filter((reference) => reference.title);

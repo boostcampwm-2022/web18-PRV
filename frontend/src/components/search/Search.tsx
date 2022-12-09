@@ -2,11 +2,10 @@ import { ChangeEvent, KeyboardEvent, useCallback, useEffect, useMemo, useRef, us
 import { useQuery } from 'react-query';
 import { createSearchParams, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import Api from '../../api/api';
+import Api, { IAutoCompletedItem, IPaperDetail } from '../../api/api';
 import { PATH_SEARCH_LIST } from '../../constants/path';
 import useDebounceValue from '../../hooks/useDebouncedValue';
 import MaginifyingGlassIcon from '../../icons/MagnifyingGlassIcon';
-import { IPaperDetail } from '../../pages/PaperDetail/PaperDetail';
 import { createDetailQuery } from '../../utils/createQuery';
 import { isDoiFormat } from '../../utils/format';
 import { getLocalStorage, setLocalStorage } from '../../utils/localStorage';
@@ -20,12 +19,6 @@ enum DROPDOWN_TYPE {
   RECENT_KEYWORDS = 'RECENT_KEYWORDS',
   HIDDEN = 'HIDDEN',
   LOADING = 'LOADING',
-}
-
-export interface IAutoCompletedItem {
-  authors?: string[];
-  doi: string;
-  title: string;
 }
 
 interface SearchProps {
@@ -45,7 +38,7 @@ const Search = ({ initialKeyword = '' }: SearchProps) => {
 
   const { isLoading, data: autoCompletedItems } = useQuery<IAutoCompletedItem[]>(
     ['getAutoComplete', debouncedValue],
-    () => api.getAutoComplete({ keyword: debouncedValue }).then((res) => res.data),
+    () => api.getAutoComplete({ keyword: debouncedValue }),
     {
       enabled: !!(debouncedValue && debouncedValue.length >= 2 && isFocused),
       suspense: false,
@@ -123,9 +116,7 @@ const Search = ({ initialKeyword = '' }: SearchProps) => {
     if (isDoiFormat(newKeyword)) {
       try {
         // 유효 DOI라면 상세페이지로 이동
-        const data = (await api
-          .getPaperDetail({ doi: newKeyword.toLowerCase() })
-          .then((res) => res.data)) as IPaperDetail;
+        const data = await api.getPaperDetail({ doi: newKeyword.toLowerCase() });
         const referenceList = data.referenceList.filter((reference) => reference.title);
         const result = { ...data, referenceList };
         goToDetailPage(newKeyword, { initialData: result });

@@ -1,7 +1,7 @@
 import { Dispatch, SetStateAction, useEffect } from 'react';
 import styled from 'styled-components';
+import { IAutoCompletedItem } from '../../api/api';
 import { removeTag, sliceTitle } from '../../utils/format';
-import { IAutoCompletedItem } from './Search';
 
 interface AutoCompletedListProps {
   autoCompletedItems?: IAutoCompletedItem[];

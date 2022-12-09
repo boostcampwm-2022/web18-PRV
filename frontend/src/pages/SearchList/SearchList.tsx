@@ -8,21 +8,6 @@ import theme from '../../style/theme';
 import SearchBarHeader from './components/SearchBarHeader';
 import SearchResults from './components/SearchResults';
 
-export interface IPaper {
-  title: string;
-  authors: string[];
-  doi: string;
-  key: string;
-  publishedAt: string;
-  citations: number;
-  references: number;
-}
-
-export interface IPageInfo {
-  totalItems: number;
-  totalPages: number;
-}
-
 const SearchList = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const params = useMemo<IGetSearch>(() => {
