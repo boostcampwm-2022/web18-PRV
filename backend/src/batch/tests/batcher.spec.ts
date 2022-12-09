@@ -12,7 +12,12 @@ describe('doiBatcher', () => {
     const redisService = mockRedisQueue(popDoiItem);
     const httpService = mockHttpService();
     const elasticService = mockElasticService();
-    batcher = new DoiBatcher(redisService, httpService.axiosRef, new SearchService(elasticService), 'doi batcher');
+    batcher = new DoiBatcher(
+      redisService,
+      httpService.axiosRef,
+      new SearchService(elasticService, httpService),
+      'doi batcher',
+    );
   });
   it('getParamsFromUrl', async () => {
     const items = await batcher.queue.pop(1);
@@ -29,7 +34,12 @@ describe('searchBatcher', () => {
     const redisService = mockRedisQueue(popSearchItem);
     const httpService = mockHttpService();
     const elasticService = mockElasticService();
-    batcher = new SearchBatcher(redisService, httpService.axiosRef, new SearchService(elasticService), 'doi batcher');
+    batcher = new SearchBatcher(
+      redisService,
+      httpService.axiosRef,
+      new SearchService(elasticService, httpService),
+      'doi batcher',
+    );
   });
   it('getParamsFromUrl', async () => {
     const items = await batcher.queue.pop(1);

@@ -124,8 +124,8 @@ describe('SearchController', () => {
     it(`getPaper - doi=10.1234/some_doi 일 때 PaperInfoDetail을 return`, async () => {
       const doi = '10.1234/some_doi';
       const paper = await controller.getPaper({ doi });
-      expect(paper.references).toBe(10);
-      expect(paper.referenceList.length).toBe(10);
+      expect(paper.references).toBe(5);
+      expect(paper.referenceList.length).toBe(5);
       expect(() => new PaperInfoDetail(paper)).not.toThrow();
     });
     it('doi가 입력되지 않을 경우 error - GET /search/paper?doi=', () => {
