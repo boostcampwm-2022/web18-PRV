@@ -9,6 +9,7 @@ import { PATH_MAIN } from '../../constants/path';
 import LogoIcon from '../../icons/LogoIcon';
 import PreviousButtonIcon from '../../icons/PreviousButtonIcon';
 import { IPaper } from '../SearchList/SearchList';
+import ColorRangeBar from './components/ColorRangeBar';
 import PaperInfo from './components/PaperInfo';
 import ReferenceGraph from './components/ReferenceGraph';
 
@@ -94,6 +95,7 @@ const PaperDatail = () => {
           </>
         )}
       </Main>
+      <ColorRangeBar />
       {isLoading && (
         <LoaderWrapper>
           <MoonLoader />
