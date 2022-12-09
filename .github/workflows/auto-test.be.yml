@@ -1,0 +1,23 @@
+name: "Backend Tester"
+on:
+  pull_request:
+    types: [opened, ready_for_review, synchronize]
+    paths:
+      - "backend/**"
+
+jobs:
+  run-test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18.x]
+    steps:
+      - uses: actions/checkout@v3
+      - name: BE Test - ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+      - run: |
+          cd backend
+          npm ci
+          npm test
