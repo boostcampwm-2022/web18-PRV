@@ -40,19 +40,6 @@
     <td align="center"><a href="https://github.com/yeynii">최예윤</a>
   </tr>
   <tr>
-  <td align="center">
-    <a href="https://velog.io/@top1506">Blog</a>
-  </td>
-  <td align="center">
-    <a href="https://udadacoder.tistory.com/">Blog</a>
-  </td>
-  <td align="center">
-    <a href="https://sungbin.dev">Blog</a>
-  </td>
-  <td align="center">
-    <a href="https://velog.io/@say_ye">Blog</a>
-  </td>
-  </tr>
 </table>
 
 ### 개발 환경 세팅
