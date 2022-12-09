@@ -18,8 +18,6 @@ const StarLayer = () => {
   const layerCount = 15;
   const starDensity = Math.trunc(((height * width) / 600000) * layerCount);
 
-  console.log(starDensity);
-
   const resizeCallback = useMemo(
     () =>
       debounce(() => {
