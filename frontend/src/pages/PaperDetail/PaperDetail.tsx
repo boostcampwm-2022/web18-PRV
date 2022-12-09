@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useQuery } from 'react-query';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
 import Api from '../../api/api';
 import IconButton from '../../components/IconButton';
@@ -29,6 +29,7 @@ const api = new Api();
 
 const PaperDatail = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [data, setData] = useState<IPaperDetail>();
   const [searchParams] = useSearchParams();
   const [doi, setDoi] = useState<string>(searchParams.get('doi') || '');
@@ -70,7 +71,9 @@ const PaperDatail = () => {
   return (
     <Container>
       <Header>
-        <IconButton icon={<PreviousButtonIcon />} onClick={handlePreviousButtonClick} aria-label="뒤로가기" />
+        {location.state?.hasPrevPage && (
+          <IconButton icon={<PreviousButtonIcon />} onClick={handlePreviousButtonClick} aria-label="뒤로가기" />
+        )}
         <IconButton icon={<LogoIcon height="30" width="30" />} onClick={handleLogoClick} aria-label="메인으로" />
       </Header>
       <Main>

@@ -34,7 +34,7 @@ const SearchResults = ({ params, changePage }: SearchResultsProps) => {
       <Section>
         <Papers>
           {data.papers.map((paper) => (
-            <Link key={paper.doi} to={createDetailQuery(paper.doi)}>
+            <Link key={paper.doi} to={createDetailQuery(paper.doi)} state={{ hasPrevPage: true }}>
               <Paper data={paper} keyword={keyword} />
             </Link>
           ))}
