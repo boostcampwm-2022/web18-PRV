@@ -55,7 +55,7 @@ jobs:
   push_to_registry_fe:
     name: (FE) Build & Push
     needs: changes
-    # if: ${{ needs.changes.outputs.frontend == 'true' }}
+    if: ${{ needs.changes.outputs.frontend == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -80,7 +80,7 @@ jobs:
           cache-from: type=registry,ref=${{ secrets.NCP_CONTAINER_REGISTRY }}/prv-frontend:latest
           cache-to: type=inline
           secrets: |
-            REACT_APP_BASE_URL=${{ secrets.REACT_APP_BASE_URL_DEV }}
+            "REACT_APP_BASE_URL=${{ secrets.REACT_APP_BASE_URL_DEV }}"
 
   pull_from_registry:
     name: Connect server ssh and pull from container registry
