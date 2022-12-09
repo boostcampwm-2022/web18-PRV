@@ -23,7 +23,6 @@ export class RankingService {
     return result;
   }
   async insertRedis(data: string) {
-    if (data === '' || data.length <= 2) throw new BadRequestException();
     const encodeData = decodeURI(data);
     try {
       const isRanking: string = await this.redis.zscore(process.env.REDIS_POPULAR_KEY, encodeData);
