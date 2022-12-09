@@ -8,10 +8,10 @@ import useDebounceValue from '../../hooks/useDebouncedValue';
 import MaginifyingGlassIcon from '../../icons/MagnifyingGlassIcon';
 import { createDetailQuery } from '../../utils/createQuery';
 import { getLocalStorage, setLocalStorage } from '../../utils/localStorage';
-import AutoCompletedList from './AutoCompletedList';
-import MoonLoader from '../loader/MoonLoader';
-import RecentKeywordsList from './RecentKeywordsList';
 import IconButton from '../IconButton';
+import MoonLoader from '../loader/MoonLoader';
+import AutoCompletedList from './AutoCompletedList';
+import RecentKeywordsList from './RecentKeywordsList';
 
 enum DROPDOWN_TYPE {
   AUTO_COMPLETE = 'AUTO_COMPLETE',
@@ -45,7 +45,7 @@ const Search = ({ initialKeyword = '' }: SearchProps) => {
     ['getAutoComplete', debouncedValue],
     () => api.getAutoComplete({ keyword: debouncedValue }).then((res) => res.data),
     {
-      enabled: !!(debouncedValue && debouncedValue.length >= 2),
+      enabled: !!(debouncedValue && debouncedValue.length >= 2 && isFocused),
       suspense: false,
     },
   );
@@ -195,7 +195,11 @@ const Search = ({ initialKeyword = '' }: SearchProps) => {
             onBlur={handleInputBlur}
             onKeyDown={handleInputKeyDown}
           />
-          <IconButton icon={<MaginifyingGlassIcon />} onClick={() => handleSearchButtonClick(keyword)} />
+          <IconButton
+            icon={<MaginifyingGlassIcon />}
+            onClick={() => handleSearchButtonClick(keyword)}
+            aria-label="검색"
+          />
         </SearchBar>
         <DropdownContainer>{renderDropdownContent(dropdownType)}</DropdownContainer>
       </SearchBox>

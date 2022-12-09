@@ -1,12 +1,11 @@
 import styled from 'styled-components';
 import Footer from '../../components/Footer';
 import Search from '../../components/search/Search';
-import StarLayer from '../../components/StarLayer';
-import { SUBTITLE, TITLE, TITLE_KOREAN } from '../../constants/main';
 import ErrorBoundary from '../../error/ErrorBoundary';
 import RankingErrorFallback from '../../error/RankingErrorFallback';
 import LogoIcon from '../../icons/LogoIcon';
 import KeywordRanking from './components/KeywordRanking';
+import StarLayer from './components/StarLayer';
 
 const Main = () => {
   return (
@@ -18,9 +17,9 @@ const Main = () => {
           <Title>PRV</Title>
         </TitleContainer>
         <ContentContainer>
-          <div>{TITLE}</div>
-          <div>{TITLE_KOREAN}</div>
-          <div>{SUBTITLE}</div>
+          <div>Paper Reference Visualization</div>
+          <div>논문간 인용관계 시각화 솔루션</div>
+          <div>This website renders reference relation of paper</div>
         </ContentContainer>
         <ErrorBoundary fallback={RankingErrorFallback}>
           <KeywordRanking />

@@ -1,7 +1,7 @@
 import { debounce } from 'lodash-es';
 import { useEffect, useMemo, useState } from 'react';
 import styled, { keyframes } from 'styled-components';
-import theme from '../style/theme';
+import theme from '../../../style/theme';
 
 const COLORS = [
   theme.COLOR.secondary1,
@@ -14,6 +14,9 @@ const COLORS = [
 const StarLayer = () => {
   const [height, setHeight] = useState<number>(0);
   const [width, setWidth] = useState<number>(0);
+
+  const layerCount = 15;
+  const starDensity = Math.trunc(((height * width) / 600000) * layerCount);
 
   const resizeCallback = useMemo(
     () =>
@@ -32,7 +35,7 @@ const StarLayer = () => {
 
   return (
     <Container>
-      {Array.from({ length: 15 }, (_, i) => {
+      {Array.from({ length: layerCount }, (_, i) => {
         const randomConstant = Math.random();
         return (
           <Stars
@@ -42,13 +45,13 @@ const StarLayer = () => {
               animationDelay: `${randomConstant * 5}s`,
             }}
           >
-            {Array.from({ length: 20 }, (_, j) => (
+            {Array.from({ length: starDensity }, (_, j) => (
               <Star
                 key={j}
                 style={{
                   backgroundColor: `${COLORS[j % COLORS.length]}`,
-                  width: `${randomConstant * 3 + 1}px`,
-                  height: `${randomConstant * 3 + 1}px`,
+                  width: `${randomConstant * 2 + 1}px`,
+                  height: `${randomConstant * 2 + 1}px`,
                   top: `${Math.random() * height}px`,
                   left: `${Math.random() * width}px`,
                 }}

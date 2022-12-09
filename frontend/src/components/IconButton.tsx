@@ -5,9 +5,9 @@ interface IProps {
   onClick: React.MouseEventHandler;
 }
 
-const IconButton = ({ icon, onClick }: IProps) => {
+const IconButton = ({ icon, onClick, ...rest }: IProps) => {
   return (
-    <Button type="button" onClick={onClick}>
+    <Button type="button" onClick={onClick} {...rest}>
       {icon}
     </Button>
   );
