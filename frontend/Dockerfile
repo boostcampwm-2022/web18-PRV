@@ -3,7 +3,10 @@ WORKDIR /app
 COPY package*.json .
 RUN npm ci
 COPY . .
-RUN --mount=type=secret,id=REACT_APP_BASE_URL export REACT_APP_BASE_URL=$(cat /run/secrets/REACT_APP_BASE_URL)
+RUN --mount=type=secret,id=REACT_APP_BASE_URL \ 
+    export REACT_APP_BASE_URL=$(cat /run/secrets/REACT_APP_BASE_URL) && \
+    echo "REACT_APP_BASE_URL=$REACT_APP_BASE_URL" >> .env.production
+RUN ls -al
 RUN npm run build
 
 FROM nginx:alpine
