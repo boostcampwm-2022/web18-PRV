@@ -6,8 +6,9 @@ import Api from '../../api/api';
 import { PATH_SEARCH_LIST } from '../../constants/path';
 import useDebounceValue from '../../hooks/useDebouncedValue';
 import MaginifyingGlassIcon from '../../icons/MagnifyingGlassIcon';
+import { IPaperDetail } from '../../pages/PaperDetail/PaperDetail';
 import { createDetailQuery } from '../../utils/createQuery';
-import { DOI_REGEXP } from '../../utils/format';
+import { isDoiFormat } from '../../utils/format';
 import { getLocalStorage, setLocalStorage } from '../../utils/localStorage';
 import IconButton from '../IconButton';
 import MoonLoader from '../loader/MoonLoader';
@@ -87,8 +88,8 @@ const Search = ({ initialKeyword = '' }: SearchProps) => {
   }, []);
 
   // 논문 상세정보 페이지로 이동
-  const goToDetailPage = (doi: string) => {
-    navigate(createDetailQuery(doi));
+  const goToDetailPage = (doi: string, state?: { initialData: IPaperDetail }) => {
+    navigate(createDetailQuery(doi), { state });
   };
 
   const handleInputChange = (e: ChangeEvent) => {
@@ -108,22 +109,33 @@ const Search = ({ initialKeyword = '' }: SearchProps) => {
   };
 
   // localStorage에 최근 검색어를 중복없이 최대 5개까지 저장 후 search-list로 이동
-  const handleSearchButtonClick = (keyword: string) => {
+  const handleSearchButtonClick = async (keyword: string) => {
     if (!keyword) return;
     const recentKeywords = getRecentKeywordsFromLocalStorage();
     const recentSet = new Set(recentKeywords);
     recentSet.delete(keyword);
     recentSet.add(keyword);
     setLocalStorage('recentKeywords', Array.from(recentSet).slice(-5));
-    if (DOI_REGEXP.test(keyword)) {
-      goToDetailPage(keyword);
-    } else {
-      goToSearchList(keyword);
+
+    // DOI 형식의 input이 들어온 경우
+    if (isDoiFormat(keyword)) {
+      try {
+        // 유효 DOI라면 상세페이지로 이동
+        const data = (await api.getPaperDetail({ doi: keyword.toLowerCase() }).then((res) => res.data)) as IPaperDetail;
+        const referenceList = data.referenceList.filter((reference) => reference.title);
+        const result = { ...data, referenceList };
+        goToDetailPage(keyword, { initialData: result });
+      } catch {
+        // DOI에 해당하는 논문이 없다면 검색결과 페이지로 이동
+        goToSearchList(keyword);
+      }
+      return;
     }
-    inputRef?.current?.blur();
+    goToSearchList(keyword);
   };
 
   const handleEnterKeyDown = () => {
+    inputRef?.current?.blur();
     // hover된 항목이 없는경우
     if (hoverdIndex < 0) {
       handleSearchButtonClick(keyword);

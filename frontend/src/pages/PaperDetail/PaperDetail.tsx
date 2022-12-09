@@ -30,9 +30,10 @@ const api = new Api();
 const PaperDatail = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [data, setData] = useState<IPaperDetail>();
+  const [data, setData] = useState<IPaperDetail>(location.state?.initialData);
   const [searchParams] = useSearchParams();
-  const [doi, setDoi] = useState<string>(searchParams.get('doi') || '');
+  // 넘겨받은 데이터가 없는경우만 query에서 doi 정보를 가져온다
+  const [doi, setDoi] = useState<string>(location.state?.initialData ? '' : searchParams.get('doi') || '');
   const [hoveredNode, setHoveredNode] = useState('');
 
   const { isLoading, data: _data } = useQuery<IPaperDetail>(
@@ -43,6 +44,7 @@ const PaperDatail = () => {
         const referenceList = data.referenceList.filter((reference) => reference.title);
         return { ...data, referenceList };
       },
+      enabled: !!doi,
       suspense: false,
     },
   );

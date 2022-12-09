@@ -25,4 +25,6 @@ export const sliceTitle = (title: string) => {
   return title.length > MAX_TITLE_LENGTH ? `${title.slice(0, MAX_TITLE_LENGTH)}...` : title;
 };
 
-export const DOI_REGEXP = new RegExp(/^[\d]{2}\.[\d]{1,}\/.*/);
+export const isDoiFormat = (doi: string) => {
+  return RegExp(/^[\d]{2}\.[\d]{1,}\/.*/).test(doi);
+};
