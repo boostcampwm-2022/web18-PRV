@@ -18,7 +18,7 @@ const Main = () => {
         </TitleContainer>
         <ContentContainer>
           <div>Paper Reference Visualization</div>
-          <div>논문간 인용관계 시각화 솔루션</div>
+          <div>논문 간 인용관계 시각화 솔루션</div>
           <div>This website renders reference relation of paper</div>
         </ContentContainer>
         <ErrorBoundary fallback={RankingErrorFallback}>
