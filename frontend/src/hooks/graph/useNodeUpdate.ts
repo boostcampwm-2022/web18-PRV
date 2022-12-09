@@ -27,6 +27,8 @@ export default function useNodeUpdate(
         .attr('d', (d) => (d.isSelected ? starSymbol : normalSymbol))
         .attr('fill', (d) => converToColor(d.citations || 0))
         .attr('fill-opacity', (d) => (d.doi ? 1 : 0.5))
+        .on('mouseover', (_, d) => d.doi && changeHoveredNode(d.key))
+        .on('mouseout', () => changeHoveredNode(''))
         .on('click', (_, d) => d.doi && addChildrensNodes(d.doi));
 
       d3.select(nodesSelector)
@@ -34,11 +36,11 @@ export default function useNodeUpdate(
         .data(nodes)
         .join('text')
         .text((d) => `${d.author} ${d.publishedYear ? `(${d.publishedYear})` : ''}`)
-        .on('mouseover', (_, d) => d.doi && changeHoveredNode(d.key))
-        .on('mouseout', () => changeHoveredNode(''))
         .attr('x', (d) => d.x)
         .attr('y', (d) => d.y + 10)
         .attr('dy', 5)
+        .on('mouseover', (_, d) => d.doi && changeHoveredNode(d.key))
+        .on('mouseout', () => changeHoveredNode(''))
         .on('click', (_, d) => d.doi && addChildrensNodes(d.doi));
     },
     [nodes, addChildrensNodes, changeHoveredNode],

@@ -2,7 +2,7 @@ import * as d3 from 'd3';
 import { useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import useGraphData from '../../../hooks/graph/useGraphData';
-import useGraphHover from '../../../hooks/graph/useGraphHover';
+import useGraphEmphasize from '../../../hooks/graph/useGraphEmphasize';
 import useGraphZoom from '../../../hooks/graph/useGraphZoom';
 import useLinkUpdate from '../../../hooks/graph/useLinkUpdate';
 import useNodeUpdate from '../../../hooks/graph/useNodeUpdate';
@@ -27,7 +27,7 @@ const ReferenceGraph = ({ data, addChildrensNodes, hoveredNode, changeHoveredNod
   const updateNodes = useNodeUpdate(nodes, changeHoveredNode, addChildrensNodes);
 
   useGraphZoom(svgRef.current);
-  useGraphHover(nodeRef.current, nodes, hoveredNode);
+  useGraphEmphasize(nodeRef.current, linkRef.current, nodes, links, hoveredNode, data.key);
 
   useEffect(() => {
     const ticked = (linksSelector: SVGGElement, nodesSelector: SVGGElement) => {

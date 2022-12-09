@@ -1,6 +1,6 @@
 import styled from 'styled-components';
-import { MAX_TITLE_LENGTH } from '../../../constants/main';
-import { removeTag } from '../../../utils/format';
+import { Ellipsis } from '../../../style/styleUtils';
+import { highlightKeyword, removeTag, sliceTitle } from '../../../utils/format';
 import { IPaper } from '../SearchList';
 
 interface PaperProps {
@@ -13,35 +13,14 @@ const Paper = ({ data, keyword }: PaperProps) => {
 
   const year = new Date(publishedAt).getFullYear();
 
-  // keyword 강조
-  const highlightKeyword = (text: string) => {
-    const rawKeywordList = keyword.trim().toLowerCase().split(/\s/gi);
-
-    return rawKeywordList.length > 0 && rawKeywordList.some((rawKeyword) => text.toLowerCase().includes(rawKeyword))
-      ? text
-          .split(new RegExp(`(${rawKeywordList.join('|')})`, 'gi'))
-          .map((part, i) =>
-            rawKeywordList.some((keywordPart) => part.trim().toLowerCase() === keywordPart) ? (
-              <Emphasize key={i}>{part}</Emphasize>
-            ) : (
-              part
-            ),
-          )
-      : text;
-  };
-
-  const sliceTitle = (title: string) => {
-    return title.length > MAX_TITLE_LENGTH ? `${title.slice(0, MAX_TITLE_LENGTH)}...` : title;
-  };
-
   return (
     <Container>
-      {title && <Title>{highlightKeyword(sliceTitle(removeTag(title)))}</Title>}
+      {title && <Title>{highlightKeyword(sliceTitle(removeTag(title)), keyword)}</Title>}
       {authors && (
         <Content>
           <div>
             <Bold>{authors.length > 1 ? 'Authors ' : 'Author '}</Bold>
-            <span>{highlightKeyword(authors?.join(', '))}</span>
+            <Ellipsis>{highlightKeyword(authors?.join(', '), keyword)}</Ellipsis>
           </div>
         </Content>
       )}
@@ -81,23 +60,9 @@ const Content = styled.div`
   color: ${({ theme }) => theme.COLOR.gray4};
   display: flex;
   justify-content: space-between;
-  > div > span {
-    white-space: normal;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    word-break: keep-all;
-  }
 `;
 
 const Bold = styled.b`
-  font-weight: 700;
-`;
-
-const Emphasize = styled.span`
-  color: #3244ff;
   font-weight: 700;
 `;
 

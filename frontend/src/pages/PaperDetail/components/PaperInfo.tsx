@@ -1,6 +1,6 @@
 import styled from 'styled-components';
-import { MAX_TITLE_LENGTH } from '../../../constants/main';
-import { removeTag } from '../../../utils/format';
+import { Ellipsis } from '../../../style/styleUtils';
+import { removeTag, sliceTitle } from '../../../utils/format';
 import { IPaperDetail } from '../PaperDetail';
 
 interface IProps {
@@ -21,10 +21,6 @@ const PaperInfo = ({ data, hoveredNode, changeHoveredNode, addChildrensNodes }: 
     changeHoveredNode('');
   };
 
-  const sliceTitle = (title: string) => {
-    return title.length > MAX_TITLE_LENGTH ? `${title.slice(0, MAX_TITLE_LENGTH)}...` : title;
-  };
-
   return (
     <Container>
       <BasicInfo>
@@ -32,7 +28,7 @@ const PaperInfo = ({ data, hoveredNode, changeHoveredNode, addChildrensNodes }: 
         <InfoContainer>
           <InfoItem>
             <h3>{data?.authors?.length > 1 ? 'Authors ' : 'Author '}</h3>
-            <span>{data?.authors?.join(', ')}</span>
+            <InfoAuthor>{data?.authors?.join(', ')}</InfoAuthor>
           </InfoItem>
           <InfoItem>
             <h3>DOI</h3>
@@ -55,8 +51,8 @@ const PaperInfo = ({ data, hoveredNode, changeHoveredNode, addChildrensNodes }: 
               onClick={() => reference.doi && addChildrensNodes(reference.doi)}
               disabled={!reference.doi}
             >
-              <span>{reference.title}</span>
-              <span>{reference.authors?.join(', ') || 'unknown'}</span>
+              {reference.title && <span>{sliceTitle(removeTag(reference.title))}</span>}
+              <ReferenceAuthor>{reference.authors?.join(', ') || 'unknown'}</ReferenceAuthor>
             </ReferenceItem>
           ))}
         </ReferenceContainer>
@@ -108,16 +104,10 @@ const InfoItem = styled.div`
       text-decoration: underline;
     }
   }
-  span {
-    ${({ theme }) => theme.TYPO.body2};
-    white-space: normal;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    word-break: keep-all;
-  }
+`;
+
+const InfoAuthor = styled(Ellipsis)`
+  ${({ theme }) => theme.TYPO.body2};
 `;
 
 const DivideLine = styled.hr`
@@ -155,14 +145,15 @@ const ReferenceItem = styled.li<{ disabled: boolean }>`
       ${({ theme }) => theme.TYPO.body2_h};
       line-height: 1.1rem;
     }
-    :last-child {
-      ${({ theme }) => theme.TYPO.caption};
-    }
   }
 
   &.hovered {
     color: ${({ theme, disabled }) => (!disabled ? theme.COLOR.secondary2 : undefined)};
   }
+`;
+
+const ReferenceAuthor = styled(Ellipsis)`
+  ${({ theme }) => theme.TYPO.caption};
 `;
 
 export default PaperInfo;
