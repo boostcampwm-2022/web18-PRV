@@ -1,7 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import Search from '../../../components/search/Search';
-import StarLayer from '../../../components/StarLayer';
 import { PATH_MAIN } from '../../../constants/path';
 import LogoIcon from '../../../icons/LogoIcon';
 
@@ -18,7 +17,6 @@ const SearchBarHeader = ({ keyword }: SearchBarHeaderProps) => {
 
   return (
     <Container>
-      <StarLayer />
       <Logo onClick={handleIconClick}>
         <LogoIcon />
       </Logo>
