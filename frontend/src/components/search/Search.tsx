@@ -55,7 +55,8 @@ const Search = ({ initialKeyword = '' }: SearchProps) => {
   const navigate = useNavigate();
 
   const dropdownType = useMemo<DROPDOWN_TYPE>(() => {
-    if (!isFocused) {
+    // 포커스 되지 않거나 doi포맷으로 입력하는 경우에는 드랍다운을 숨긴다
+    if (!isFocused || isDoiFormat(debouncedValue)) {
       return DROPDOWN_TYPE.HIDDEN;
     }
     if (isLoading) {
@@ -109,32 +110,36 @@ const Search = ({ initialKeyword = '' }: SearchProps) => {
   };
 
   // localStorage에 최근 검색어를 중복없이 최대 5개까지 저장 후 search-list로 이동
-  const handleSearchButtonClick = async (keyword: string) => {
-    if (!keyword) return;
+  const handleSearchButtonClick = async (newKeyword: string) => {
+    if (!newKeyword) return;
+    setKeyword(newKeyword);
     const recentKeywords = getRecentKeywordsFromLocalStorage();
     const recentSet = new Set(recentKeywords);
-    recentSet.delete(keyword);
-    recentSet.add(keyword);
+    recentSet.delete(newKeyword);
+    recentSet.add(newKeyword);
     setLocalStorage('recentKeywords', Array.from(recentSet).slice(-5));
 
     // DOI 형식의 input이 들어온 경우
-    if (isDoiFormat(keyword)) {
+    if (isDoiFormat(newKeyword)) {
       try {
         // 유효 DOI라면 상세페이지로 이동
-        const data = (await api.getPaperDetail({ doi: keyword.toLowerCase() }).then((res) => res.data)) as IPaperDetail;
+        const data = (await api
+          .getPaperDetail({ doi: newKeyword.toLowerCase() })
+          .then((res) => res.data)) as IPaperDetail;
         const referenceList = data.referenceList.filter((reference) => reference.title);
         const result = { ...data, referenceList };
-        goToDetailPage(keyword, { initialData: result });
+        goToDetailPage(newKeyword, { initialData: result });
       } catch {
         // DOI에 해당하는 논문이 없다면 검색결과 페이지로 이동
-        goToSearchList(keyword);
+        goToSearchList(newKeyword);
       }
       return;
     }
-    goToSearchList(keyword);
+    goToSearchList(newKeyword);
   };
 
   const handleEnterKeyDown = () => {
+    if (!inputRef.current) return;
     inputRef?.current?.blur();
     // hover된 항목이 없는경우
     if (hoverdIndex < 0) {
