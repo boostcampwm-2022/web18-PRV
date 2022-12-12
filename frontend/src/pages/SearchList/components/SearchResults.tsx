@@ -2,10 +2,9 @@ import { isEmpty } from 'lodash-es';
 import { useQuery } from 'react-query';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
-import Api, { IGetSearch } from '../../../api/api';
+import Api, { IGetSearch, IPapersData } from '../../../api/api';
 import Pagination from '../../../components/Pagination';
 import { createDetailQuery } from '../../../utils/createQuery';
-import { IPageInfo, IPaper } from '../SearchList';
 import Paper from './Paper';
 
 interface SearchResultsProps {
@@ -13,17 +12,12 @@ interface SearchResultsProps {
   changePage: (page: number) => void;
 }
 
-interface IPapersData {
-  papers: IPaper[];
-  pageInfo: IPageInfo;
-}
-
 const api = new Api();
 
 const SearchResults = ({ params, changePage }: SearchResultsProps) => {
   const keyword = params.keyword || '';
   const page = Number(params.page);
-  const { data } = useQuery<IPapersData>(['papers', params], () => api.getSearch(params).then((res) => res.data), {
+  const { data } = useQuery<IPapersData>(['papers', params], () => api.getSearch(params), {
     enabled: !isEmpty(params),
   });
 

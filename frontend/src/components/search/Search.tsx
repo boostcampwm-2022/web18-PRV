@@ -2,11 +2,12 @@ import { ChangeEvent, KeyboardEvent, useCallback, useEffect, useMemo, useRef, us
 import { useQuery } from 'react-query';
 import { createSearchParams, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import Api from '../../api/api';
+import Api, { IAutoCompletedItem, IPaperDetail } from '../../api/api';
 import { PATH_SEARCH_LIST } from '../../constants/path';
 import useDebounceValue from '../../hooks/useDebouncedValue';
 import MaginifyingGlassIcon from '../../icons/MagnifyingGlassIcon';
 import { createDetailQuery } from '../../utils/createQuery';
+import { isDoiFormat } from '../../utils/format';
 import { getLocalStorage, setLocalStorage } from '../../utils/localStorage';
 import IconButton from '../IconButton';
 import MoonLoader from '../loader/MoonLoader';
@@ -18,12 +19,6 @@ enum DROPDOWN_TYPE {
   RECENT_KEYWORDS = 'RECENT_KEYWORDS',
   HIDDEN = 'HIDDEN',
   LOADING = 'LOADING',
-}
-
-export interface IAutoCompletedItem {
-  authors?: string[];
-  doi: string;
-  title: string;
 }
 
 interface SearchProps {
@@ -43,7 +38,7 @@ const Search = ({ initialKeyword = '' }: SearchProps) => {
 
   const { isLoading, data: autoCompletedItems } = useQuery<IAutoCompletedItem[]>(
     ['getAutoComplete', debouncedValue],
-    () => api.getAutoComplete({ keyword: debouncedValue }).then((res) => res.data),
+    () => api.getAutoComplete({ keyword: debouncedValue }),
     {
       enabled: !!(debouncedValue && debouncedValue.length >= 2 && isFocused),
       suspense: false,
@@ -53,7 +48,8 @@ const Search = ({ initialKeyword = '' }: SearchProps) => {
   const navigate = useNavigate();
 
   const dropdownType = useMemo<DROPDOWN_TYPE>(() => {
-    if (!isFocused) {
+    // 포커스 되지 않거나 doi포맷으로 입력하는 경우에는 드랍다운을 숨긴다
+    if (!isFocused || isDoiFormat(debouncedValue)) {
       return DROPDOWN_TYPE.HIDDEN;
     }
     if (isLoading) {
@@ -86,8 +82,8 @@ const Search = ({ initialKeyword = '' }: SearchProps) => {
   }, []);
 
   // 논문 상세정보 페이지로 이동
-  const goToDetailPage = (doi: string) => {
-    navigate(createDetailQuery(doi));
+  const goToDetailPage = (doi: string, state?: { initialData: IPaperDetail }) => {
+    navigate(createDetailQuery(doi), { state });
   };
 
   const handleInputChange = (e: ChangeEvent) => {
@@ -107,18 +103,35 @@ const Search = ({ initialKeyword = '' }: SearchProps) => {
   };
 
   // localStorage에 최근 검색어를 중복없이 최대 5개까지 저장 후 search-list로 이동
-  const handleSearchButtonClick = (keyword: string) => {
-    if (!keyword) return;
+  const handleSearchButtonClick = async (newKeyword: string) => {
+    if (!newKeyword) return;
+    setKeyword(newKeyword);
     const recentKeywords = getRecentKeywordsFromLocalStorage();
     const recentSet = new Set(recentKeywords);
-    recentSet.delete(keyword);
-    recentSet.add(keyword);
+    recentSet.delete(newKeyword);
+    recentSet.add(newKeyword);
     setLocalStorage('recentKeywords', Array.from(recentSet).slice(-5));
-    goToSearchList(keyword);
-    inputRef?.current?.blur();
+
+    // DOI 형식의 input이 들어온 경우
+    if (isDoiFormat(newKeyword)) {
+      try {
+        // 유효 DOI라면 상세페이지로 이동
+        const data = await api.getPaperDetail({ doi: newKeyword.toLowerCase() });
+        const referenceList = data.referenceList.filter((reference) => reference.title);
+        const result = { ...data, referenceList };
+        goToDetailPage(newKeyword, { initialData: result });
+      } catch {
+        // DOI에 해당하는 논문이 없다면 검색결과 페이지로 이동
+        goToSearchList(newKeyword);
+      }
+      return;
+    }
+    goToSearchList(newKeyword);
   };
 
   const handleEnterKeyDown = () => {
+    if (!inputRef.current) return;
+    inputRef?.current?.blur();
     // hover된 항목이 없는경우
     if (hoverdIndex < 0) {
       handleSearchButtonClick(keyword);
@@ -188,7 +201,7 @@ const Search = ({ initialKeyword = '' }: SearchProps) => {
         <SearchBar>
           <SearchInput
             ref={inputRef}
-            placeholder="저자, 제목, 키워드"
+            placeholder="저자, 제목, 키워드, DOI"
             value={keyword}
             onChange={handleInputChange}
             onFocus={handleInputFocus}
