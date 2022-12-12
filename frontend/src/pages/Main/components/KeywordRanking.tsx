@@ -1,25 +1,16 @@
 import { useState } from 'react';
-import { useQuery } from 'react-query';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
-import Api, { IRankingData } from '../../../api/api';
 import IconButton from '../../../components/IconButton';
 import DropdownIcon from '../../../icons/DropdownIcon';
 import DropDownReverseIcon from '../../../icons/DropdownReverseIcon';
+import { useKeywordRankingQuery } from '../../../queries/queries';
 import { createSearchQuery } from '../../../utils/createQueryString';
 import RankingSlide from './RankingSlide';
 
-const api = new Api();
-
 const KeywordRanking = () => {
   const [isRankingListOpen, setIsRankingListOpen] = useState(false);
-  const { isLoading, data: rankingData } = useQuery<IRankingData[]>(
-    'getKeywordRanking',
-    () => api.getKeywordRanking(),
-    {
-      suspense: false,
-    },
-  );
+  const { isLoading, data: rankingData } = useKeywordRankingQuery({ suspense: false });
 
   const handleRankingClick = () => {
     setIsRankingListOpen((prev) => !prev);

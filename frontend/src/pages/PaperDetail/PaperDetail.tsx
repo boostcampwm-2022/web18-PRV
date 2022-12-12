@@ -1,17 +1,15 @@
 import { useCallback, useEffect, useState } from 'react';
-import { useQuery } from 'react-query';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
-import Api, { IPaperDetail } from '../../api/api';
+import { IPaperDetail } from '../../api/api';
 import IconButton from '../../components/IconButton';
 import MoonLoader from '../../components/loader/MoonLoader';
 import { PATH_MAIN } from '../../constants/path';
 import LogoIcon from '../../icons/LogoIcon';
 import PreviousButtonIcon from '../../icons/PreviousButtonIcon';
+import { usePaperQuery } from '../../queries/queries';
 import PaperInfo from './components/PaperInfo';
 import ReferenceGraph from './components/ReferenceGraph';
-
-const api = new Api();
 
 const PaperDatail = () => {
   const navigate = useNavigate();
@@ -21,18 +19,10 @@ const PaperDatail = () => {
   const [doi, setDoi] = useState<string>(searchParams.get('doi') || '');
   const [hoveredNode, setHoveredNode] = useState('');
 
-  const { isLoading, data: _data } = useQuery<IPaperDetail>(
-    ['paperDetail', doi.toLowerCase()],
-    () => api.getPaperDetail({ doi }),
-    {
-      select: (data) => {
-        const referenceList = data.referenceList.filter((reference) => reference.title);
-        return { ...data, referenceList };
-      },
-      suspense: false,
-      useErrorBoundary: true,
-    },
-  );
+  const { isLoading, data: _data } = usePaperQuery(doi.toLowerCase(), {
+    suspense: false,
+    useErrorBoundary: true,
+  });
 
   const handlePreviousButtonClick = () => {
     navigate(-1);
