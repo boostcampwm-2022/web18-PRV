@@ -74,7 +74,7 @@ export class SearchController {
         const origin = new PaperInfoDetail(paper._source);
         // 기존에 넣어놨던 데이터에 referenceList라는 key가 없을 수 있다..
         if (!origin.referenceList?.length) {
-          this.batchService.doiBatcher.pushToQueue(0, 1, -1, false, origin.doi || origin.key);
+          // this.batchService.doiBatcher.pushToQueue(0, 1, -1, false, origin.doi || origin.key);
           throw new Error('SHOULD_CALL_CROSSREF');
           // return { ...origin, referenceList: [] };
         }

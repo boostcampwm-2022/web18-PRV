@@ -10,6 +10,7 @@ import { ElasticsearchService } from '@nestjs/elasticsearch';
 import { MgetOperation, SearchHit } from '@elastic/elasticsearch/lib/api/types';
 import { HttpService } from '@nestjs/axios';
 import { CROSSREF_API_PAPER_URL } from '../util';
+import { ELASTIC_INDEX } from 'src/envLayer';
 
 @Injectable()
 export class SearchService {
@@ -67,7 +68,7 @@ export class SearchService {
   }
   async getPaper(doi: string) {
     try {
-      const paper = await this.esService.get<PaperInfoDetail>({ index: process.env.ELASTIC_INDEX, id: doi });
+      const paper = await this.esService.get<PaperInfoDetail>({ index: ELASTIC_INDEX, id: doi });
       return paper;
     } catch (_) {
       return false;
@@ -75,7 +76,7 @@ export class SearchService {
   }
   async putElasticSearch(paper: PaperInfoExtended) {
     return await this.esService.index({
-      index: process.env.ELASTIC_INDEX,
+      index: ELASTIC_INDEX,
       id: paper.doi,
       document: {
         ...paper,
@@ -105,7 +106,7 @@ export class SearchService {
     };
     return await this.esService
       .search<PaperInfoDetail>({
-        index: process.env.ELASTIC_INDEX,
+        index: ELASTIC_INDEX,
         from,
         size,
         sort: ['_score', { citations: 'desc' }],
@@ -121,7 +122,7 @@ export class SearchService {
       return { id: paper.doi, ...paper };
     });
     if (dataset.length <= 0) return;
-    const operations = dataset.flatMap((doc) => [{ index: { _index: process.env.ELASTIC_INDEX, _id: doc.id } }, doc]);
+    const operations = dataset.flatMap((doc) => [{ index: { _index: ELASTIC_INDEX, _id: doc.id } }, doc]);
     const bulkResponse = await this.esService.bulk({ refresh: true, operations });
     // console.log(`bulk insert response : ${bulkResponse.items.length}`);
   }
@@ -129,7 +130,7 @@ export class SearchService {
     if (ids.length === 0) return { docs: [] };
     const docs: MgetOperation[] = ids.map((id) => {
       return {
-        _index: process.env.ELASTIC_INDEX,
+        _index: ELASTIC_INDEX,
         _id: id,
         _source: { include: ['key', 'title', 'authors', 'doi', 'publishedAt', 'citations', 'references'] },
       };

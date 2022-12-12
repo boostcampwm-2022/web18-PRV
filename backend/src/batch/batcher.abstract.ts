@@ -10,7 +10,8 @@ import {
   ReferenceInfo,
 } from 'src/search/entities/crossRef.entity';
 import { SearchService } from 'src/search/search.service';
-import { ALLOW_UPDATE, MAX_DEPTH, RESTART_INTERVAL } from './batch.config';
+import { ALLOW_UPDATE } from 'src/envLayer';
+import { MAX_DEPTH, RESTART_INTERVAL } from './batch.config';
 import { RedisQueue } from './batch.queue';
 
 export interface QueueItemParsed {

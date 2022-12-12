@@ -1,0 +1,14 @@
+export const PORT = process.env.PORT || 4000;
+export const REDIS_POPULAR_KEY = process.env.REDIS_POPULAR_KEY;
+export const REDIS_PREVRANKING = process.env.REDIS_PREVRANKING;
+export const REDIS_HOST = process.env.REDIS_HOST || 'localhost';
+export const REDIS_PORT = process.env.REDIS_PORT ? parseInt(process.env.REDIS_PORT, 10) : 6379;
+export const REDIS_PASSWORD = process.env.REDIS_PASSWORD;
+export const ENV_FILE = process.env.ENV_FILE;
+export const NCP_CONTAINER_REGISTRY = process.env.NCP_CONTAINER_REGISTRY;
+export const ELASTIC_INDEX = process.env.ELASTIC_INDEX;
+export const ELASTIC_HOST = process.env.ELASTIC_HOST;
+export const ELASTIC_USER = process.env.ELASTIC_USER;
+export const ELASTIC_PASSWORD = process.env.ELASTIC_PASSWORD;
+export const ALLOW_UPDATE = process.env.ALLOW_UPDATE ? (eval(process.env.ALLOW_UPDATE) as boolean) : false;
+export const MAIL_TO = process.env.MAIL_TO;
