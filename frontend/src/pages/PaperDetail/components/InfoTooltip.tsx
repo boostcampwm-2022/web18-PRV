@@ -2,7 +2,7 @@ import { useState } from 'react';
 import styled from 'styled-components';
 import IconButton from '../../../components/IconButton';
 import InfoIcon from '../../../icons/InfoIcon';
-import { getSessionStorage, setSessionStorage } from '../../../utils/sessionStorage';
+import { getSessionStorage, setSessionStorage } from '../../../utils/storage';
 
 interface InfoContainerProps {
   isOpened: boolean;
