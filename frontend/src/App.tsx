@@ -22,7 +22,7 @@ const queryClient = new QueryClient({
       refetchOnWindowFocus: false,
       refetchOnMount: false,
       refetchOnReconnect: false,
-      staleTime: 5 * 60 * 1000,
+      staleTime: 10 * 60 * 1000,
       retry: (failureCount, error) => {
         if (error instanceof AxiosError) {
           return error.response?.status === 408 && failureCount <= 1 ? true : false;
@@ -47,8 +47,8 @@ function App() {
             <Routes>
               <Route path={PATH_MAIN} element={<Main />} />
               <Route path={PATH_SEARCH_LIST} element={<SearchList />} />
-              <Route path={'*'} element={<GlobalErrorFallback />} />
               <Route path={PATH_DETAIL} element={<PaperDatail />} />
+              <Route path={'*'} element={<GlobalErrorFallback />} />
             </Routes>
           </Suspense>
         </ErrorBoundary>
