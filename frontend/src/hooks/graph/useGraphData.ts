@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { IPaperDetail } from './../../pages/PaperDetail/PaperDetail';
+import { IPaperDetail } from './../../api/api';
 
 export default function useGraphData<T>(data: IPaperDetail) {
   const [links, setLinks] = useState<any[]>([]);

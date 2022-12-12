@@ -24,3 +24,11 @@ export const highlightKeyword = (text: string, keyword: string) => {
 export const sliceTitle = (title: string) => {
   return title.length > MAX_TITLE_LENGTH ? `${title.slice(0, MAX_TITLE_LENGTH)}...` : title;
 };
+
+export const isDoiFormat = (doi: string) => {
+  return RegExp(/^https:\/\/doi.org\/([\d]{2}\.[\d]{1,}\/.*)/i).test(doi);
+};
+
+export const getDoiKey = (doi: string) => {
+  return doi.match(RegExp(/^https:\/\/doi.org\/([\d]{2}\.[\d]{1,}\/.*)/i))?.[1] || '';
+};

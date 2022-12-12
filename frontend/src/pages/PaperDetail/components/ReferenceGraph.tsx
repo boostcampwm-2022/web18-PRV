@@ -1,12 +1,12 @@
 import * as d3 from 'd3';
 import { useEffect, useRef } from 'react';
 import styled from 'styled-components';
+import { IPaperDetail } from '../../../api/api';
 import useGraphData from '../../../hooks/graph/useGraphData';
 import useGraphEmphasize from '../../../hooks/graph/useGraphEmphasize';
 import useGraphZoom from '../../../hooks/graph/useGraphZoom';
 import useLinkUpdate from '../../../hooks/graph/useLinkUpdate';
 import useNodeUpdate from '../../../hooks/graph/useNodeUpdate';
-import { IPaperDetail } from '../PaperDetail';
 import InfoTooltip from './InfoTooltip';
 
 interface ReferenceGraphProps {
