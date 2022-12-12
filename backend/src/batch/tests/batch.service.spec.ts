@@ -9,7 +9,7 @@ describe('doiBatcher', () => {
   beforeEach(() => {
     const httpService = mockHttpService();
     const elasticService = mockElasticService();
-    service = new BatchService(mockRedisQueue(popDoiItem), httpService, new SearchService(elasticService));
+    service = new BatchService(mockRedisQueue(popDoiItem), httpService, new SearchService(elasticService, httpService));
   });
   it('run doi batch', async () => {
     const doiBatcher__runBatch = jest.spyOn(service.doiBatcher, 'runBatch');
