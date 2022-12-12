@@ -47,8 +47,8 @@ function App() {
             <Routes>
               <Route path={PATH_MAIN} element={<Main />} />
               <Route path={PATH_SEARCH_LIST} element={<SearchList />} />
-              <Route path={'*'} element={<GlobalErrorFallback />} />
               <Route path={PATH_DETAIL} element={<PaperDatail />} />
+              <Route path={'*'} element={<GlobalErrorFallback />} />
             </Routes>
           </Suspense>
         </ErrorBoundary>
