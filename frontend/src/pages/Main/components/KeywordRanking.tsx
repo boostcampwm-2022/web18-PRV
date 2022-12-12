@@ -6,7 +6,7 @@ import Api, { IRankingData } from '../../../api/api';
 import IconButton from '../../../components/IconButton';
 import DropdownIcon from '../../../icons/DropdownIcon';
 import DropDownReverseIcon from '../../../icons/DropdownReverseIcon';
-import { createSearchQuery } from '../../../utils/createQuery';
+import { createSearchQuery } from '../../../utils/createQueryString';
 import RankingSlide from './RankingSlide';
 
 const api = new Api();

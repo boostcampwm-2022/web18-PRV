@@ -6,7 +6,7 @@ import Api, { IAutoCompletedItem, IPaperDetail } from '../../api/api';
 import { PATH_SEARCH_LIST } from '../../constants/path';
 import useDebounceValue from '../../hooks/useDebouncedValue';
 import MaginifyingGlassIcon from '../../icons/MagnifyingGlassIcon';
-import { createDetailQuery } from '../../utils/createQuery';
+import { createDetailQuery } from '../../utils/createQueryString';
 import { getDoiKey, isDoiFormat } from '../../utils/format';
 import { getLocalStorage, setLocalStorage } from '../../utils/localStorage';
 import IconButton from '../IconButton';
