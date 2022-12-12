@@ -1,7 +1,7 @@
+import theme from '@/style/theme';
 import { debounce } from 'lodash-es';
 import { useEffect, useMemo, useState } from 'react';
 import styled, { keyframes } from 'styled-components';
-import theme from '../../../style/theme';
 
 const COLORS = [
   theme.COLOR.secondary1,

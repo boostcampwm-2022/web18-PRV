@@ -1,7 +1,7 @@
+import { IPaperDetail } from '@/api/api';
+import { Ellipsis } from '@/style/styleUtils';
+import { removeTag, sliceTitle } from '@/utils/format';
 import styled from 'styled-components';
-import { IPaperDetail } from '../../../api/api';
-import { Ellipsis } from '../../../style/styleUtils';
-import { removeTag, sliceTitle } from '../../../utils/format';
 
 interface IProps {
   data: IPaperDetail;

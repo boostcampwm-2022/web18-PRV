@@ -1,7 +1,7 @@
+import { IPaper } from '@/api/api';
+import { Ellipsis } from '@/style/styleUtils';
+import { highlightKeyword, removeTag, sliceTitle } from '@/utils/format';
 import styled from 'styled-components';
-import { IPaper } from '../../../api/api';
-import { Ellipsis } from '../../../style/styleUtils';
-import { highlightKeyword, removeTag, sliceTitle } from '../../../utils/format';
 
 interface PaperProps {
   data: IPaper;

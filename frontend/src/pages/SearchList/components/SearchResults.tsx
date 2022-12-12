@@ -1,10 +1,10 @@
+import Api, { IGetSearch, IPapersData } from '@/api/api';
+import { Pagination } from '@/components';
+import { createDetailQuery } from '@/utils/createQuery';
 import { isEmpty } from 'lodash-es';
 import { useQuery } from 'react-query';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
-import Api, { IGetSearch, IPapersData } from '../../../api/api';
-import Pagination from '../../../components/Pagination';
-import { createDetailQuery } from '../../../utils/createQuery';
 import Paper from './Paper';
 
 interface SearchResultsProps {

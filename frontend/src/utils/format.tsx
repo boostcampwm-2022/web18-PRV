@@ -1,4 +1,4 @@
-import { Emphasize } from '../style/styleUtils';
+import { Emphasize } from '@/style/styleUtils';
 
 const MAX_TITLE_LENGTH = 150;
 

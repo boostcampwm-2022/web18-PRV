@@ -1,16 +1,15 @@
+import Api, { IAutoCompletedItem, IPaperDetail } from '@/api/api';
+import { IconButton, MoonLoader } from '@/components';
+import { PATH_SEARCH_LIST } from '@/constants/path';
+import { useDebouncedValue } from '@/hooks';
+import { MagnifyingGlassIcon } from '@/icons';
+import { createDetailQuery } from '@/utils/createQuery';
+import { getDoiKey, isDoiFormat } from '@/utils/format';
+import { getLocalStorage, setLocalStorage } from '@/utils/localStorage';
 import { ChangeEvent, KeyboardEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useQuery } from 'react-query';
 import { createSearchParams, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import Api, { IAutoCompletedItem, IPaperDetail } from '../../api/api';
-import { PATH_SEARCH_LIST } from '../../constants/path';
-import useDebounceValue from '../../hooks/useDebouncedValue';
-import MaginifyingGlassIcon from '../../icons/MagnifyingGlassIcon';
-import { createDetailQuery } from '../../utils/createQuery';
-import { getDoiKey, isDoiFormat } from '../../utils/format';
-import { getLocalStorage, setLocalStorage } from '../../utils/localStorage';
-import IconButton from '../IconButton';
-import MoonLoader from '../loader/MoonLoader';
 import AutoCompletedList from './AutoCompletedList';
 import RecentKeywordsList from './RecentKeywordsList';
 
@@ -34,7 +33,7 @@ const Search = ({ initialKeyword = '' }: SearchProps) => {
   const [hoverdIndex, setHoveredIndex] = useState<number>(-1);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const debouncedValue = useDebounceValue(keyword, 150);
+  const debouncedValue = useDebouncedValue(keyword, 150);
 
   const { isLoading, data: autoCompletedItems } = useQuery<IAutoCompletedItem[]>(
     ['getAutoComplete', debouncedValue],
@@ -200,7 +199,7 @@ const Search = ({ initialKeyword = '' }: SearchProps) => {
             onKeyDown={handleInputKeyDown}
           />
           <IconButton
-            icon={<MaginifyingGlassIcon />}
+            icon={<MagnifyingGlassIcon />}
             onClick={() => handleSearchButtonClick(keyword)}
             aria-label="검색"
           />

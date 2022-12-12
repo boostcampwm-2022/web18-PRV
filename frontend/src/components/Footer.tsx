@@ -1,5 +1,5 @@
+import { GithubLogoIcon } from '@/icons';
 import styled from 'styled-components';
-import GithubLogoIcon from '../icons/GithubLogoIcon';
 
 interface FooterProps {
   bgColor?: string;

@@ -1,12 +1,11 @@
+import Api, { IRankingData } from '@/api/api';
+import { IconButton } from '@/components';
+import { DropdownIcon, DropdownReverseIcon } from '@/icons';
+import { createSearchQuery } from '@/utils/createQuery';
 import { useState } from 'react';
 import { useQuery } from 'react-query';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
-import Api, { IRankingData } from '../../../api/api';
-import IconButton from '../../../components/IconButton';
-import DropdownIcon from '../../../icons/DropdownIcon';
-import DropDownReverseIcon from '../../../icons/DropdownReverseIcon';
-import { createSearchQuery } from '../../../utils/createQuery';
 import RankingSlide from './RankingSlide';
 
 const api = new Api();
@@ -35,7 +34,7 @@ const KeywordRanking = () => {
             {!isLoading && rankingData?.length ? <RankingSlide rankingData={rankingData} /> : '데이터가 없습니다.'}
           </RankingContent>
           <IconButton
-            icon={isRankingListOpen ? <DropDownReverseIcon /> : <DropdownIcon />}
+            icon={isRankingListOpen ? <DropdownReverseIcon /> : <DropdownIcon />}
             onClick={handleRankingClick}
             aria-label={isRankingListOpen ? '인기검색어 목록 닫기' : '인기검색어 목록 펼치기'}
           />
