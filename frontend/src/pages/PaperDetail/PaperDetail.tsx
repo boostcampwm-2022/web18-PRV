@@ -19,10 +19,7 @@ const PaperDatail = () => {
   const [doi, setDoi] = useState<string>(searchParams.get('doi') || '');
   const [hoveredNode, setHoveredNode] = useState('');
 
-  const { isLoading, data: _data } = usePaperQuery(doi.toLowerCase(), {
-    suspense: false,
-    useErrorBoundary: true,
-  });
+  const { isLoading, data: _data } = usePaperQuery(doi.toLowerCase());
 
   const handlePreviousButtonClick = () => {
     navigate(-1);

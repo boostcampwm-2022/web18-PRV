@@ -1,4 +1,3 @@
-import { isEmpty } from 'lodash-es';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { IGetSearch } from '../../../api/api';
@@ -15,9 +14,7 @@ interface SearchResultsProps {
 const SearchResults = ({ params, changePage }: SearchResultsProps) => {
   const keyword = params.keyword || '';
   const page = Number(params.page);
-  const { data } = useSearchQuery(params, {
-    enabled: !isEmpty(params),
-  });
+  const { data } = useSearchQuery(params);
 
   return data && data.papers.length > 0 ? (
     <>

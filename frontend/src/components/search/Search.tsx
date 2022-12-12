@@ -36,7 +36,6 @@ const Search = ({ initialKeyword = '' }: SearchProps) => {
 
   const { isLoading, data: autoCompletedItems } = useAutoCompleteQuery(debouncedValue, {
     enabled: !!(debouncedValue && debouncedValue.length >= 2 && isFocused),
-    suspense: false,
   });
 
   const navigate = useNavigate();

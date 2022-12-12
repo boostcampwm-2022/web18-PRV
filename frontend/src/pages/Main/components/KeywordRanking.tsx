@@ -10,7 +10,7 @@ import RankingSlide from './RankingSlide';
 
 const KeywordRanking = () => {
   const [isRankingListOpen, setIsRankingListOpen] = useState(false);
-  const { isLoading, data: rankingData } = useKeywordRankingQuery({ suspense: false });
+  const { isLoading, data: rankingData } = useKeywordRankingQuery();
 
   const handleRankingClick = () => {
     setIsRankingListOpen((prev) => !prev);
