@@ -10,14 +10,23 @@ const ColorRangeBar = () => {
   return (
     <Container>
       <label>citations</label>
-      <ColorRange style={{ background: `linear-gradient(90deg,${colors.join(', ')})` }} />
+      <ColorRange>
+        {colors.map((color) => (
+          <div key={color} style={{ background: color }} />
+        ))}
+      </ColorRange>
+
       <Axis>
         {axisNums.map((num, i) => (
-          <span key={num} style={{ color: colors[i], left: `${(100 / (axisNums.length - 1)) * i}%` }}>
+          <span key={num} style={{ color: colors[i], left: `${(100 / axisNums.length) * i}%` }}>
             {num}
-            {i === axisNums.length - 1 && '+'}
+            {i === axisNums.length - 1}
           </span>
         ))}
+        <span style={{ color: colors[colors.length - 1], left: '100%' }}>
+          {axisNums[axisNums.length - 1]}
+          {'+'}
+        </span>
       </Axis>
     </Container>
   );
@@ -28,10 +37,6 @@ const Container = styled.div`
   position: absolute;
   bottom: 30px;
   right: 30px;
-  opacity: 0.3;
-  :hover {
-    opacity: 1;
-  }
   > label {
     color: ${(props) => props.theme.COLOR.offWhite};
     margin: 0 0 0 auto;
@@ -40,10 +45,13 @@ const Container = styled.div`
 
 const ColorRange = styled.div`
   margin: 0 auto;
-  width: 300px;
-  height: 30px;
-  background: linear-gradient(90deg, rgba(2, 0, 36, 1) 0%, rgba(9, 9, 121, 1) 32%, rgba(0, 212, 255, 1) 100%);
+  width: 200px;
+  height: 20px;
   margin: 10px 0;
+  display: flex;
+  > div {
+    flex: 1;
+  }
 `;
 
 const Axis = styled.div`

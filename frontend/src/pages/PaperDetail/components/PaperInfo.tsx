@@ -1,7 +1,7 @@
 import styled from 'styled-components';
+import { IPaperDetail } from '../../../api/api';
 import { Ellipsis } from '../../../style/styleUtils';
 import { removeTag, sliceTitle } from '../../../utils/format';
-import { IPaperDetail } from '../PaperDetail';
 
 interface IProps {
   data: IPaperDetail;
@@ -33,6 +33,7 @@ const PaperInfo = ({ data, hoveredNode, changeHoveredNode, addChildrensNodes }: 
           <InfoItem>
             <h3>DOI</h3>
             <a href={DOI_BASE_URL + data?.doi} target="_blank" rel="noopener noreferrer">
+              {DOI_BASE_URL}
               {data?.doi}
             </a>
           </InfoItem>
@@ -119,7 +120,8 @@ const References = styled.div`
   display: flex;
   flex-direction: column;
   gap: 20px;
-  overflow: scroll;
+  overflow-y: scroll;
+  overflow-x: hidden;
   h3 {
     ${({ theme }) => theme.TYPO.body_h};
     padding: 0 15px;
@@ -141,6 +143,7 @@ const ReferenceItem = styled.li<{ disabled: boolean }>`
   opacity: ${({ disabled }) => (disabled ? 0.5 : 1)};
 
   span {
+    word-break: break-all;
     :first-child {
       ${({ theme }) => theme.TYPO.body2_h};
       line-height: 1.1rem;
