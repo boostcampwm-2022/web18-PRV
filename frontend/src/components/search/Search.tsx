@@ -32,6 +32,7 @@ const Search = ({ initialKeyword = '' }: SearchProps) => {
   const [recentKeywords, setRecentKeywords] = useState<string[]>([]);
   const [isFocused, setIsFocused] = useState<boolean>(false);
   const [hoverdIndex, setHoveredIndex] = useState<number>(-1);
+  const [doi, setDoi] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 
   const debouncedValue = useDebounceValue(keyword, 150);
@@ -44,6 +45,23 @@ const Search = ({ initialKeyword = '' }: SearchProps) => {
       suspense: false,
     },
   );
+
+  useQuery<IPaperDetail>(['paperDetail', doi?.toLowerCase()], () => api.getPaperDetail({ doi }), {
+    select: (data) => {
+      const referenceList = data.referenceList.filter((reference) => reference.title);
+      return { ...data, referenceList };
+    },
+    enabled: !!doi,
+    suspense: false,
+    useErrorBoundary: true,
+    onSuccess: () => {
+      // 유효 DOI라면 상세페이지로 이동
+      goToDetailPage(keyword);
+    },
+    onError: () => {
+      goToSearchList(keyword);
+    },
+  });
 
   const navigate = useNavigate();
 
@@ -114,16 +132,7 @@ const Search = ({ initialKeyword = '' }: SearchProps) => {
 
     // DOI 형식의 input이 들어온 경우
     if (isDoiFormat(newKeyword)) {
-      try {
-        // 유효 DOI라면 상세페이지로 이동
-        const data = await api.getPaperDetail({ doi: newKeyword.toLowerCase() });
-        const referenceList = data.referenceList.filter((reference) => reference.title);
-        const result = { ...data, referenceList };
-        goToDetailPage(newKeyword, { initialData: result });
-      } catch {
-        // DOI에 해당하는 논문이 없다면 검색결과 페이지로 이동
-        goToSearchList(newKeyword);
-      }
+      setDoi(newKeyword);
       return;
     }
     goToSearchList(newKeyword);
