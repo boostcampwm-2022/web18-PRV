@@ -34,3 +34,4 @@ export class Queue<T = string> {
   }
 }
 export const CROSSREF_CACHE_QUEUE = new Queue();
+export const urlRegex = /(https?:\/\/[^\s]+)/gm;

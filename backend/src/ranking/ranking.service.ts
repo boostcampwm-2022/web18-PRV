@@ -1,8 +1,9 @@
-import { BadRequestException, HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import Redis from 'ioredis';
 import { Ranking } from './entities/ranking.entity';
 import { Interval } from '@nestjs/schedule';
+import { urlRegex } from 'src/util';
 
 @Injectable()
 export class RankingService {
@@ -24,6 +25,7 @@ export class RankingService {
   }
   async insertRedis(data: string) {
     if (data === '' || data.length < 2) return;
+    if (data.match(urlRegex)) return;
     const encodeData = decodeURI(data);
     try {
       const isRanking: string = await this.redis.zscore(process.env.REDIS_POPULAR_KEY, encodeData);
