@@ -10,7 +10,7 @@ import {
   ReferenceInfo,
 } from 'src/search/entities/crossRef.entity';
 import { SearchService } from 'src/search/search.service';
-import { ALLOW_UPDATE } from 'src/envLayer';
+import { ALLOW_UPDATE, SHOULD_RUN_BATCH } from 'src/envLayer';
 import { MAX_DEPTH, RESTART_INTERVAL } from './batch.config';
 import { RedisQueue } from './batch.queue';
 
@@ -72,6 +72,7 @@ export abstract class Batcher {
   }
 
   pushToQueue(retries = 0, depth = 0, page = -1, shouldPushLeft = false, ...params: string[]) {
+    if (!SHOULD_RUN_BATCH) return;
     const url = this.makeUrl(...params);
     this.queue.push(`${retries}:${depth}:${page}:${url}`, shouldPushLeft);
   }

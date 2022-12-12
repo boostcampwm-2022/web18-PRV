@@ -12,3 +12,4 @@ export const ELASTIC_USER = process.env.ELASTIC_USER;
 export const ELASTIC_PASSWORD = process.env.ELASTIC_PASSWORD;
 export const ALLOW_UPDATE = process.env.ALLOW_UPDATE ? (eval(process.env.ALLOW_UPDATE) as boolean) : false;
 export const MAIL_TO = process.env.MAIL_TO;
+export const SHOULD_RUN_BATCH = process.env.SHOULD_RUN_BATCH ? (eval(process.env.SHOULD_RUN_BATCH) as boolean) : true;
