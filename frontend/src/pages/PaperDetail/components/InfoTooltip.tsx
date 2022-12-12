@@ -2,7 +2,6 @@ import { useState } from 'react';
 import styled from 'styled-components';
 import IconButton from '../../../components/IconButton';
 import InfoIcon from '../../../icons/InfoIcon';
-import XMark from '../../../icons/XMark';
 import { getSessionStorage, setSessionStorage } from '../../../utils/sessionStorage';
 
 interface InfoContainerProps {
