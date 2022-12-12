@@ -62,8 +62,12 @@ export class SearchService {
     return new PaperInfoDetail(data);
   };
   async getPaperFromCrossref(doi: string) {
-    const item = await this.httpService.axiosRef.get<CrossRefPaperResponse>(CROSSREF_API_PAPER_URL(doi));
-    return this.parsePaperInfoDetail(item.data.message);
+    try {
+      const item = await this.httpService.axiosRef.get<CrossRefPaperResponse>(CROSSREF_API_PAPER_URL(doi));
+      return this.parsePaperInfoDetail(item.data.message);
+    } catch (error) {
+      throw new NotFoundException('해당 doi는 존재하지 않습니다. 정보를 수집중입니다.');
+    }
   }
   async getPaper(doi: string) {
     try {
