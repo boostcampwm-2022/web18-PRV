@@ -7,7 +7,7 @@ import { PATH_SEARCH_LIST } from '../../constants/path';
 import useDebounceValue from '../../hooks/useDebouncedValue';
 import MaginifyingGlassIcon from '../../icons/MagnifyingGlassIcon';
 import { createDetailQuery } from '../../utils/createQuery';
-import { isDoiFormat } from '../../utils/format';
+import { getDoiKey, isDoiFormat } from '../../utils/format';
 import { getLocalStorage, setLocalStorage } from '../../utils/localStorage';
 import IconButton from '../IconButton';
 import MoonLoader from '../loader/MoonLoader';
@@ -32,7 +32,6 @@ const Search = ({ initialKeyword = '' }: SearchProps) => {
   const [recentKeywords, setRecentKeywords] = useState<string[]>([]);
   const [isFocused, setIsFocused] = useState<boolean>(false);
   const [hoverdIndex, setHoveredIndex] = useState<number>(-1);
-  const [doi, setDoi] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 
   const debouncedValue = useDebounceValue(keyword, 150);
@@ -45,23 +44,6 @@ const Search = ({ initialKeyword = '' }: SearchProps) => {
       suspense: false,
     },
   );
-
-  useQuery<IPaperDetail>(['paperDetail', doi?.toLowerCase()], () => api.getPaperDetail({ doi }), {
-    select: (data) => {
-      const referenceList = data.referenceList.filter((reference) => reference.title);
-      return { ...data, referenceList };
-    },
-    enabled: !!doi,
-    suspense: false,
-    useErrorBoundary: true,
-    onSuccess: () => {
-      // 유효 DOI라면 상세페이지로 이동
-      goToDetailPage(keyword);
-    },
-    onError: () => {
-      goToSearchList(keyword);
-    },
-  });
 
   const navigate = useNavigate();
 
@@ -132,7 +114,7 @@ const Search = ({ initialKeyword = '' }: SearchProps) => {
 
     // DOI 형식의 input이 들어온 경우
     if (isDoiFormat(newKeyword)) {
-      setDoi(newKeyword);
+      goToDetailPage(getDoiKey(newKeyword));
       return;
     }
     goToSearchList(newKeyword);

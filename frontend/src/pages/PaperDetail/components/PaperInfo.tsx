@@ -33,6 +33,7 @@ const PaperInfo = ({ data, hoveredNode, changeHoveredNode, addChildrensNodes }: 
           <InfoItem>
             <h3>DOI</h3>
             <a href={DOI_BASE_URL + data?.doi} target="_blank" rel="noopener noreferrer">
+              {DOI_BASE_URL}
               {data?.doi}
             </a>
           </InfoItem>

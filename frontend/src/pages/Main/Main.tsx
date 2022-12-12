@@ -24,6 +24,9 @@ const Main = () => {
         <ErrorBoundary fallback={RankingErrorFallback}>
           <KeywordRanking />
         </ErrorBoundary>
+        <Text>
+          * DOI로 직접 검색하시면 원하는 논문을 바로 찾을 수 있습니다.{'\n'}(DOI 형식 : https://doi.org/xxxxx)
+        </Text>
         <Search />
       </MainContainer>
       <Positioner>
@@ -71,6 +74,13 @@ const Positioner = styled.div`
   position: absolute;
   bottom: 0;
   width: 100%;
+`;
+
+const Text = styled.div`
+  white-space: pre-line;
+  text-align: center;
+  ${({ theme }) => theme.TYPO.body2}
+  line-height : 1.5
 `;
 
 export default Main;

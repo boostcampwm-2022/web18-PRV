@@ -26,5 +26,9 @@ export const sliceTitle = (title: string) => {
 };
 
 export const isDoiFormat = (doi: string) => {
-  return RegExp(/^[\d]{2}\.[\d]{1,}\/.*/).test(doi);
+  return RegExp(/^https:\/\/doi.org\/([\d]{2}\.[\d]{1,}\/.*)/i).test(doi);
+};
+
+export const getDoiKey = (doi: string) => {
+  return doi.match(RegExp(/^https:\/\/doi.org\/([\d]{2}\.[\d]{1,}\/.*)/i))?.[1] || '';
 };
