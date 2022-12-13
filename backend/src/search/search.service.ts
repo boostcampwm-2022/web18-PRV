@@ -101,21 +101,18 @@ export class SearchService {
     });
   }
   async getElasticSearch(keyword: string, size = 5, from = 0) {
+    const key = decodeURIComponent(keyword);
     const query = {
       bool: {
         should: [
           {
-            match_bool_prefix: {
-              title: {
-                query: keyword,
-              },
+            match_phrase_prefix: {
+              title: key,
             },
           },
           {
-            match_bool_prefix: {
-              author: {
-                query: keyword,
-              },
+            match_phrase_prefix: {
+              authors: key,
             },
           },
         ],
