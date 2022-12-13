@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - "backend/**"
+      - 'backend/**'
 
 jobs:
   push_to_registry_be:
@@ -47,6 +47,6 @@ jobs:
           password: ${{ secrets.PRODUCTION_BE_PASSWORD }}
           port: ${{ secrets.PRODUCTION_BE_PORT }}
           script: |
-            docker compose --env-file ${{ secrets.ENV_FILENAME_BACKEND }} pull
-            docker compose --env-file ${{ secrets.ENV_FILENAME_BACKEND }} up -d
+            docker-compose --env-file ${{ secrets.ENV_FILENAME_BACKEND }} -f docker-compose.be.prod.yml pull
+            docker-compose --env-file ${{ secrets.ENV_FILENAME_BACKEND }} -f docker-compose.be.prod.yml up -d
             docker image prune -f
