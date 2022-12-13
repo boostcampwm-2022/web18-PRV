@@ -65,13 +65,13 @@ const Search = ({ initialKeyword = '' }: SearchProps) => {
     [navigate],
   );
 
-  const getRecentKeywordsFromLocalStorage = useCallback(() => {
+  const getRecentKeywords = () => {
     const result = getLocalStorage('recentKeywords');
     if (!Array.isArray(result)) {
       return [];
     }
     return result;
-  }, []);
+  };
 
   // 논문 상세정보 페이지로 이동
   const goToDetailPage = (doi: string, state?: { initialData: IPaperDetail }) => {
@@ -85,8 +85,6 @@ const Search = ({ initialKeyword = '' }: SearchProps) => {
 
   // localStorage에서 가져온 recent keywords를 최근에 검색한 순서대로 set
   const handleInputFocus = () => {
-    const recentKeywords = getRecentKeywordsFromLocalStorage();
-    setRecentKeywords(recentKeywords.reverse());
     setIsFocused(true);
   };
 
@@ -94,15 +92,19 @@ const Search = ({ initialKeyword = '' }: SearchProps) => {
     setIsFocused(false);
   };
 
+  const initializeRecentKeywords = useCallback(() => {
+    const recentKeywords = getRecentKeywords();
+    setRecentKeywords(recentKeywords);
+  }, []);
+
   // localStorage에 최근 검색어를 중복없이 최대 5개까지 저장 후 search-list로 이동
   const handleSearchButtonClick = async (newKeyword: string) => {
     if (!newKeyword) return;
     setKeyword(newKeyword);
-    const recentKeywords = getRecentKeywordsFromLocalStorage();
-    const recentSet = new Set(recentKeywords);
-    recentSet.delete(newKeyword);
-    recentSet.add(newKeyword);
-    setLocalStorage('recentKeywords', Array.from(recentSet).slice(-5));
+    setLocalStorage(
+      'recentKeywords',
+      Array.from([newKeyword, ...recentKeywords.filter((keyword) => keyword !== newKeyword)]).slice(0, 5),
+    );
 
     // DOI 형식의 input이 들어온 경우
     if (isDoiFormat(newKeyword)) {
@@ -139,10 +141,10 @@ const Search = ({ initialKeyword = '' }: SearchProps) => {
 
     switch (e.code) {
       case 'ArrowDown':
-        setHoveredIndex((prev) => (prev + 1) % length);
+        setHoveredIndex((prev) => (prev + 1 > length - 1 ? -1 : prev + 1));
         break;
       case 'ArrowUp':
-        setHoveredIndex((prev) => (prev - 1 < 0 ? length - 1 : (prev - 1) % length));
+        setHoveredIndex((prev) => (prev - 1 < -1 ? length - 1 : prev - 1));
         break;
       case 'Enter':
         handleEnterKeyDown();
@@ -167,6 +169,7 @@ const Search = ({ initialKeyword = '' }: SearchProps) => {
           hoverdIndex={hoverdIndex}
           handleMouseDown={handleSearchButtonClick}
           setHoveredIndex={setHoveredIndex}
+          initializeRecentKeywords={initializeRecentKeywords}
         />
       ),
       [DROPDOWN_TYPE.LOADING]: <MoonLoader />,
@@ -177,6 +180,10 @@ const Search = ({ initialKeyword = '' }: SearchProps) => {
   useEffect(() => {
     setKeyword(initialKeyword);
   }, [initialKeyword]);
+
+  useEffect(() => {
+    initializeRecentKeywords();
+  }, [initializeRecentKeywords]);
 
   return (
     <Container>
