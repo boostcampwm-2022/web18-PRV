@@ -15,7 +15,10 @@ export default function useNodeUpdate(
       const normalSymbol = d3.symbol().type(d3.symbolSquare).size(NORMAL_SYMBOL_SIZE)();
       const starSymbol = d3.symbol().type(d3.symbolStar).size(STAR_SYMBOL_SIZE)();
 
-      const converToColor = d3.scaleLog([1, 10000], ['white', theme.COLOR.secondary2]).interpolate(d3.interpolateRgb);
+      const converToColor = (value: number) => {
+        const loged = Math.trunc(Math.log10(value));
+        return d3.scaleLinear([0, 4], ['white', theme.COLOR.secondary2]).interpolate(d3.interpolateRgb)(loged);
+      };
 
       d3.select(nodesSelector)
         .selectAll('path')
