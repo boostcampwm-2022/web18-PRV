@@ -5,7 +5,7 @@ export const Ellipsis = styled.span`
   overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
-  -webkit-line-clamp: 3;
+  -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
   word-break: keep-all;
 `;

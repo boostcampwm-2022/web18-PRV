@@ -2,6 +2,7 @@ import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { HttpService } from '@nestjs/axios';
 import { Interval } from '@nestjs/schedule';
 import Redis from 'ioredis';
+import { SHOULD_RUN_BATCH } from 'src/envLayer';
 import { SearchService } from 'src/search/search.service';
 import { TIME_INTERVAL, SEARCH_BATCH_SIZE, DOI_BATCH_SIZE } from './batch.config';
 import { DoiBatcher } from './batcher.doi';
@@ -32,6 +33,7 @@ export class BatchService {
     return (await this.redis.ttl(key)) >= 0;
   }
   async setKeyword(keyword: string) {
+    if (!SHOULD_RUN_BATCH) return false;
     const lowercased = keyword.toLowerCase();
     if (await this.keywordExist(lowercased)) return false;
     const key = this.keywordToRedisKey(lowercased);

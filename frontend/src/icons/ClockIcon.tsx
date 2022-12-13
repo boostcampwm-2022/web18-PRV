@@ -1,4 +1,4 @@
-import theme from '../style/theme';
+import theme from '@/style/theme';
 
 const Clockicon = () => {
   return (

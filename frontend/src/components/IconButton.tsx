@@ -2,7 +2,8 @@ import styled from 'styled-components';
 
 interface IProps {
   icon: JSX.Element;
-  onClick: React.MouseEventHandler;
+  onClick?: React.MouseEventHandler;
+  'aria-label': string;
 }
 
 const IconButton = ({ icon, onClick, ...rest }: IProps) => {

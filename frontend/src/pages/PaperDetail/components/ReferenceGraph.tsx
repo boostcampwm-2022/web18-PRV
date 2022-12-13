@@ -1,12 +1,9 @@
+import { IPaperDetail } from '@/api/api';
+import { useGraphData, useGraphEmphasize, useGraphZoom, useLinkUpdate, useNodeUpdate } from '@/hooks';
 import * as d3 from 'd3';
 import { useEffect, useRef } from 'react';
 import styled from 'styled-components';
-import { IPaperDetail } from '../../../api/api';
-import useGraphData from '../../../hooks/graph/useGraphData';
-import useGraphEmphasize from '../../../hooks/graph/useGraphEmphasize';
-import useGraphZoom from '../../../hooks/graph/useGraphZoom';
-import useLinkUpdate from '../../../hooks/graph/useLinkUpdate';
-import useNodeUpdate from '../../../hooks/graph/useNodeUpdate';
+import InfoTooltip from './InfoTooltip';
 
 interface ReferenceGraphProps {
   data: IPaperDetail;
@@ -55,6 +52,7 @@ const ReferenceGraph = ({ data, addChildrensNodes, hoveredNode, changeHoveredNod
 
   return (
     <Container>
+      <InfoTooltip />
       <Graph ref={svgRef}>
         <Links ref={linkRef}></Links>
         <Nodes ref={nodeRef}></Nodes>

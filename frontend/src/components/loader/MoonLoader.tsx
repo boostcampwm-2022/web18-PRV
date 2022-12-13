@@ -1,7 +1,7 @@
+import theme from '@/style/theme';
 import * as d3 from 'd3';
 import { memo, useEffect, useRef } from 'react';
 import styled from 'styled-components';
-import theme from '../../style/theme';
 
 const MoonLoader = () => {
   const pathRef = useRef<SVGPathElement>(null);
