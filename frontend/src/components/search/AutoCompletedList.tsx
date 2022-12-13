@@ -1,8 +1,7 @@
 import { IAutoCompletedItem } from '@/api/api';
-import { removeTag, sliceTitle } from '@/utils/format';
+import { highlightKeyword, removeTag, sliceTitle } from '@/utils/format';
 import { Dispatch, SetStateAction, useEffect } from 'react';
 import styled from 'styled-components';
-
 interface AutoCompletedListProps {
   autoCompletedItems?: IAutoCompletedItem[];
   keyword: string;
@@ -21,23 +20,6 @@ const AutoCompletedList = ({
   const handleAutoCompletedDown = (index: number) => {
     const doi = autoCompletedItems[index].doi;
     handleMouseDown(doi);
-  };
-
-  // keyword 강조
-  const highlightKeyword = (text: string) => {
-    const rawKeywordList = keyword.trim().toLowerCase().split(/\s/gi);
-
-    return rawKeywordList.length > 0 && rawKeywordList.some((rawKeyword) => text.toLowerCase().includes(rawKeyword))
-      ? text
-          .split(new RegExp(`(${rawKeywordList.join('|')})`, 'gi'))
-          .map((part, i) =>
-            rawKeywordList.some((keywordPart) => part.trim().toLowerCase() === keywordPart) ? (
-              <Emphasize key={i}>{part}</Emphasize>
-            ) : (
-              part
-            ),
-          )
-      : text;
   };
 
   // 대표 author찾기
@@ -64,10 +46,10 @@ const AutoCompletedList = ({
             onMouseOver={() => setHoveredIndex(i)}
             onMouseDown={() => handleAutoCompletedDown(i)}
           >
-            <Title>{highlightKeyword(sliceTitle(removeTag(item.title)))}</Title>
+            <Title>{highlightKeyword(sliceTitle(removeTag(item.title)), keyword)}</Title>
             {item.authors && (
               <Author>
-                authors : {highlightKeyword(getRepresentativeAuthor(item.authors))}
+                authors : {highlightKeyword(getRepresentativeAuthor(item.authors), keyword)}
                 {item.authors.length > 1 && <span>외 {item.authors.length - 1}명</span>}
               </Author>
             )}
@@ -102,11 +84,6 @@ const Title = styled.div`
 const Author = styled.div`
   ${({ theme }) => theme.TYPO.caption}
   color: ${({ theme }) => theme.COLOR.gray3};
-`;
-
-const Emphasize = styled.span`
-  color: #3244ff;
-  font-weight: 700;
 `;
 
 const NoResult = styled.div`

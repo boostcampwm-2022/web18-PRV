@@ -18,23 +18,23 @@ const Paper = ({ data, keyword }: PaperProps) => {
       {title && <Title>{highlightKeyword(sliceTitle(removeTag(title)), keyword)}</Title>}
       {authors && (
         <Content>
-          <div>
-            <Bold>{authors.length > 1 ? 'Authors ' : 'Author '}</Bold>
+          <ContentItem>
+            <Bold>{authors.length > 1 ? 'Authors' : 'Author'}</Bold>
             <Ellipsis>{highlightKeyword(authors?.join(', '), keyword)}</Ellipsis>
-          </div>
+          </ContentItem>
         </Content>
       )}
       <Content>
-        <div>
-          <Bold>Published </Bold>
-          {year}
-        </div>
-        <div>
-          <Bold>cited by </Bold>
-          {citations}
-          <Bold> references </Bold>
-          {references}
-        </div>
+        <ContentItem>
+          <Bold>Published</Bold>
+          <span>{year}</span>
+        </ContentItem>
+        <ContentItem>
+          <Bold>cited by</Bold>
+          <span>{citations}</span>
+          <Bold>references</Bold>
+          <span>{references}</span>
+        </ContentItem>
       </Content>
     </Container>
   );
@@ -60,6 +60,11 @@ const Content = styled.div`
   color: ${({ theme }) => theme.COLOR.gray4};
   display: flex;
   justify-content: space-between;
+`;
+
+const ContentItem = styled.div`
+  display: flex;
+  gap: 5px;
 `;
 
 const Bold = styled.b`

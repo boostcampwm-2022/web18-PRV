@@ -109,6 +109,7 @@ const InfoItem = styled.div`
 
 const InfoAuthor = styled(Ellipsis)`
   ${({ theme }) => theme.TYPO.body2};
+  -webkit-line-clamp: 3;
 `;
 
 const DivideLine = styled.hr`

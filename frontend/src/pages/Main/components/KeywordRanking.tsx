@@ -1,24 +1,15 @@
-import Api, { IRankingData } from '@/api/api';
 import { IconButton } from '@/components';
 import { DropdownIcon, DropdownReverseIcon } from '@/icons';
-import { createSearchQuery } from '@/utils/createQuery';
+import { useKeywordRankingQuery } from '@/queries/queries';
+import { createSearchQuery } from '@/utils/createQueryString';
 import { useState } from 'react';
-import { useQuery } from 'react-query';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import RankingSlide from './RankingSlide';
 
-const api = new Api();
-
 const KeywordRanking = () => {
   const [isRankingListOpen, setIsRankingListOpen] = useState(false);
-  const { isLoading, data: rankingData } = useQuery<IRankingData[]>(
-    'getKeywordRanking',
-    () => api.getKeywordRanking(),
-    {
-      suspense: false,
-    },
-  );
+  const { isLoading, data: rankingData } = useKeywordRankingQuery();
 
   const handleRankingClick = () => {
     setIsRankingListOpen((prev) => !prev);
@@ -107,6 +98,8 @@ const HeaderDivideLine = styled.hr`
 
 const DivideLine = styled.hr`
   width: 100%;
+  border: 1px solid ${({ theme }) => theme.COLOR.offWhite};
+  fill: ${({ theme }) => theme.COLOR.offWhite};
   margin-bottom: 10px;
 `;
 

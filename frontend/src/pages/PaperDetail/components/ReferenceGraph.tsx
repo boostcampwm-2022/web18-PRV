@@ -3,6 +3,7 @@ import { useGraphData, useGraphEmphasize, useGraphZoom, useLinkUpdate, useNodeUp
 import * as d3 from 'd3';
 import { useEffect, useRef } from 'react';
 import styled from 'styled-components';
+import InfoTooltip from './InfoTooltip';
 
 interface ReferenceGraphProps {
   data: IPaperDetail;
@@ -51,6 +52,7 @@ const ReferenceGraph = ({ data, addChildrensNodes, hoveredNode, changeHoveredNod
 
   return (
     <Container>
+      <InfoTooltip />
       <Graph ref={svgRef}>
         <Links ref={linkRef}></Links>
         <Nodes ref={nodeRef}></Nodes>

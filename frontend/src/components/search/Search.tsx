@@ -1,13 +1,13 @@
-import Api, { IAutoCompletedItem, IPaperDetail } from '@/api/api';
+import { IPaperDetail } from '@/api/api';
 import { IconButton, MoonLoader } from '@/components';
 import { PATH_SEARCH_LIST } from '@/constants/path';
 import { useDebouncedValue } from '@/hooks';
 import { MagnifyingGlassIcon } from '@/icons';
-import { createDetailQuery } from '@/utils/createQuery';
+import { useAutoCompleteQuery } from '@/queries/queries';
+import { createDetailQuery } from '@/utils/createQueryString';
 import { getDoiKey, isDoiFormat } from '@/utils/format';
-import { getLocalStorage, setLocalStorage } from '@/utils/localStorage';
+import { getLocalStorage, setLocalStorage } from '@/utils/storage';
 import { ChangeEvent, KeyboardEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useQuery } from 'react-query';
 import { createSearchParams, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import AutoCompletedList from './AutoCompletedList';
@@ -24,8 +24,6 @@ interface SearchProps {
   initialKeyword?: string;
 }
 
-const api = new Api();
-
 const Search = ({ initialKeyword = '' }: SearchProps) => {
   const [keyword, setKeyword] = useState<string>(initialKeyword);
   const [recentKeywords, setRecentKeywords] = useState<string[]>([]);
@@ -35,14 +33,9 @@ const Search = ({ initialKeyword = '' }: SearchProps) => {
 
   const debouncedValue = useDebouncedValue(keyword, 150);
 
-  const { isLoading, data: autoCompletedItems } = useQuery<IAutoCompletedItem[]>(
-    ['getAutoComplete', debouncedValue],
-    () => api.getAutoComplete({ keyword: debouncedValue }),
-    {
-      enabled: !!(debouncedValue && debouncedValue.length >= 2 && isFocused),
-      suspense: false,
-    },
-  );
+  const { isLoading, data: autoCompletedItems } = useAutoCompleteQuery(debouncedValue, {
+    enabled: !!(debouncedValue && debouncedValue.length >= 2 && isFocused),
+  });
 
   const navigate = useNavigate();
 

@@ -1,15 +1,13 @@
-import Api, { IPaperDetail } from '@/api/api';
+import { IPaperDetail } from '@/api/api';
 import { IconButton, MoonLoader } from '@/components';
 import { PATH_MAIN } from '@/constants/path';
 import { LogoIcon, PreviousButtonIcon } from '@/icons';
+import { usePaperQuery } from '@/queries/queries';
 import { useCallback, useEffect, useState } from 'react';
-import { useQuery } from 'react-query';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
 import PaperInfo from './components/PaperInfo';
 import ReferenceGraph from './components/ReferenceGraph';
-
-const api = new Api();
 
 const PaperDatail = () => {
   const navigate = useNavigate();
@@ -19,18 +17,7 @@ const PaperDatail = () => {
   const [doi, setDoi] = useState<string>(searchParams.get('doi') || '');
   const [hoveredNode, setHoveredNode] = useState('');
 
-  const { isLoading, data: _data } = useQuery<IPaperDetail>(
-    ['paperDetail', doi.toLowerCase()],
-    () => api.getPaperDetail({ doi }),
-    {
-      select: (data) => {
-        const referenceList = data.referenceList.filter((reference) => reference.title);
-        return { ...data, referenceList };
-      },
-      suspense: false,
-      useErrorBoundary: true,
-    },
-  );
+  const { isLoading, data: _data } = usePaperQuery(doi.toLowerCase());
 
   const handlePreviousButtonClick = () => {
     navigate(-1);

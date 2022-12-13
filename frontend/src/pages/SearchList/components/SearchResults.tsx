@@ -1,8 +1,7 @@
-import Api, { IGetSearch, IPapersData } from '@/api/api';
+import { IGetSearch } from '@/api/api';
 import { Pagination } from '@/components';
-import { createDetailQuery } from '@/utils/createQuery';
-import { isEmpty } from 'lodash-es';
-import { useQuery } from 'react-query';
+import { useSearchQuery } from '@/queries/queries';
+import { createDetailQuery } from '@/utils/createQueryString';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import Paper from './Paper';
@@ -12,14 +11,10 @@ interface SearchResultsProps {
   changePage: (page: number) => void;
 }
 
-const api = new Api();
-
 const SearchResults = ({ params, changePage }: SearchResultsProps) => {
   const keyword = params.keyword || '';
   const page = Number(params.page);
-  const { data } = useQuery<IPapersData>(['papers', params], () => api.getSearch(params), {
-    enabled: !isEmpty(params),
-  });
+  const { data } = useSearchQuery(params);
 
   return data && data.papers.length > 0 ? (
     <>
