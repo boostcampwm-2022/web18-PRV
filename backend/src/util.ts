@@ -1,7 +1,12 @@
 import { MAIL_TO } from './envLayer';
 
 const BASE_URL = 'https://api.crossref.org/works';
-export const CROSSREF_API_URL = (keyword: string, rows = 5, page = 1, selects: string[] = ['author', 'title', 'DOI']) =>
+export const CROSSREF_API_URL = (
+  keyword: string,
+  rows = 5,
+  page = 1,
+  selects: string[] = ['title', 'author', 'created', 'is-referenced-by-count', 'references-count', 'DOI'],
+) =>
   `${BASE_URL}?query=${keyword}&rows=${rows}&select=${selects.join(',')}&offset=${rows * (page - 1)}&mailto=${MAIL_TO}`;
 
 export const MAX_ROWS = 1000;
