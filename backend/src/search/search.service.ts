@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import {
   CrossRefItem,
   PaperInfoExtended,
@@ -40,20 +40,33 @@ export class SearchService {
     return new PaperInfoExtended(data);
   };
   parsePaperInfoDetail = (item: CrossRefItem) => {
+    const keysTable: { [key: string]: boolean } = {};
     const referenceList =
-      item['reference']?.map((reference) => {
-        return {
-          key: reference['DOI'] || reference.key || reference.unstructured,
-          title:
+      item['reference']
+        ?.map((reference) => {
+          const key = reference['DOI'] || reference.key || reference.unstructured;
+          const title =
             reference['article-title'] ||
             reference['journal-title'] ||
             reference['series-title'] ||
             reference['volume-title'] ||
-            reference.unstructured,
-          doi: reference['DOI'],
-          authors: reference['author'] ? [reference['author']] : undefined,
-        };
-      }) || [];
+            reference.unstructured;
+          const doi = reference['DOI'];
+          const authors = reference['author'] ? [reference['author']] : undefined;
+          return {
+            key,
+            title,
+            doi,
+            authors,
+          };
+        })
+        .filter((reference) => {
+          if (!keysTable[reference.key]) {
+            keysTable[reference.key] = true;
+            return true;
+          }
+          return false;
+        }) || [];
     const data = {
       ...this.parsePaperInfoExtended(item),
       referenceList,
