@@ -6,6 +6,7 @@ import { usePaperQuery } from '@/queries/queries';
 import { useCallback, useEffect, useState } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
+import ColorRangeBar from './components/ColorRangeBar';
 import PaperInfo from './components/PaperInfo';
 import ReferenceGraph from './components/ReferenceGraph';
 
@@ -66,6 +67,7 @@ const PaperDatail = () => {
           </>
         )}
       </Main>
+      <ColorRangeBar />
       {isLoading && (
         <LoaderWrapper>
           <MoonLoader />

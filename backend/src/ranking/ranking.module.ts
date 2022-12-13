@@ -4,15 +4,16 @@ import { RankingController } from './ranking.controller';
 import { RankingService } from './ranking.service';
 import { ConfigModule } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
+import { REDIS_HOST, REDIS_PASSWORD, REDIS_PORT } from 'src/envLayer';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true, envFilePath: `.dev.env` }),
     RedisModule.forRoot({
       config: {
-        host: process.env.REDIS_HOST,
-        port: parseInt(process.env.REDIS_PORT, 10) || 6379,
-        password: process.env.REDIS_PASSWORD,
+        host: REDIS_HOST,
+        port: REDIS_PORT,
+        password: REDIS_PASSWORD,
       },
     }),
     ScheduleModule.forRoot(),
