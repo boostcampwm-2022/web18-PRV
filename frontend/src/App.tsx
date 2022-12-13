@@ -23,6 +23,7 @@ const queryClient = new QueryClient({
       refetchOnMount: false,
       refetchOnReconnect: false,
       staleTime: 10 * 60 * 1000,
+      cacheTime: 10 * 60 * 1000,
       retry: (failureCount, error) => {
         if (error instanceof AxiosError) {
           return error.response?.status === 408 && failureCount <= 1 ? true : false;
