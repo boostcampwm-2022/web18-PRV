@@ -1,9 +1,9 @@
+import { IGetSearch } from '@/api/api';
+import { Pagination } from '@/components';
+import { useSearchQuery } from '@/queries/queries';
+import { createDetailQuery } from '@/utils/createQueryString';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
-import { IGetSearch } from '../../../api/api';
-import Pagination from '../../../components/Pagination';
-import { useSearchQuery } from '../../../queries/queries';
-import { createDetailQuery } from '../../../utils/createQueryString';
 import Paper from './Paper';
 
 interface SearchResultsProps {

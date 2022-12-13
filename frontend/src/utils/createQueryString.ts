@@ -1,4 +1,4 @@
-import { PATH_DETAIL, PATH_SEARCH_LIST } from '../constants/path';
+import { PATH_DETAIL, PATH_SEARCH_LIST } from '@/constants/path';
 
 const DEFAULT_PAGE = 1;
 const DEFAULT_ROWS = 20;

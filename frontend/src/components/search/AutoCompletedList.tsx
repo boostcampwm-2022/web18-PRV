@@ -1,8 +1,7 @@
+import { IAutoCompletedItem } from '@/api/api';
+import { highlightKeyword, removeTag, sliceTitle } from '@/utils/format';
 import { Dispatch, SetStateAction, useEffect } from 'react';
 import styled from 'styled-components';
-import { IAutoCompletedItem } from '../../api/api';
-import { highlightKeyword, removeTag, sliceTitle } from '../../utils/format';
-
 interface AutoCompletedListProps {
   autoCompletedItems?: IAutoCompletedItem[];
   keyword: string;

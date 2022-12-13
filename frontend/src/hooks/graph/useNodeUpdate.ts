@@ -1,6 +1,6 @@
+import theme from '@/style/theme';
 import * as d3 from 'd3';
 import { useCallback } from 'react';
-import theme from '../../style/theme';
 
 const NORMAL_SYMBOL_SIZE = 20;
 const STAR_SYMBOL_SIZE = 100;

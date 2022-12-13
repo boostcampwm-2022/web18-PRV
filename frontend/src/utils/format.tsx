@@ -1,5 +1,6 @@
-import { MAX_TITLE_LENGTH } from '../constants/main';
-import { Emphasize } from '../style/styleUtils';
+import { Emphasize } from '@/style/styleUtils';
+
+const MAX_TITLE_LENGTH = 150;
 
 export const removeTag = (text: string) => {
   return text.replace(/<[^>]*>?/g, ' ');

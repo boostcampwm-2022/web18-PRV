@@ -1,3 +1,8 @@
+import { LoaderWrapper } from '@/components';
+import { PATH_DETAIL, PATH_MAIN, PATH_SEARCH_LIST } from '@/constants/path';
+import { ErrorBoundary } from '@/error';
+import GlobalStyle from '@/style/GlobalStyle';
+import theme from '@/style/theme';
 import { AxiosError } from 'axios';
 import React, { Suspense } from 'react';
 import { QueryClient, QueryClientProvider } from 'react-query';
@@ -5,11 +10,6 @@ import { ReactQueryDevtools } from 'react-query/devtools';
 import { Route, Routes, useLocation } from 'react-router-dom';
 import { ThemeProvider } from 'styled-components';
 import { Reset } from 'styled-reset';
-import LoaderWrapper from './components/loader/LoaderWrapper';
-import { PATH_DETAIL, PATH_MAIN, PATH_SEARCH_LIST } from './constants/path';
-import ErrorBoundary from './error/ErrorBoundary';
-import GlobalStyle from './style/GlobalStyle';
-import theme from './style/theme';
 
 const Main = React.lazy(() => import('./pages/Main/Main'));
 const SearchList = React.lazy(() => import('./pages/SearchList/SearchList'));

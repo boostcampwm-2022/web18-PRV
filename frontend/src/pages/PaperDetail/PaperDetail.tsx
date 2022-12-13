@@ -1,14 +1,12 @@
+import { IPaperDetail } from '@/api/api';
+import { IconButton, MoonLoader } from '@/components';
+import { PATH_MAIN } from '@/constants/path';
+import { LogoIcon, PreviousButtonIcon } from '@/icons';
+import { usePaperQuery } from '@/queries/queries';
 import { useCallback, useEffect, useState } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
-import { IPaperDetail } from '../../api/api';
-import IconButton from '../../components/IconButton';
-import MoonLoader from '../../components/loader/MoonLoader';
-import { PATH_MAIN } from '../../constants/path';
-import LogoIcon from '../../icons/LogoIcon';
-import PreviousButtonIcon from '../../icons/PreviousButtonIcon';
 import ColorRangeBar from './components/ColorRangeBar';
-import { usePaperQuery } from '../../queries/queries';
 import PaperInfo from './components/PaperInfo';
 import ReferenceGraph from './components/ReferenceGraph';
 
