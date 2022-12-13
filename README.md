@@ -8,14 +8,9 @@
 
 ![Javascript](https://img.shields.io/badge/javascript-ES6+-yellow?logo=javascript)
 ![NodeJS](https://img.shields.io/badge/node.js-v18-green?logo=node.js)
+![데모](https://user-images.githubusercontent.com/25934842/207359316-f7056911-d26a-4671-bc3c-2a80e46f24b8.gif)
 
 </div>
-
-### 서비스 배포
-
-- Dev 서버 : http://49.50.172.204:3000/
-
-- Production 서버 : http://101.101.217.49:3000/
 
 ### 팀원
 
