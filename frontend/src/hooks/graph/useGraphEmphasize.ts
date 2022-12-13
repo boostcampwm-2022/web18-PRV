@@ -1,3 +1,4 @@
+import { Link, Node } from '@/pages/PaperDetail/components/ReferenceGraph';
 import * as d3 from 'd3';
 import { useCallback, useEffect } from 'react';
 import { useTheme } from 'styled-components';
@@ -14,8 +15,8 @@ const styles = {
 export default function useGraphEmphasize(
   nodeSelector: SVGGElement | null,
   linkSelector: SVGGElement | null,
-  nodes: any[],
-  links: any[],
+  nodes: Node[],
+  links: Link[],
   hoveredNode: string,
   selectedKey: string,
 ) {
@@ -76,9 +77,13 @@ export default function useGraphEmphasize(
     d3.select(linkSelector)
       .selectAll('line')
       .data(links)
-      .style('stroke', (d) => getStyles(d.source, theme.COLOR.secondary1, theme.COLOR.gray1))
-      .style('stroke-width', (d) => getStyles(d.source, styles.EMPHASIZE_STROKE_WIDTH, styles.BASIC_STROKE_WIDTH))
-      .style('stroke-dasharray', (d) => getStyles(d.source, styles.EMPHASIZE_STROKE_DASH, styles.BASIC_STROKE_DASH));
+      .style('stroke', (d) => getStyles(d.source as string, theme.COLOR.secondary1, theme.COLOR.gray1))
+      .style('stroke-width', (d) =>
+        getStyles(d.source as string, styles.EMPHASIZE_STROKE_WIDTH, styles.BASIC_STROKE_WIDTH),
+      )
+      .style('stroke-dasharray', (d) =>
+        getStyles(d.source as string, styles.EMPHASIZE_STROKE_DASH, styles.BASIC_STROKE_DASH),
+      );
 
     return () => {
       d3.select(nodeSelector).selectAll('text').style('fill-opacity', styles.BASIC_OPACITY);

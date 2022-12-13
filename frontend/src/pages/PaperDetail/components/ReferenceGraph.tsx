@@ -1,8 +1,7 @@
 import { IPaperDetail } from '@/api/api';
-import { useGraphData, useGraphEmphasize, useGraphZoom } from '@/hooks';
-import theme from '@/style/theme';
-import * as d3 from 'd3';
-import { useCallback, useEffect, useRef } from 'react';
+import { useGraph, useGraphData, useGraphEmphasize, useGraphZoom } from '@/hooks';
+import { SimulationNodeDatum } from 'd3';
+import { useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import InfoTooltip from './InfoTooltip';
 
@@ -13,83 +12,54 @@ interface ReferenceGraphProps {
   changeHoveredNode: (key: string) => void;
 }
 
-let worker = new Worker(new URL('../workers/forceSimulation.worker.ts', import.meta.url));
+export interface Node extends SimulationNodeDatum {
+  [key: string]: string | boolean | number | null | undefined;
+  title?: string;
+  author?: string;
+  isSelected: boolean;
+  key: string;
+  doi?: string;
+  citations?: number;
+  publishedYear?: number;
+}
+
+export interface Link {
+  source: Node | string;
+  target: Node | string;
+}
 
 const ReferenceGraph = ({ data, addChildrensNodes, hoveredNode, changeHoveredNode }: ReferenceGraphProps) => {
   const svgRef = useRef<SVGSVGElement | null>(null);
   const linkRef = useRef<SVGGElement | null>(null);
   const nodeRef = useRef<SVGGElement | null>(null);
-  const flag = useRef<number>(0);
+  const workerRef = useRef<Worker | null>(null);
 
-  const { nodes, links } = useGraphData<{ nodes: any[]; links: any[] }>(data);
-
-  const drawLink = useCallback((links: any[]) => {
-    d3.select(linkRef.current)
-      .selectAll('line')
-      .data(links)
-      .join('line')
-      .attr('x1', (d) => d.source?.x)
-      .attr('y1', (d) => d.source?.y)
-      .attr('x2', (d) => d.target?.x)
-      .attr('y2', (d) => d.target?.y);
-  }, []);
-
-  const drawNode = useCallback(
-    (nodes: any[]) => {
-      const NORMAL_SYMBOL_SIZE = 20;
-      const STAR_SYMBOL_SIZE = 100;
-
-      const normalSymbol = d3.symbol().type(d3.symbolSquare).size(NORMAL_SYMBOL_SIZE)();
-      const starSymbol = d3.symbol().type(d3.symbolStar).size(STAR_SYMBOL_SIZE)();
-
-      const converToColor = (value: number) => {
-        const loged = Math.trunc(Math.log10(value));
-        return d3.scaleLinear([0, 4], ['white', theme.COLOR.secondary2]).interpolate(d3.interpolateRgb)(loged);
-      };
-
-      d3.select(nodeRef.current)
-        .selectAll('path')
-        .data(nodes)
-        .join('path')
-        .attr('transform', (d) => `translate(${[d.x, d.y]})`)
-        .attr('d', (d) => (d.isSelected ? starSymbol : normalSymbol))
-        .attr('fill', (d) => converToColor(d.citations || 0))
-        .attr('fill-opacity', (d) => (d.doi ? 1 : 0.5))
-        .on('mouseover', (_, d) => d.doi && changeHoveredNode(d.key))
-        .on('mouseout', () => changeHoveredNode(''))
-        .on('click', (_, d) => d.doi && addChildrensNodes(d.doi));
-
-      d3.select(nodeRef.current)
-        .selectAll('text')
-        .data(nodes)
-        .join('text')
-        .text((d) => `${d.author} ${d.publishedYear ? `(${d.publishedYear})` : ''}`)
-        .attr('x', (d) => d.x)
-        .attr('y', (d) => d.y + 10)
-        .attr('dy', 5)
-        .on('mouseover', (_, d) => d.doi && changeHoveredNode(d.key))
-        .on('mouseout', () => changeHoveredNode(''))
-        .on('click', (_, d) => d.doi && addChildrensNodes(d.doi));
-    },
-    [addChildrensNodes, changeHoveredNode],
-  );
+  const { nodes, links } = useGraphData(data);
+  const { drawLink, drawNode } = useGraph(nodeRef.current, linkRef.current, addChildrensNodes, changeHoveredNode);
 
   useGraphZoom(svgRef.current);
   useGraphEmphasize(nodeRef.current, linkRef.current, nodes, links, hoveredNode, data.key);
 
   useEffect(() => {
     if (links.length <= 0 || !svgRef.current) return;
-    worker.terminate();
-    worker = new Worker(new URL('../workers/forceSimulation.worker.ts', import.meta.url));
-    worker.postMessage({
+
+    if (workerRef.current !== null) {
+      workerRef.current.terminate();
+    }
+
+    workerRef.current = new Worker(new URL('../workers/forceSimulation.worker.ts', import.meta.url));
+
+    // 서브스레드로 nodes, links, 중앙좌표 전송
+    workerRef.current.postMessage({
       nodes,
       links,
       centerX: svgRef.current?.clientWidth / 2,
       centerY: svgRef.current?.clientHeight / 2,
     });
-    worker.onmessage = (event) => {
-      if (event.data.type === 'stop') flag.current = 0;
-      const { newNodes, newLinks } = event.data as { newNodes: any[]; newLinks: any[] };
+
+    // 계산된 좌표를 포함한 nodes, links 수신
+    workerRef.current.onmessage = (event) => {
+      const { newNodes, newLinks } = event.data as { newNodes: Node[]; newLinks: Link[] };
       if (!newLinks || newLinks.length <= 0) return;
       drawLink(newLinks);
       drawNode(newNodes);
