@@ -1,6 +1,6 @@
-import { Controller, Get, Query, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Controller, Get, Query } from '@nestjs/common';
 import { RankingService } from './ranking.service';
-import { ApiResponse, ApiRequestTimeoutResponse, ApiUnsupportedMediaTypeResponse } from '@nestjs/swagger';
+import { ApiResponse, ApiRequestTimeoutResponse } from '@nestjs/swagger';
 import { Ranking } from './entities/ranking.entity';
 
 @Controller('keyword-ranking')
