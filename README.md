@@ -12,6 +12,8 @@
 
 </div>
 
+### 서비스 링크 : https://byul.shop
+
 ### 팀원
 
 <table>
@@ -34,7 +36,6 @@
     </td>
     <td align="center"><a href="https://github.com/yeynii">최예윤</a>
   </tr>
-  <tr>
 </table>
 
 ### 개발 환경 세팅
