@@ -6,4 +6,4 @@ const XIcon = () => {
   );
 };
 
-export default XMark;
+export default XIcon;
