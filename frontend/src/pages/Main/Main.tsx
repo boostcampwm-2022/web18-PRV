@@ -1,9 +1,7 @@
+import { Footer, Search } from '@/components';
+import { ErrorBoundary, RankingErrorFallback } from '@/error';
+import { LogoIcon } from '@/icons';
 import styled from 'styled-components';
-import Footer from '../../components/Footer';
-import Search from '../../components/search/Search';
-import ErrorBoundary from '../../error/ErrorBoundary';
-import RankingErrorFallback from '../../error/RankingErrorFallback';
-import LogoIcon from '../../icons/LogoIcon';
 import KeywordRanking from './components/KeywordRanking';
 import StarLayer from './components/StarLayer';
 

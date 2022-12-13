@@ -1,7 +1,7 @@
+import { IPaperDetail } from '@/api/api';
+import { Ellipsis } from '@/style/styleUtils';
+import { removeTag, sliceTitle } from '@/utils/format';
 import styled from 'styled-components';
-import { IPaperDetail } from '../../../api/api';
-import { Ellipsis } from '../../../style/styleUtils';
-import { removeTag, sliceTitle } from '../../../utils/format';
 
 interface IProps {
   data: IPaperDetail;
@@ -109,6 +109,7 @@ const InfoItem = styled.div`
 
 const InfoAuthor = styled(Ellipsis)`
   ${({ theme }) => theme.TYPO.body2};
+  -webkit-line-clamp: 3;
 `;
 
 const DivideLine = styled.hr`

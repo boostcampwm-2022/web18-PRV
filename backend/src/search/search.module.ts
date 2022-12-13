@@ -7,24 +7,25 @@ import { HttpConnection } from '@elastic/elasticsearch';
 import { ScheduleModule } from '@nestjs/schedule';
 import { RankingService } from 'src/ranking/ranking.service';
 import { BatchService } from 'src/batch/batch.service';
+import { MAIL_TO, ELASTIC_HOST, ELASTIC_USER, ELASTIC_PASSWORD } from 'src/envLayer';
 @Module({
   imports: [
     HttpModule.register({
       timeout: 1000 * 60,
       headers: {
-        'User-Agent': `Axios/1.1.3(mailto:${process.env.MAIL_TO})`,
+        'User-Agent': `Axios/1.1.3(mailto:${MAIL_TO})`,
       },
     }),
     ElasticsearchModule.registerAsync({
       useFactory: () => ({
-        node: process.env.ELASTIC_HOST,
+        node: ELASTIC_HOST,
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/json',
         },
         auth: {
-          username: process.env.ELASTIC_USER,
-          password: process.env.ELASTIC_PASSWORD,
+          username: ELASTIC_USER,
+          password: ELASTIC_PASSWORD,
         },
         Connection: HttpConnection,
       }),

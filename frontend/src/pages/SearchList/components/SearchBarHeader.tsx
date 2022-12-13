@@ -1,8 +1,8 @@
+import { Search } from '@/components';
+import { PATH_MAIN } from '@/constants/path';
+import { LogoIcon } from '@/icons';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import Search from '../../../components/search/Search';
-import { PATH_MAIN } from '../../../constants/path';
-import LogoIcon from '../../../icons/LogoIcon';
 
 interface SearchBarHeaderProps {
   keyword: string;

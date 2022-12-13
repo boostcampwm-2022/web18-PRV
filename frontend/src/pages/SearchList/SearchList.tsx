@@ -1,10 +1,9 @@
+import { IGetSearch } from '@/api/api';
+import { Footer, LoaderWrapper } from '@/components';
+import theme from '@/style/theme';
 import { Suspense, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
-import { IGetSearch } from '../../api/api';
-import Footer from '../../components/Footer';
-import LoaderWrapper from '../../components/loader/LoaderWrapper';
-import theme from '../../style/theme';
 import SearchBarHeader from './components/SearchBarHeader';
 import SearchResults from './components/SearchResults';
 
