@@ -5,3 +5,4 @@ export { default as GithubLogoIcon } from './GithubLogoIcon';
 export { default as LogoIcon } from './LogoIcon';
 export { default as MagnifyingGlassIcon } from './MagnifyingGlassIcon';
 export { default as PreviousButtonIcon } from './PreviousButtonIcon';
+export { default as XIcon } from './XIcon';

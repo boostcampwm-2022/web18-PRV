@@ -3,12 +3,13 @@ import styled from 'styled-components';
 interface IProps {
   icon: JSX.Element;
   onClick?: React.MouseEventHandler;
+  onMouseDown?: React.MouseEventHandler;
   'aria-label': string;
 }
 
-const IconButton = ({ icon, onClick, ...rest }: IProps) => {
+const IconButton = ({ icon, ...rest }: IProps) => {
   return (
-    <Button type="button" onClick={onClick} {...rest}>
+    <Button type="button" {...rest}>
       {icon}
     </Button>
   );

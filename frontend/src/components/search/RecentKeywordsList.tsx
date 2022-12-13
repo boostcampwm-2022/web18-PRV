@@ -1,4 +1,6 @@
-import { ClockIcon } from '@/icons';
+import { IconButton } from '@/components';
+import { ClockIcon, XIcon } from '@/icons';
+import { setLocalStorage } from '@/utils/storage';
 import { isEmpty } from 'lodash-es';
 import { Dispatch, SetStateAction, useEffect } from 'react';
 import styled from 'styled-components';
@@ -8,6 +10,7 @@ interface RecentKeywordsListProps {
   hoverdIndex: number;
   handleMouseDown: (prop: string) => void;
   setHoveredIndex: Dispatch<SetStateAction<number>>;
+  initializeRecentKeywords: () => void;
 }
 
 const RecentKeywordsList = ({
@@ -15,7 +18,15 @@ const RecentKeywordsList = ({
   hoverdIndex,
   handleMouseDown,
   setHoveredIndex,
+  initializeRecentKeywords,
 }: RecentKeywordsListProps) => {
+  const handleRecentKeywordRemove = (e: React.MouseEvent, keyword: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setLocalStorage('recentKeywords', Array.from([...recentKeywords.filter((v) => v !== keyword)]));
+    initializeRecentKeywords();
+  };
+
   useEffect(() => {
     setHoveredIndex(-1);
   }, [setHoveredIndex]);
@@ -32,6 +43,11 @@ const RecentKeywordsList = ({
           >
             <ClockIcon />
             {keyword}
+            <DeleteButton
+              icon={<XIcon />}
+              onMouseDown={(e) => handleRecentKeywordRemove(e, keyword)}
+              aria-label="삭제"
+            />
           </Keyword>
         ))
       ) : (
@@ -59,6 +75,19 @@ const NoResult = styled.div`
   padding-top: 25px;
   text-align: center;
   overflow: hidden;
+`;
+
+const DeleteButton = styled(IconButton)`
+  margin-left: auto;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  :hover {
+    background-color: ${({ theme }) => theme.COLOR.offWhite};
+    border-radius: 50%;
+  }
 `;
 
 export default RecentKeywordsList;
