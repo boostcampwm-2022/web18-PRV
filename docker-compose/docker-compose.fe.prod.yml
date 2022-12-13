@@ -2,8 +2,6 @@ version: "3"
 
 services:
   client:
-    env_file:
-      - ${ENV_FILE_FE}
     image: ${NCP_CONTAINER_REGISTRY}/prv-frontend
     ports:
       - 80:80

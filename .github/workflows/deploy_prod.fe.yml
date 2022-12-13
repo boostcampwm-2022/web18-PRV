@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - "frontend/**"
+      - 'frontend/**'
 
 jobs:
   push_to_registry_fe:
@@ -49,6 +49,6 @@ jobs:
           password: ${{ secrets.PRODUCTION_FE_PASSWORD }}
           port: ${{ secrets.PRODUCTION_FE_PORT }}
           script: |
-            docker compose --env-file ${{ secrets.ENV_FILENAME_FRONTEND }} pull
-            docker compose --env-file ${{ secrets.ENV_FILENAME_FRONTEND }} up -d
+            docker-compose --env-file ${{ secrets.ENV_FILENAME_FRONTEND }} -f docker-compose.fe.prod.yml pull
+            docker-compose --env-file ${{ secrets.ENV_FILENAME_FRONTEND }} -f docker-compose.fe.prod.yml up -d
             docker image prune -f
