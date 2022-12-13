@@ -9,7 +9,7 @@ interface FooterProps {
 const Footer = ({ bgColor, contentColor }: FooterProps) => {
   return (
     <Container bgColor={bgColor} contentColor={contentColor}>
-      <span>문의사항, 버그제보: vp.prv@gmail.com</span>
+      <span>문의사항, 버그제보: viewpoint.prv@gmail.com</span>
       <FooterRight>
         <DataLink
           href="https://insidious-abacus-0a9.notion.site/PRV-eb42bf64ddc5435a8f0f939329e0429c"
