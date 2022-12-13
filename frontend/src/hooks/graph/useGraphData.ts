@@ -49,7 +49,7 @@ export default function useGraphData<T>(data: IPaperDetail) {
       target: reference.key.toLowerCase(),
     }));
     setLinks((prev) => [...prev, ...newLinks]);
-  }, [data]);
+  }, [data, links]);
 
   return { nodes: nodes.current, links } as T;
 }
