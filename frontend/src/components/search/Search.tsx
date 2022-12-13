@@ -8,7 +8,7 @@ import MaginifyingGlassIcon from '../../icons/MagnifyingGlassIcon';
 import { useAutoCompleteQuery } from '../../queries/queries';
 import { createDetailQuery } from '../../utils/createQueryString';
 import { getDoiKey, isDoiFormat } from '../../utils/format';
-import { getLocalStorage, setLocalStorage } from '../../utils/localStorage';
+import { getLocalStorage, setLocalStorage } from '../../utils/storage';
 import IconButton from '../IconButton';
 import MoonLoader from '../loader/MoonLoader';
 import AutoCompletedList from './AutoCompletedList';

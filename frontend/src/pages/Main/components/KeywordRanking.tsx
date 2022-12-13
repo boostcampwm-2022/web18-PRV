@@ -99,6 +99,8 @@ const HeaderDivideLine = styled.hr`
 
 const DivideLine = styled.hr`
   width: 100%;
+  border: 1px solid ${({ theme }) => theme.COLOR.offWhite};
+  fill: ${({ theme }) => theme.COLOR.offWhite};
   margin-bottom: 10px;
 `;
 
