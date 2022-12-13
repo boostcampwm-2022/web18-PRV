@@ -12,8 +12,4 @@ export class RankingController {
   async getTen() {
     return await this.rankingService.getTen();
   }
-  @Get('/insert')
-  async insertCache(@Query('keyword') searchStr: string) {
-    return this.rankingService.insertRedis(searchStr);
-  }
 }
