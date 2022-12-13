@@ -3,7 +3,7 @@ import { Emphasize } from '@/style/styleUtils';
 const MAX_TITLE_LENGTH = 150;
 
 export const removeTag = (text: string) => {
-  return text.replace(/<[^>]*>?/g, ' ');
+  return text?.replace(/<[^>]*>?/g, ' ') || '';
 };
 
 export const highlightKeyword = (text: string, keyword: string) => {
