@@ -41,7 +41,7 @@ const ReferenceGraph = ({ data, addChildrensNodes, hoveredNode, changeHoveredNod
   useGraphEmphasize(nodeRef.current, linkRef.current, nodes, links, hoveredNode, data.key);
 
   useEffect(() => {
-    if (links.length <= 0 || !svgRef.current) return;
+    if (!svgRef.current) return;
 
     if (workerRef.current !== null) {
       workerRef.current.terminate();
@@ -57,10 +57,9 @@ const ReferenceGraph = ({ data, addChildrensNodes, hoveredNode, changeHoveredNod
       centerY: svgRef.current?.clientHeight / 2,
     });
 
-    // 계산된 좌표를 포함한 nodes, links 수신
     workerRef.current.onmessage = (event) => {
       const { newNodes, newLinks } = event.data as { newNodes: Node[]; newLinks: Link[] };
-      if (!newLinks || newLinks.length <= 0) return;
+      if (!newLinks) return;
       drawLink(newLinks);
       drawNode(newNodes);
     };
