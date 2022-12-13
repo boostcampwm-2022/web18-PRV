@@ -1,9 +1,10 @@
 import { IPaperDetail } from '@/api/api';
+import { Link, Node } from '@/pages/PaperDetail/components/ReferenceGraph';
 import { useEffect, useRef, useState } from 'react';
 
-export default function useGraphData<T>(data: IPaperDetail) {
-  const [links, setLinks] = useState<any[]>([]);
-  const nodes = useRef<any[]>([]);
+export default function useGraphData(data: IPaperDetail) {
+  const [links, setLinks] = useState<Link[]>([]);
+  const nodes = useRef<Node[]>([]);
   const doiMap = useRef<Map<string, number>>(new Map());
 
   useEffect(() => {
@@ -27,7 +28,7 @@ export default function useGraphData<T>(data: IPaperDetail) {
         citations: v.citations,
         publishedYear: v.publishedAt && new Date(v.publishedAt).getFullYear(),
       })),
-    ];
+    ] as Node[];
 
     newNodes.forEach((node) => {
       const foundIndex = doiMap.current.get(node.key);
@@ -49,7 +50,7 @@ export default function useGraphData<T>(data: IPaperDetail) {
       target: reference.key.toLowerCase(),
     }));
     setLinks((prev) => [...prev, ...newLinks]);
-  }, [data]);
+  }, [data, links]);
 
-  return { nodes: nodes.current, links } as T;
+  return { nodes: nodes.current, links };
 }

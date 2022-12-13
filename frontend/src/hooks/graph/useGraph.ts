@@ -1,17 +1,33 @@
+import { Link, Node } from '@/pages/PaperDetail/components/ReferenceGraph';
 import theme from '@/style/theme';
 import * as d3 from 'd3';
 import { useCallback } from 'react';
 
-const NORMAL_SYMBOL_SIZE = 20;
-const STAR_SYMBOL_SIZE = 100;
-
-export default function useNodeUpdate(
-  nodes: any[],
-  changeHoveredNode: (key: string) => void,
+const useGraph = (
+  nodeSelector: SVGGElement | null,
+  linkSelector: SVGGElement | null,
   addChildrensNodes: (doi: string) => void,
-) {
-  return useCallback(
-    (nodesSelector: SVGGElement) => {
+  changeHoveredNode: (doi: string) => void,
+) => {
+  const drawLink = useCallback(
+    (links: Link[]) => {
+      d3.select(linkSelector)
+        .selectAll('line')
+        .data(links)
+        .join('line')
+        .attr('x1', (d) => (d.source as Node).x || null)
+        .attr('y1', (d) => (d.source as Node).y || null)
+        .attr('x2', (d) => (d.target as Node).x || null)
+        .attr('y2', (d) => (d.target as Node).y || null);
+    },
+    [linkSelector],
+  );
+
+  const drawNode = useCallback(
+    (nodes: Node[]) => {
+      const NORMAL_SYMBOL_SIZE = 20;
+      const STAR_SYMBOL_SIZE = 100;
+
       const normalSymbol = d3.symbol().type(d3.symbolSquare).size(NORMAL_SYMBOL_SIZE)();
       const starSymbol = d3.symbol().type(d3.symbolStar).size(STAR_SYMBOL_SIZE)();
 
@@ -20,7 +36,7 @@ export default function useNodeUpdate(
         return d3.scaleLinear([0, 4], ['white', theme.COLOR.secondary2]).interpolate(d3.interpolateRgb)(loged);
       };
 
-      d3.select(nodesSelector)
+      d3.select(nodeSelector)
         .selectAll('path')
         .data(nodes)
         .join('path')
@@ -32,18 +48,22 @@ export default function useNodeUpdate(
         .on('mouseout', () => changeHoveredNode(''))
         .on('click', (_, d) => d.doi && addChildrensNodes(d.doi));
 
-      d3.select(nodesSelector)
+      d3.select(nodeSelector)
         .selectAll('text')
         .data(nodes)
         .join('text')
         .text((d) => `${d.author} ${d.publishedYear ? `(${d.publishedYear})` : ''}`)
-        .attr('x', (d) => d.x)
-        .attr('y', (d) => d.y + 10)
+        .attr('x', (d) => d.x || null)
+        .attr('y', (d) => (d.y ? d.y + 10 : null))
         .attr('dy', 5)
         .on('mouseover', (_, d) => d.doi && changeHoveredNode(d.key))
         .on('mouseout', () => changeHoveredNode(''))
         .on('click', (_, d) => d.doi && addChildrensNodes(d.doi));
     },
-    [nodes, addChildrensNodes, changeHoveredNode],
+    [nodeSelector, addChildrensNodes, changeHoveredNode],
   );
-}
+
+  return { drawLink, drawNode };
+};
+
+export default useGraph;
