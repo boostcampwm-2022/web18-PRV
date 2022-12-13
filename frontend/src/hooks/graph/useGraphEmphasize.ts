@@ -28,8 +28,6 @@ export default function useGraphEmphasize(
   );
 
   useEffect(() => {
-    // console.log('hoverdNode', hoveredNode);
-    // console.log('links', links);
     if (nodeSelector === null) return;
 
     // hover된 노드 강조
