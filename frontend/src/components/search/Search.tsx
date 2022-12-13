@@ -141,10 +141,10 @@ const Search = ({ initialKeyword = '' }: SearchProps) => {
 
     switch (e.code) {
       case 'ArrowDown':
-        setHoveredIndex((prev) => (prev + 1) % length);
+        setHoveredIndex((prev) => (prev + 1 > length - 1 ? -1 : prev + 1));
         break;
       case 'ArrowUp':
-        setHoveredIndex((prev) => (prev - 1 < 0 ? length - 1 : (prev - 1) % length));
+        setHoveredIndex((prev) => (prev - 1 < -1 ? length - 1 : prev - 1));
         break;
       case 'Enter':
         handleEnterKeyDown();
