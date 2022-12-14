@@ -12,7 +12,7 @@
 
 </div>
 
-### 서비스 링크 : https://byul.shop
+### 서비스 링크 : https://paperef.com
 
 ### 팀원
 
@@ -80,6 +80,7 @@ ELASTIC_USER=
 ELASTIC_PASSWORD=
 ALLOW_UPDATE=
 MAIL_TO=
+SHOULD_RUN_BATCH=
 ```
 
 ## 기술스택
