@@ -7,7 +7,7 @@ import { useAutoCompleteQuery } from '@/queries/queries';
 import { createDetailQuery } from '@/utils/createQueryString';
 import { getDoiKey, isDoiFormat } from '@/utils/format';
 import { getLocalStorage, setLocalStorage } from '@/utils/storage';
-import { ChangeEvent, KeyboardEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { ChangeEvent, FormEvent, KeyboardEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createSearchParams, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import AutoCompletedList from './AutoCompletedList';
@@ -83,7 +83,6 @@ const Search = ({ initialKeyword = '' }: SearchProps) => {
     setKeyword(target.value);
   };
 
-  // localStorage에서 가져온 recent keywords를 최근에 검색한 순서대로 set
   const handleInputFocus = () => {
     setIsFocused(true);
   };
@@ -98,7 +97,7 @@ const Search = ({ initialKeyword = '' }: SearchProps) => {
   }, []);
 
   // localStorage에 최근 검색어를 중복없이 최대 5개까지 저장 후 search-list로 이동
-  const handleSearchButtonClick = async (newKeyword: string) => {
+  const onKeywordSearch = async (newKeyword: string) => {
     if (!newKeyword) return;
     setKeyword(newKeyword);
     setLocalStorage(
@@ -114,12 +113,14 @@ const Search = ({ initialKeyword = '' }: SearchProps) => {
     goToSearchList(newKeyword);
   };
 
-  const handleEnterKeyDown = () => {
+  const handleSubmit = (e: FormEvent) => {
+    e.preventDefault();
     if (!inputRef.current) return;
-    inputRef?.current?.blur();
+    inputRef.current.blur();
+
     // hover된 항목이 없는경우
     if (hoverdIndex < 0) {
-      handleSearchButtonClick(keyword);
+      onKeywordSearch(keyword);
       return;
     }
     // hover된 항목으로 검색
@@ -128,12 +129,12 @@ const Search = ({ initialKeyword = '' }: SearchProps) => {
         autoCompletedItems && goToDetailPage(autoCompletedItems?.[hoverdIndex].doi);
         break;
       case DROPDOWN_TYPE.RECENT_KEYWORDS:
-        handleSearchButtonClick(recentKeywords[hoverdIndex]);
+        onKeywordSearch(recentKeywords[hoverdIndex]);
         break;
     }
   };
 
-  // 방향키, enter키 입력 이벤트 핸들러
+  // 방향키 입력 이벤트 핸들러
   const handleInputKeyDown = (e: KeyboardEvent) => {
     const length = dropdownType === DROPDOWN_TYPE.AUTO_COMPLETE ? autoCompletedItems?.length : recentKeywords.length;
 
@@ -145,9 +146,6 @@ const Search = ({ initialKeyword = '' }: SearchProps) => {
         break;
       case 'ArrowUp':
         setHoveredIndex((prev) => (prev - 1 < -1 ? length - 1 : prev - 1));
-        break;
-      case 'Enter':
-        handleEnterKeyDown();
         break;
     }
   };
@@ -167,7 +165,7 @@ const Search = ({ initialKeyword = '' }: SearchProps) => {
         <RecentKeywordsList
           recentKeywords={recentKeywords}
           hoverdIndex={hoverdIndex}
-          handleMouseDown={handleSearchButtonClick}
+          handleMouseDown={onKeywordSearch}
           setHoveredIndex={setHoveredIndex}
           initializeRecentKeywords={initializeRecentKeywords}
         />
@@ -188,7 +186,7 @@ const Search = ({ initialKeyword = '' }: SearchProps) => {
   return (
     <Container>
       <SearchBox>
-        <SearchBar>
+        <SearchBar onSubmit={handleSubmit}>
           <SearchInput
             ref={inputRef}
             placeholder="저자, 제목, 키워드, DOI"
@@ -198,11 +196,7 @@ const Search = ({ initialKeyword = '' }: SearchProps) => {
             onBlur={handleInputBlur}
             onKeyDown={handleInputKeyDown}
           />
-          <IconButton
-            icon={<MagnifyingGlassIcon />}
-            onClick={() => handleSearchButtonClick(keyword)}
-            aria-label="검색"
-          />
+          <IconButton icon={<MagnifyingGlassIcon />} aria-label="검색" type="submit" />
         </SearchBar>
         <DropdownContainer>{renderDropdownContent(dropdownType)}</DropdownContainer>
       </SearchBox>
@@ -233,7 +227,7 @@ const SearchBox = styled.div`
   box-shadow: 0px 4px 11px -1px rgba(0, 0, 0, 0.15);
 `;
 
-const SearchBar = styled.div`
+const SearchBar = styled.form`
   width: 100%;
   height: 50px;
   min-height: 50px;

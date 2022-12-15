@@ -4,12 +4,13 @@ interface IProps {
   icon: JSX.Element;
   onClick?: React.MouseEventHandler;
   onMouseDown?: React.MouseEventHandler;
+  type?: 'button' | 'submit' | 'reset' | undefined;
   'aria-label': string;
 }
 
-const IconButton = ({ icon, ...rest }: IProps) => {
+const IconButton = ({ icon, type = 'button', ...rest }: IProps) => {
   return (
-    <Button type="button" {...rest}>
+    <Button type={type} {...rest}>
       {icon}
     </Button>
   );
