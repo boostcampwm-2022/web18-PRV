@@ -1,6 +1,6 @@
 import { IPaperDetail } from '@/api/api';
-import { useGraphData, useGraphEmphasize, useGraphZoom, useLinkUpdate, useNodeUpdate } from '@/hooks';
-import * as d3 from 'd3';
+import { useGraph, useGraphData, useGraphEmphasize, useGraphZoom } from '@/hooks';
+import { SimulationNodeDatum } from 'd3';
 import { useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import InfoTooltip from './InfoTooltip';
@@ -12,43 +12,58 @@ interface ReferenceGraphProps {
   changeHoveredNode: (key: string) => void;
 }
 
-// Todo : any 걷어내기, 구조 리팩터링하기, 프론트 테스트
+export interface Node extends SimulationNodeDatum {
+  [key: string]: string | boolean | number | null | undefined;
+  title?: string;
+  author?: string;
+  isSelected: boolean;
+  key: string;
+  doi?: string;
+  citations?: number;
+  publishedYear?: number;
+}
+
+export interface Link {
+  source: Node | string;
+  target: Node | string;
+}
+
 const ReferenceGraph = ({ data, addChildrensNodes, hoveredNode, changeHoveredNode }: ReferenceGraphProps) => {
   const svgRef = useRef<SVGSVGElement | null>(null);
   const linkRef = useRef<SVGGElement | null>(null);
   const nodeRef = useRef<SVGGElement | null>(null);
+  const workerRef = useRef<Worker | null>(null);
 
-  const { nodes, links } = useGraphData<{ nodes: any[]; links: any[] }>(data);
-
-  const updateLinks = useLinkUpdate(links);
-  const updateNodes = useNodeUpdate(nodes, changeHoveredNode, addChildrensNodes);
+  const { nodes, links } = useGraphData(data);
+  const { drawLink, drawNode } = useGraph(nodeRef.current, linkRef.current, addChildrensNodes, changeHoveredNode);
 
   useGraphZoom(svgRef.current);
   useGraphEmphasize(nodeRef.current, linkRef.current, nodes, links, hoveredNode, data.key);
 
   useEffect(() => {
-    const ticked = (linksSelector: SVGGElement, nodesSelector: SVGGElement) => {
-      updateLinks(linksSelector);
-      updateNodes(nodesSelector);
-    };
+    if (!svgRef.current) return;
 
-    const simulation = d3
-      .forceSimulation(nodes)
-      .force('charge', d3.forceManyBody().strength(-200).distanceMax(200))
-      .force(
-        'center',
-        svgRef?.current && d3.forceCenter(svgRef.current.clientWidth / 2, svgRef.current.clientHeight / 2),
-      )
-      .force(
-        'link',
-        d3.forceLink(links).id((d: any) => d.key),
-      )
-      .on('tick', () => linkRef.current && nodeRef.current && ticked(linkRef.current, nodeRef.current));
+    if (workerRef.current !== null) {
+      workerRef.current.terminate();
+    }
 
-    return () => {
-      simulation.stop();
+    workerRef.current = new Worker(new URL('../workers/forceSimulation.worker.ts', import.meta.url));
+
+    // 서브스레드로 nodes, links, 중앙좌표 전송
+    workerRef.current.postMessage({
+      nodes,
+      links,
+      centerX: svgRef.current?.clientWidth / 2,
+      centerY: svgRef.current?.clientHeight / 2,
+    });
+
+    workerRef.current.onmessage = (event) => {
+      const { newNodes, newLinks } = event.data as { newNodes: Node[]; newLinks: Link[] };
+      if (!newLinks) return;
+      drawLink(newLinks);
+      drawNode(newNodes);
     };
-  }, [nodes, links, updateLinks, updateNodes]);
+  }, [nodes, links, drawLink, drawNode]);
 
   return (
     <Container>

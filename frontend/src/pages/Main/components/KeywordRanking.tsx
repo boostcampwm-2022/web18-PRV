@@ -1,6 +1,7 @@
 import { IconButton } from '@/components';
 import { DropdownIcon, DropdownReverseIcon } from '@/icons';
 import { useKeywordRankingQuery } from '@/queries/queries';
+import { Ellipsis } from '@/style/styleUtils';
 import { createSearchQuery } from '@/utils/createQueryString';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -19,7 +20,7 @@ const KeywordRanking = () => {
     <RankingContainer>
       <RankingBar>
         <HeaderContainer>
-          <span>인기 검색어</span>
+          <Title>인기 검색어</Title>
           <HeaderDivideLine />
           <RankingContent onClick={handleRankingClick}>
             {!isLoading && rankingData?.length ? <RankingSlide rankingData={rankingData} /> : '데이터가 없습니다.'}
@@ -71,29 +72,30 @@ const RankingBar = styled.div`
   z-index: 10;
 `;
 
-const RankingContent = styled.div`
-  display: flex;
-  flex-grow: 1;
-  align-items: center;
-  margin: 0 10px;
-  height: 25px;
-  cursor: pointer;
-`;
-
 const HeaderContainer = styled.div`
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  position: relative;
-  height: 23px;
   width: 100%;
+  height: 23px;
   ${({ theme }) => theme.TYPO.body_h}
+`;
+
+const Title = styled.span`
+  width: 100px;
 `;
 
 const HeaderDivideLine = styled.hr`
   width: 1px;
   height: 16px;
-  margin: 0 10px 0 38px;
+`;
+
+const RankingContent = styled.div`
+  display: flex;
+  align-items: center;
+  margin: 0 10px;
+  width: 320px;
+  height: 25px;
+  cursor: pointer;
 `;
 
 const DivideLine = styled.hr`
@@ -110,24 +112,27 @@ const RankingKeywordContainer = styled.ul`
   margin-bottom: 10px;
 `;
 
-const KeywordContainer = styled.li`
-  display: flex;
-  gap: 15px;
-  cursor: pointer;
-  :hover {
-    span:last-of-type {
-      ${({ theme }) => theme.TYPO.body_h};
-      text-decoration: underline;
-    }
-  }
-`;
-
 const KeywordIndex = styled.span`
   width: 20px;
 `;
 
-const Keyword = styled.span`
+const Keyword = styled(Ellipsis)`
   ${({ theme }) => theme.TYPO.body1};
+  display: block;
+  width: 100%;
+`;
+
+const KeywordContainer = styled.li`
+  display: flex;
+  width: 100%;
+  gap: 15px;
+  cursor: pointer;
+  :hover {
+    ${Keyword} {
+      ${({ theme }) => theme.TYPO.body_h};
+      text-decoration: underline;
+    }
+  }
 `;
 
 const Dimmer = styled.div`

@@ -8,14 +8,11 @@
 
 ![Javascript](https://img.shields.io/badge/javascript-ES6+-yellow?logo=javascript)
 ![NodeJS](https://img.shields.io/badge/node.js-v18-green?logo=node.js)
+![데모](https://user-images.githubusercontent.com/25934842/207359316-f7056911-d26a-4671-bc3c-2a80e46f24b8.gif)
 
 </div>
 
-### 서비스 배포
-
-- Dev 서버 : http://49.50.172.204:3000/
-
-- Production 서버 : http://101.101.217.49:3000/
+### 서비스 링크 : https://paperef.com
 
 ### 팀원
 
@@ -39,7 +36,6 @@
     </td>
     <td align="center"><a href="https://github.com/yeynii">최예윤</a>
   </tr>
-  <tr>
 </table>
 
 ### 개발 환경 세팅
@@ -84,6 +80,7 @@ ELASTIC_USER=
 ELASTIC_PASSWORD=
 ALLOW_UPDATE=
 MAIL_TO=
+SHOULD_RUN_BATCH=
 ```
 
 ## 기술스택
@@ -100,7 +97,7 @@ MAIL_TO=
   - 키워드 자동완성 검색 서비스 제공
   - 키워드 검색 서비스 제공
   - 논문 DOI를 통한 인용관계 시각화 서비스 제공
-- 사용자는 키워드 검색시 PRV 데이터베이스에 있는 정보만 조회할 수 있으며, 데이터베이스에 없는 논문에 대한 데이터 수집은 Request batch에 의해 처리되므로 검색 결과를 즉시 받아보지 못할 수 있습니다.
+- 사용자는 키워드 검색시 PRV 데이터베이스에 있는 정보 혹은 Crossref API를 통해 요청한 정보를 조회할 수 있으며, 데이터베이스에 없는 논문에 대한 데이터 수집은 Request batch에 의해 처리되므로 검색 결과를 즉시 받아보지 못할 수 있습니다.
 - Request batch에 의해 수집된 결과는 데이터베이스에 저장됩니다.
 - 추가 문의사항은 viewpoint.prv@gmail.com 로 연락바랍니다.
 
