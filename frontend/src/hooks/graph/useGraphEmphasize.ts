@@ -6,7 +6,7 @@ import { useTheme } from 'styled-components';
 const styles = {
   EMPHASIZE_OPACITY: '1',
   BASIC_OPACITY: '0.5',
-  EMPHASIZE_STROKE_WIDTH: '0.8px',
+  EMPHASIZE_STROKE_WIDTH: '1.5px',
   BASIC_STROKE_WIDTH: '0.5px',
   EMPHASIZE_STROKE_DASH: 'none',
   BASIC_STROKE_DASH: '1',
@@ -48,15 +48,17 @@ export default function useGraphEmphasize(
           .includes(d.key);
       })
       .style('fill-opacity', styles.EMPHASIZE_OPACITY);
-  }, [hoveredNode, links, nodeSelector, nodes]);
+  }, [hoveredNode, links, nodeSelector, nodes, theme]);
 
   useEffect(() => {
+    if (nodeSelector === null) return;
+
     // click된 노드 강조
     d3.select(nodeSelector)
       .selectAll('text')
       .data(nodes)
       .filter((d) => d.key === selectedKey)
-      .style('fill', theme.COLOR.secondary1);
+      .style('fill', theme.COLOR.secondary2);
 
     // click된 노드의 자식 노드들 강조
     d3.select(nodeSelector)
@@ -69,7 +71,7 @@ export default function useGraphEmphasize(
           .includes(d.key);
         return result;
       })
-      .style('fill', theme.COLOR.secondary1);
+      .style('fill', theme.COLOR.secondary2);
 
     // click/hover된 노드의 링크 강조
     d3.select(linkSelector)

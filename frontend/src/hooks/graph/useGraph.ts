@@ -56,6 +56,7 @@ const useGraph = (
         .attr('x', (d) => d.x || null)
         .attr('y', (d) => (d.y ? d.y + 10 : null))
         .attr('dy', 5)
+        .style('font-weight', 700)
         .on('mouseover', (_, d) => d.doi && changeHoveredNode(d.key))
         .on('mouseout', () => changeHoveredNode(''))
         .on('click', (_, d) => d.doi && addChildrensNodes(d.doi));

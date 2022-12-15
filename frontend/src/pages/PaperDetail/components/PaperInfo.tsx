@@ -123,8 +123,20 @@ const References = styled.div`
   display: flex;
   flex-direction: column;
   gap: 20px;
-  overflow-y: scroll;
+  overflow-y: auto;
   overflow-x: hidden;
+  flex: 1;
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background-color: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background-color: ${({ theme }) => theme.COLOR.black};
+    border-radius: 4px;
+  }
+
   h3 {
     ${({ theme }) => theme.TYPO.body_h};
     padding: 0 15px;
