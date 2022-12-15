@@ -8,7 +8,6 @@ export const Ellipsis = styled.span`
   -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
   word-break: keep-all;
-  line-height: 1.1em;
 `;
 
 export const Emphasize = styled.span`

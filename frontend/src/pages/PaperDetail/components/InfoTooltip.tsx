@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import styled from 'styled-components';
-import IconButton from '@/components/IconButton';
-import InfoIcon from '@/icons/InfoIcon';
-import { getSessionStorage, setSessionStorage } from '@/utils/storage';
+import IconButton from '../../../components/IconButton';
+import InfoIcon from '../../../icons/InfoIcon';
+import { getSessionStorage, setSessionStorage } from '../../../utils/storage';
 
 interface InfoContainerProps {
   isOpened: boolean;
@@ -26,7 +26,7 @@ const InfoTooltip = () => {
   return (
     <Container>
       <IconButtonWrapper>
-        <IconButton icon={<InfoIcon color="#e4e4e4" />} onClick={handleInfoButtonClick} aria-label="정보" />
+        <IconButton icon={<InfoIcon />} onClick={handleInfoButtonClick} aria-label="정보" />
       </IconButtonWrapper>
       <InfoContainer isOpened={isOpened}>
         <Title>그래프 사용법</Title>

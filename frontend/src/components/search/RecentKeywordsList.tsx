@@ -1,6 +1,5 @@
 import { IconButton } from '@/components';
 import { ClockIcon, XIcon } from '@/icons';
-import { Ellipsis } from '@/style/styleUtils';
 import { setLocalStorage } from '@/utils/storage';
 import { isEmpty } from 'lodash-es';
 import { Dispatch, SetStateAction, useEffect } from 'react';
@@ -43,7 +42,7 @@ const RecentKeywordsList = ({
             onMouseDown={() => handleMouseDown(keyword)}
           >
             <ClockIcon />
-            <KeywordText>{keyword}</KeywordText>
+            {keyword}
             <DeleteButton
               icon={<XIcon />}
               onMouseDown={(e) => handleRecentKeywordRemove(e, keyword)}
@@ -70,11 +69,6 @@ const Keyword = styled.li<{ hovered: boolean }>`
   color: ${({ theme }) => theme.COLOR.black};
   cursor: pointer;
   background-color: ${({ theme, hovered }) => (hovered ? theme.COLOR.gray1 : 'auto')};
-`;
-
-const KeywordText = styled(Ellipsis)`
-  width: 100%;
-  display: block;
 `;
 
 const NoResult = styled.div`

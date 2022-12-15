@@ -23,5 +23,5 @@ it('Footer 렌더링 테스트', () => {
     );
   });
   const span = container?.querySelector('span');
-  expect(span?.textContent).toBe('문의사항, 버그제보: viewpoint.prv@gmail.com');
+  expect(span?.textContent).toBe('문의사항, 버그제보: vp.prv@gmail.com');
 });

@@ -1,5 +1,4 @@
 import { useInterval } from '@/hooks';
-import { Ellipsis } from '@/style/styleUtils';
 import { useState } from 'react';
 import styled from 'styled-components';
 
@@ -21,6 +20,7 @@ interface ISlideProps {
 const SLIDE_DELAY = 2500;
 const TRANSITION_TIME = 1500;
 const TRANSITION_SETTING = `transform linear ${TRANSITION_TIME}ms`;
+const MAX_KEYWORD_LENGTH = 20;
 
 const RankingSlide = ({ rankingData }: IRankingSlideProps) => {
   const [keywordIndex, setKeywordIndex] = useState(0);
@@ -53,8 +53,12 @@ const RankingSlide = ({ rankingData }: IRankingSlideProps) => {
       <Slide keywordIndex={keywordIndex} transition={transition} dataSize={dataSize}>
         {newRankingData.map((data, index) => (
           <SlideItem key={`${index}${data.keyword}`}>
-            <KeywordIndex>{index === dataSize - 1 ? 1 : index + 1}</KeywordIndex>
-            <Keyword>{data.keyword}</Keyword>
+            <span>{index === dataSize - 1 ? 1 : index + 1}</span>
+            <span>
+              {data.keyword.length > MAX_KEYWORD_LENGTH
+                ? `${data.keyword.slice(0, MAX_KEYWORD_LENGTH)}...`
+                : data.keyword}
+            </span>
           </SlideItem>
         ))}
       </Slide>
@@ -66,7 +70,6 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  width: 100%;
   height: 25px;
   overflow-y: hidden;
 `;
@@ -74,7 +77,6 @@ const Container = styled.div`
 const Slide = styled.ul<ISlideProps>`
   display: flex;
   flex-direction: column;
-  width: 100%;
   transition: ${(props) => props.transition};
   transform: ${(props) => `translateY(${(-100 / props.dataSize) * props.keywordIndex}%)`};
 `;
@@ -89,16 +91,6 @@ const SlideItem = styled.li`
   span:last-of-type {
     ${({ theme }) => theme.TYPO.body1}
   }
-`;
-
-const KeywordIndex = styled.span`
-  width: 20px;
-`;
-
-const Keyword = styled(Ellipsis)`
-  ${({ theme }) => theme.TYPO.body1};
-  display: block;
-  width: 100%;
 `;
 
 export default RankingSlide;
