@@ -96,32 +96,6 @@ npm start
 # 환경변수 주입 필요(예: npm run start:mac)
 ```
 
-### 환경변수
-
-#### Front-end
-
-```
-REACT_APP_BASE_URL=
-```
-
-#### Back-end
-
-```
-PORT=
-REDIS_POPULAR_KEY=
-REDIS_PREVRANKING=
-REDIS_HOST=
-REDIS_PORT=
-REDIS_PASSWORD=
-ELASTIC_INDEX=
-ELASTIC_HOST=
-ELASTIC_USER=
-ELASTIC_PASSWORD=
-ALLOW_UPDATE=
-MAIL_TO=
-SHOULD_RUN_BATCH=
-```
-
 ## 기술스택
 
 ![tech stack](https://s3.us-west-2.amazonaws.com/secure.notion-static.com/dc2980d2-2539-4ab8-918f-0a0536f73e70/Untitled.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIAT73L2G45EIPT3X45%2F20221208%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20221208T145054Z&X-Amz-Expires=86400&X-Amz-Signature=087c5926c151a00d818b63907e0c60e0c0add11db4da51117c287b2a51976d1d&X-Amz-SignedHeaders=host&response-content-disposition=filename%3D%22Untitled.png%22&x-id=GetObject)
