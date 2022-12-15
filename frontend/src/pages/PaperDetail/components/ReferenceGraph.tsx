@@ -41,7 +41,7 @@ const ReferenceGraph = ({ data, addChildrensNodes, hoveredNode, changeHoveredNod
   useGraphEmphasize(nodeRef.current, linkRef.current, nodes, links, hoveredNode, data.key);
 
   useEffect(() => {
-    if (!svgRef.current) return;
+    if (!svgRef.current || (nodes.length === 0 && links.length === 0)) return;
 
     if (workerRef.current !== null) {
       workerRef.current.terminate();
