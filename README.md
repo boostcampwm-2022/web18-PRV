@@ -79,6 +79,8 @@
 
 ### 개발 환경 세팅
 
+> 환경변수는 `/frontend`, `/backend` 폴더에 있는 `.env.sample` 파일을 참고해주시기 바랍니다.
+
 #### Front-end
 
 ```bash
@@ -93,7 +95,6 @@ npm start
 cd backend
 npm install
 npm start
-# 환경변수 주입 필요(예: npm run start:mac)
 ```
 
 ## 기술스택
