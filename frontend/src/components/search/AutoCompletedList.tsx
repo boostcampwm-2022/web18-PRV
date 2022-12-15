@@ -79,7 +79,6 @@ const AutoCompleted = styled.li<{ hovered: boolean }>`
 
 const Title = styled.div`
   ${({ theme }) => theme.TYPO.body1}
-  line-height: 1.1em;
 `;
 
 const Author = styled.div`

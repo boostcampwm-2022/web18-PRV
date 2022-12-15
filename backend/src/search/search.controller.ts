@@ -46,18 +46,6 @@ export class SearchController {
     const keywordHasSet = await this.batchService.setKeyword(keyword);
     if (keywordHasSet) this.batchService.searchBatcher.pushToQueue(0, 0, -1, true, keyword);
 
-    // Elasticsearch 검색 결과가 없을 경우, Crossref 검색
-    if (totalItems === 0) {
-      const { items: papers, totalItems } = await this.searchService.getPapersFromCrossref(keyword, rows, page);
-      return {
-        papers,
-        pageInfo: {
-          totalItems,
-          totalPages: Math.ceil(totalItems / rows),
-        },
-      };
-    }
-
     const papers = data.hits.hits.map((paper) => new PaperInfoExtended(paper._source));
     return {
       papers,
