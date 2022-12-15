@@ -101,6 +101,8 @@ const InfoItem = styled.div`
   }
   a {
     ${({ theme }) => theme.TYPO.body2};
+    word-wrap: break-word;
+    line-height: 1.1em;
     :hover {
       text-decoration: underline;
     }

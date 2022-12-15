@@ -16,6 +16,8 @@ const IconButton = ({ icon, ...rest }: IProps) => {
 };
 
 const Button = styled.button`
+  display: flex;
+  align-items: center;
   background-color: transparent;
   cursor: pointer;
 `;
