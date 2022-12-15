@@ -1,15 +1,16 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, RequestTimeoutException } from '@nestjs/common';
 import {
   CrossRefItem,
   PaperInfoExtended,
   PaperInfo,
   PaperInfoDetail,
   CrossRefPaperResponse,
+  CrossRefResponse,
 } from './entities/crossRef.entity';
 import { ElasticsearchService } from '@nestjs/elasticsearch';
 import { MgetOperation, SearchHit } from '@elastic/elasticsearch/lib/api/types';
 import { HttpService } from '@nestjs/axios';
-import { CROSSREF_API_PAPER_URL } from '../util';
+import { CROSSREF_API_PAPER_URL, CROSSREF_API_URL } from '../util';
 import { ELASTIC_INDEX } from 'src/envLayer';
 
 @Injectable()
@@ -75,6 +76,17 @@ export class SearchService {
 
     return new PaperInfoDetail(data);
   };
+  async getPapersFromCrossref(keyword: string, rows: number, page: number, selects?: string[]) {
+    const crossRefdata = await this.httpService.axiosRef
+      .get<CrossRefResponse>(CROSSREF_API_URL(keyword, rows, page, selects))
+      .catch((err) => {
+        throw new RequestTimeoutException(err.message);
+      });
+    const items = crossRefdata.data.message.items.map((item) => this.parsePaperInfoExtended(item));
+    const totalItems = crossRefdata.data.message['total-results'];
+    return { items, totalItems };
+  }
+
   async getPaperFromCrossref(doi: string) {
     try {
       const item = await this.httpService.axiosRef.get<CrossRefPaperResponse>(CROSSREF_API_PAPER_URL(doi));

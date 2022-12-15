@@ -49,6 +49,7 @@ const Container = styled.div`
 const Title = styled.div`
   color: ${({ theme }) => theme.COLOR.black};
   ${({ theme }) => theme.TYPO.title}
+  line-height: 1.1em;
   cursor: pointer;
   :hover {
     text-decoration: underline;
