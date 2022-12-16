@@ -68,7 +68,7 @@ const H1 = styled.h1`
 const IconButtonWrapper = styled.div`
   opacity: 0.5;
   cursor: pointer;
-  z-index: 10;
+  z-index: 2;
   :hover {
     opacity: 1;
   }
