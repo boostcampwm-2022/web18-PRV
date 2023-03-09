@@ -124,4 +124,6 @@ npm start
 - Crossref : Official digital object identifier Registration Agency of the International DOI Foundation.
 - 22.12.08. 기준 140,229,346개의 논문 메타데이터를 보유 중
 - License - Creative Commons Attribution 4.0 International (CC BY 4.0)
-  <p align="center"><img src="https://s3.us-west-2.amazonaws.com/secure.notion-static.com/af1b24dd-64a9-40ed-8df2-74e892d8facb/Untitled.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIAT73L2G45EIPT3X45%2F20221208%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20221208T145000Z&X-Amz-Expires=86400&X-Amz-Signature=880cd6deabf4352b27bcd08ed36576d882b0b312218184bee5ff207cd64f3c90&X-Amz-SignedHeaders=host&response-content-disposition=filename%3D%22Untitled.png%22&x-id=GetObject" width=100></img><p>
+  <p align="center">
+  <img src="https://user-images.githubusercontent.com/30085476/223893006-95a362a2-7e17-4826-aa6e-ecd561e47584.png" width=100></img
+  <p>
