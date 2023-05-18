@@ -12,7 +12,7 @@
 
 </div>
 
-### 서비스 링크 : https://paperef.com
+### 서비스 링크 : ~~https://paperef.com~~
 
 ### 기능 목록
 
